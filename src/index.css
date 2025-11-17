@@ -59,3 +59,38 @@ body {
 .metric-bar {
   transition: width 0.5s ease-out;
 }
+
+/* Fix: Prevent chat messages from growing infinitely wide */
+.message-bubble {
+  max-width: 100% !important;
+  width: 100% !important;
+  overflow-x: hidden;
+  word-wrap: break-word;
+}
+
+.message-bubble > div {
+  max-width: 70% !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Ensure chat container doesn't overflow */
+.flex.flex-col.h-full {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .message-bubble > div {
+    max-width: 85% !important;
+  }
+}
+
+/* Large screen constraint */
+@media (min-width: 1024px) {
+  .message-bubble > div {
+    max-width: 760px !important;
+  }
+}
