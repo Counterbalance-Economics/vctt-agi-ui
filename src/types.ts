@@ -19,6 +19,12 @@ export interface Session {
   title: string;
   created_at: Date;
   messages: Message[];
+  // Backend metadata (optional, populated when loaded from backend)
+  user_id?: string;
+  message_count?: number;
+  last_activity?: Date;
+  trust_tau?: number;
+  repair_count?: number;
 }
 
 export interface StepResponse {

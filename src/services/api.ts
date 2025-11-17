@@ -3,6 +3,47 @@ import type { StepResponse } from '../types';
 import { getApiUrl } from '../config/api';
 import { mockApi } from './mockApi';
 
+export interface SessionSummary {
+  session_id: string;
+  user_id: string;
+  created_at: string;
+  message_count: number;
+  last_activity: string;
+  trust_tau: number;
+  repair_count: number;
+}
+
+export interface TrustMetric {
+  session_id: string;
+  timestamp: string;
+  trust_tau: number;
+  contradiction: number;
+  regulation: string;
+}
+
+export interface AggregateAnalytics {
+  overview: {
+    total_sessions: number;
+    total_messages: number;
+    avg_messages_per_session: number;
+  };
+  trust_metrics: {
+    average_trust_tau: number;
+    min_trust: number;
+    max_trust: number;
+  };
+  repair_metrics: {
+    total_repairs: number;
+    avg_repairs_per_session: number;
+    max_repairs: number;
+  };
+  regulation: {
+    normal: number;
+    clarify: number;
+    slow_down: number;
+  };
+}
+
 class ApiService {
   private baseUrl: string | null;
 
@@ -79,6 +120,74 @@ class ApiService {
     } catch (error) {
       console.error('Network error, falling back to mock:', error);
       return mockApi.sendStep(sessionId, input);
+    }
+  }
+
+  async getAllSessions(userId?: string, limit: number = 50): Promise<SessionSummary[]> {
+    if (!this.baseUrl) return [];
+
+    try {
+      const params = new URLSearchParams();
+      if (userId) params.append('user_id', userId);
+      params.append('limit', limit.toString());
+
+      const response = await fetch(`${this.baseUrl}/analytics/sessions?${params}`);
+      if (!response.ok) return [];
+
+      const data = await response.json();
+      return data.sessions || [];
+    } catch (error) {
+      console.error('Error fetching sessions:', error);
+      return [];
+    }
+  }
+
+  async getTrustMetrics(userId?: string): Promise<TrustMetric[]> {
+    if (!this.baseUrl) return [];
+
+    try {
+      const params = new URLSearchParams();
+      if (userId) params.append('user_id', userId);
+
+      const response = await fetch(`${this.baseUrl}/analytics/trust-metrics?${params}`);
+      if (!response.ok) return [];
+
+      const data = await response.json();
+      return data.metrics || [];
+    } catch (error) {
+      console.error('Error fetching trust metrics:', error);
+      return [];
+    }
+  }
+
+  async getAggregateAnalytics(userId?: string): Promise<AggregateAnalytics | null> {
+    if (!this.baseUrl) return null;
+
+    try {
+      const params = new URLSearchParams();
+      if (userId) params.append('user_id', userId);
+
+      const response = await fetch(`${this.baseUrl}/analytics/aggregate?${params}`);
+      if (!response.ok) return null;
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching aggregate analytics:', error);
+      return null;
+    }
+  }
+
+  async getSessionHistory(sessionId: string): Promise<any> {
+    if (!this.baseUrl) return null;
+
+    try {
+      const response = await fetch(`${this.baseUrl}/analytics/sessions/${sessionId}/history`);
+      if (!response.ok) return null;
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching session history:', error);
+      return null;
     }
   }
 }

@@ -2,14 +2,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 import type { Session } from '../types';
+import TrustIndicator from './TrustIndicator';
 
 interface ChatPanelProps {
   session: Session | null;
   isLoading: boolean;
   onSendMessage: (content: string) => void;
+  trustScore?: number; // 0-100
 }
 
-export default function ChatPanel({ session, isLoading, onSendMessage }: ChatPanelProps) {
+export default function ChatPanel({ session, isLoading, onSendMessage, trustScore }: ChatPanelProps) {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -45,6 +47,16 @@ export default function ChatPanel({ session, isLoading, onSendMessage }: ChatPan
 
   return (
     <div className="flex flex-col h-full">
+      {/* Header with Trust Indicator */}
+      {trustScore !== undefined && (
+        <div className="border-b border-gray-700 p-4 bg-vctt-panel flex items-center justify-between">
+          <div className="text-sm text-gray-400">
+            Current Session
+          </div>
+          <TrustIndicator trustScore={trustScore} compact />
+        </div>
+      )}
+
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {!session || session.messages.length === 0 ? (

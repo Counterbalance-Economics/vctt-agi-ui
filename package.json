@@ -2,15 +2,19 @@
   "name": "vctt_agi_ui",
   "packageManager": "yarn@4.11.0",
   "dependencies": {
+    "@types/recharts": "^2.0.1",
     "lucide-react": "^0.553.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-is": "^19.2.0",
+    "recharts": "^3.4.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.17",
     "@tailwindcss/vite": "^4.1.17",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
+    "@types/react-is": "^19",
     "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.4.22",
     "postcss": "^8.5.6",
