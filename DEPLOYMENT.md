@@ -1,223 +1,266 @@
 
-# VCTT-AGI Chat UI - Deployment Guide
+# VCTT-AGI UI - Deployment Guide
 
-## ✅ Successfully Built!
-
-Your Grok-style chat interface is ready for deployment.
-
-## 🎨 Features Delivered
-
-### Three-Panel Layout
-- **Left Sidebar**: Session history with timestamps
-- **Center Chat**: Beautiful message bubbles (user=blue, AGI=gold)
-- **Right Sidebar**: Live VCTT state metrics with animated progress bars
-
-### VCTT Metrics Visualization
-- **Voice** (85%) - Logical coherence
-- **Choice** (72%) - Emotional balance
-- **Transparency** (91%) - Clarity of reasoning
-- **Trust τ** (88%) - Overall system confidence
-- **Regulation Mode** - Normal/Clarify/Slow Down indicator
-
-### Admin Mode (Password: `vctt2025`)
-- Agent execution logs
-- Repair loop counter (0-3 iterations)
-- Force regulation modes (Normal/Clarify/Slow Down)
-- Raw JSON inspector
-
-### Real-Time Features
-- Typing animations
-- Smooth message transitions
-- Auto-scrolling chat
-- Auto-resizing text input
-- Mock streaming responses
-
-## 🚀 Deployment Options
-
-### Option 1: Vercel (Recommended)
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy from project directory
-cd /home/ubuntu/vctt_agi_ui
-vercel
-
-# Follow prompts:
-# - Set project name: vctt-agi-chat
-# - Framework preset: Vite
-# - Build command: yarn build
-# - Output directory: dist
-```
-
-**Custom Domain:**
-```bash
-vercel --prod
-vercel alias set <deployment-url> chat.vctt-agi.com
-```
-
-### Option 2: Netlify
-
-```bash
-# Install Netlify CLI
-npm i -g netlify-cli
-
-# Deploy
-cd /home/ubuntu/vctt_agi_ui
-netlify deploy --prod
-
-# Build settings:
-# - Build command: yarn build
-# - Publish directory: dist
-```
-
-**Custom Domain:**
-In Netlify dashboard: Domain Settings → Add custom domain → chat.vctt-agi.com
-
-### Option 3: Manual Static Hosting
-
-```bash
-# Build production files
-yarn build
-
-# Deploy the 'dist' folder to any static host:
-# - AWS S3 + CloudFront
-# - GitHub Pages
-# - Cloudflare Pages
-# - Firebase Hosting
-```
-
-## 📱 Testing Locally
-
-### Development Server
-```bash
-cd /home/ubuntu/vctt_agi_ui
-yarn dev
-```
-Opens at: http://localhost:3000
-
-### Production Preview
-```bash
-yarn build
-yarn preview
-```
-Opens at: http://localhost:4173
-
-## 🔌 Connecting Real Backend
-
-When your NestJS backend is ready, update the API calls:
-
-### 1. Create Real API Service
-
-```typescript
-// src/services/realApi.ts
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-export const realApi = {
-  async startSession(userId: string, input: string): Promise<string> {
-    const res = await fetch(`${API_URL}/api/v1/session/start`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, input })
-    });
-    const data = await res.json();
-    return data.session_id;
-  },
-
-  async sendStep(sessionId: string, input: string): Promise<StepResponse> {
-    const res = await fetch(`${API_URL}/api/v1/session/step`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: sessionId, input })
-    });
-    return res.json();
-  }
-};
-```
-
-### 2. Update App.tsx
-
-```typescript
-// Change line 6:
-import { realApi as mockApi } from './services/realApi';
-```
-
-### 3. Set Environment Variable
-
-```bash
-# .env
-VITE_API_URL=https://api.vctt-agi.com
-```
-
-## 🧪 Testing the Mock UI
-
-### Test Conversation Flow
-1. Open http://localhost:3000
-2. Type: "Should we trust AI?"
-3. Watch typing indicator
-4. See mock response with updated VCTT state
-5. Click "New Chat" to start another session
-
-### Test Admin Mode
-1. Click lock icon in right sidebar
-2. Enter password: `vctt2025`
-3. Send a message
-4. Admin panel appears showing:
-   - Agent logs
-   - Repair count
-   - Force regulation buttons
-   - Raw JSON data
-
-### Test Multiple Sessions
-1. Start a conversation
-2. Click "New Chat"
-3. Start another conversation
-4. Click on previous session in left sidebar
-5. Verify messages persist
-
-## 📊 Mock Data Behavior
-
-The mock API simulates:
-- 1.5 second processing time
-- Random VCTT state values (realistic ranges)
-- Varied responses from agent pool
-- Occasional "clarify" regulation mode (10% chance)
-- Repair counts 0-2 (random)
-
-## ✨ What Peter Can Test NOW
-
-✅ **Full UI/UX** - No backend needed
-✅ **Three-panel layout** - Exactly like Grok
-✅ **Message flow** - User → AGI → State updates
-✅ **Admin mode** - Full debugging interface
-✅ **Session management** - Multiple conversations
-✅ **Responsive design** - Works on all screen sizes
-✅ **Dark theme** - Professional Grok-style aesthetics
-
-## 🔄 Next Steps (Phase 2)
-
-1. ✅ **Backend completes** (NestJS with real agents)
-2. 🔄 **Swap mockApi → realApi** (5 minute change)
-3. 🔄 **Add streaming** (Server-Sent Events for real-time)
-4. 🔄 **Deploy both** (Backend + Frontend)
-5. 🎉 **Go live** at chat.vctt-agi.com
-
-## 🎯 Success Criteria
-
-✅ Beautiful Grok-style interface
-✅ Three-panel layout working
-✅ VCTT state visualization
-✅ Admin mode with password
-✅ Mock backend responses
-✅ Real-time animations
-✅ Session management
-✅ Ready for production deployment
+**Version**: 2.0.0-phase2  
+**Status**: Ready for Production ✅
 
 ---
 
-**The UI is DONE and READY! 🚀**
+## 🚀 Quick Deploy to Vercel
 
-Peter can test the full experience right now while the backend builds.
+### Option 1: Via Vercel Dashboard
 
-When backend is live → 5 minute swap → Full working system.
+1. Go to https://vercel.com/dashboard
+2. Click "Add New" → "Project"
+3. Import your Git repository
+4. Configure:
+   - **Framework Preset**: Vite
+   - **Build Command**: `yarn build`
+   - **Output Directory**: `dist`
+   - **Install Command**: `yarn install`
+5. Add Environment Variable:
+   ```
+   VITE_API_URL=https://your-backend-url.com
+   ```
+6. Click "Deploy"
+
+### Option 2: Via Vercel CLI
+
+```bash
+# Install Vercel CLI (if not installed)
+npm install -g vercel
+
+# Login
+vercel login
+
+# Deploy
+cd /home/ubuntu/vctt_agi_ui
+vercel --prod
+```
+
+---
+
+## 🔧 Environment Variables
+
+### Required
+```bash
+VITE_API_URL=https://your-backend-url.com
+```
+
+**Important**: 
+- Use your actual backend URL after backend deployment
+- Do NOT include trailing slash
+- Example: `https://vctt-agi-backend.onrender.com`
+
+---
+
+## 📦 Build Process
+
+```bash
+# Install dependencies
+yarn install
+
+# Build for production
+yarn build
+
+# Preview build locally
+yarn preview
+```
+
+**Output**: Static files in `dist/` directory
+
+---
+
+## ✅ Post-Deployment Checks
+
+### 1. Verify UI Loads
+- Open production URL
+- Should see VCTT-AGI interface
+- Left sidebar should show "New Chat" and "Analytics" buttons
+
+### 2. Test Backend Connection
+- Click "New Chat"
+- Send a message
+- Verify response appears
+- Check trust indicator shows in header
+
+### 3. Test Analytics
+- Click "Analytics" button (blue)
+- Dashboard should load
+- Should show:
+  - Total sessions
+  - Trust metrics charts
+  - Regulation distribution
+
+### 4. Test Session History
+- Previous sessions should appear in left sidebar
+- Each session should show:
+  - Preview text
+  - Timestamp (e.g., "2h ago")
+  - Message count
+  - Trust score badge (color-coded)
+
+---
+
+## 🐛 Troubleshooting
+
+### Issue: "Failed to connect to backend"
+
+**Cause**: Backend URL not configured or incorrect
+
+**Solution**:
+1. Check `VITE_API_URL` environment variable
+2. Verify backend is deployed and accessible
+3. Test backend directly: `curl https://your-backend-url.com/health`
+4. Redeploy UI with correct URL
+
+---
+
+### Issue: Analytics dashboard is empty
+
+**Cause**: No sessions in database yet
+
+**Solution**:
+1. Create a few test sessions first
+2. Refresh analytics dashboard
+3. Verify backend has data: `curl https://your-backend-url.com/analytics/sessions`
+
+---
+
+### Issue: Trust indicator not showing
+
+**Cause**: Backend not returning trust_tau
+
+**Solution**:
+1. Check browser console for errors
+2. Verify backend response includes `internal_state.trust_tau`
+3. Test endpoint: `curl https://your-backend-url.com/api/v1/session/step`
+
+---
+
+### Issue: Sessions not loading on page refresh
+
+**Cause**: Backend session history endpoint not working
+
+**Solution**:
+1. Check network tab in browser DevTools
+2. Verify `/analytics/sessions` returns data
+3. Check backend logs for errors
+
+---
+
+## 🎨 Customization
+
+### Update API URL After Deployment
+```bash
+# In Vercel dashboard
+Settings → Environment Variables → Edit VITE_API_URL
+# Then redeploy
+```
+
+### Custom Domain
+```bash
+# In Vercel dashboard
+Settings → Domains → Add Domain
+```
+
+---
+
+## 📊 Performance
+
+### Expected Metrics
+- **Load Time**: < 2s
+- **Time to Interactive**: < 3s
+- **Lighthouse Score**: > 90
+
+### Optimization Tips
+- Assets are automatically minified
+- Code splitting enabled
+- Images optimized via Vite
+- Gzip compression automatic (Vercel)
+
+---
+
+## 🔒 Security
+
+- ✅ HTTPS enabled automatically (Vercel)
+- ✅ API keys in environment variables only
+- ✅ No sensitive data in client code
+- ✅ CORS handled by backend
+
+---
+
+## 🔄 Continuous Deployment
+
+### Automatic Deploys (Recommended)
+
+1. Connect GitHub repository to Vercel
+2. Every push to `master` auto-deploys
+3. Preview URLs for pull requests
+4. Automatic rollbacks on error
+
+### Manual Deploys
+
+```bash
+# Deploy specific branch
+vercel --prod --branch feature-branch
+
+# Deploy with custom name
+vercel --prod --name vctt-agi-ui-staging
+```
+
+---
+
+## 📱 Mobile Support
+
+UI is fully responsive:
+- ✅ Mobile phones (320px+)
+- ✅ Tablets (768px+)
+- ✅ Desktops (1024px+)
+
+Test on different devices after deployment!
+
+---
+
+## 🎯 Success Criteria
+
+Deployment is successful when:
+
+- ✅ UI accessible at public URL
+- ✅ Backend connection works
+- ✅ Sessions can be created
+- ✅ Analytics dashboard displays
+- ✅ Session history loads
+- ✅ Trust indicators show
+- ✅ No console errors
+- ✅ Mobile responsive
+
+---
+
+## 📈 Monitoring
+
+### Vercel Analytics
+
+Enable in dashboard:
+- Settings → Analytics → Enable
+
+Metrics tracked:
+- Page views
+- Unique visitors
+- Load times
+- Core Web Vitals
+
+---
+
+## 🎉 Post-Deployment
+
+1. Share production URL with team
+2. Monitor first 24 hours
+3. Collect user feedback
+4. Plan Phase 3 enhancements
+
+---
+
+**Current Production URL**: https://vcttagiui.vercel.app  
+**Backend URL**: (Set your deployed backend URL)  
+**Last Updated**: November 17, 2025
