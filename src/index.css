@@ -94,3 +94,17 @@ body {
     max-width: 760px !important;
   }
 }
+
+/* CRITICAL FIX: Force left sidebar to stay at fixed 256px width */
+.w-64 {
+  width: 16rem !important;
+  min-width: 16rem !important;
+  max-width: 16rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* Prevent sidebar content from overflowing */
+.w-64 * {
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}

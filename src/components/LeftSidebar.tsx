@@ -22,7 +22,7 @@ export default function LeftSidebar({ sessions, currentSessionId, onSelectSessio
   };
 
   return (
-    <div className="w-64 bg-vctt-panel border-r border-gray-700 flex flex-col">
+    <div className="w-64 min-w-64 max-w-64 bg-vctt-panel border-r border-gray-700 flex flex-col flex-shrink-0">
       {/* Header */}
       <div className="p-4 border-b border-gray-700">
         <h1 className="text-xl font-bold text-vctt-gold mb-4">VCTT-AGI</h1>
