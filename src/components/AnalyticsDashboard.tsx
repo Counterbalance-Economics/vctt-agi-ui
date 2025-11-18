@@ -71,116 +71,120 @@ export default function AnalyticsDashboard({ onClose }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-vctt-dark border-2 border-vctt-accent rounded-lg max-w-7xl w-full max-h-[95vh] overflow-y-auto">
+      <div className="bg-white border-2 border-gray-300 rounded-lg max-w-7xl w-full max-h-[95vh] overflow-y-auto shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 bg-vctt-dark border-b border-vctt-accent p-6 flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-vctt-accent">📊 VCTT-AGI Analytics Dashboard</h2>
-          <button onClick={onClose} className="text-vctt-accent hover:text-white text-2xl">✕</button>
+        <div className="sticky top-0 bg-gradient-to-r from-vctt-accent to-green-500 border-b border-gray-300 p-6 flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-white">📊 VCTT-AGI Analytics Dashboard</h2>
+          <button onClick={onClose} className="text-white hover:text-gray-200 text-2xl font-bold">✕</button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 bg-white">
           {/* Overview Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-black/40 border border-vctt-accent/30 rounded-lg p-6">
-              <div className="text-vctt-accent/70 text-sm mb-2">Total Sessions</div>
-              <div className="text-4xl font-bold text-vctt-accent">{analytics.overview.total_sessions}</div>
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-6 shadow-md">
+              <div className="text-gray-600 text-sm mb-2 font-medium">Total Sessions</div>
+              <div className="text-4xl font-bold text-blue-700">{analytics.overview.total_sessions}</div>
             </div>
-            <div className="bg-black/40 border border-vctt-accent/30 rounded-lg p-6">
-              <div className="text-vctt-accent/70 text-sm mb-2">Total Messages</div>
-              <div className="text-4xl font-bold text-vctt-accent">{analytics.overview.total_messages}</div>
+            <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-300 rounded-lg p-6 shadow-md">
+              <div className="text-gray-600 text-sm mb-2 font-medium">Total Messages</div>
+              <div className="text-4xl font-bold text-green-700">{analytics.overview.total_messages}</div>
             </div>
-            <div className="bg-black/40 border border-vctt-accent/30 rounded-lg p-6">
-              <div className="text-vctt-accent/70 text-sm mb-2">Avg Messages/Session</div>
-              <div className="text-4xl font-bold text-vctt-accent">{analytics.overview.avg_messages_per_session.toFixed(1)}</div>
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-300 rounded-lg p-6 shadow-md">
+              <div className="text-gray-600 text-sm mb-2 font-medium">Avg Messages/Session</div>
+              <div className="text-4xl font-bold text-purple-700">{analytics.overview.avg_messages_per_session.toFixed(1)}</div>
             </div>
           </div>
 
           {/* Trust Metrics */}
-          <div className="bg-black/40 border border-vctt-accent/30 rounded-lg p-6">
-            <h3 className="text-xl font-bold text-vctt-accent mb-4">Trust Metrics</h3>
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300 rounded-lg p-6 shadow-md">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Trust Metrics</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div>
-                <div className="text-vctt-accent/70 text-sm">Average Trust (τ)</div>
-                <div className="text-2xl font-bold text-green-400">{(analytics.trust_metrics.average_trust_tau * 100).toFixed(1)}%</div>
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <div className="text-gray-600 text-sm font-medium">Average Trust (τ)</div>
+                <div className="text-2xl font-bold text-green-600">{(analytics.trust_metrics.average_trust_tau * 100).toFixed(1)}%</div>
               </div>
-              <div>
-                <div className="text-vctt-accent/70 text-sm">Min Trust</div>
-                <div className="text-2xl font-bold text-yellow-400">{(analytics.trust_metrics.min_trust * 100).toFixed(1)}%</div>
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <div className="text-gray-600 text-sm font-medium">Min Trust</div>
+                <div className="text-2xl font-bold text-yellow-600">{(analytics.trust_metrics.min_trust * 100).toFixed(1)}%</div>
               </div>
-              <div>
-                <div className="text-vctt-accent/70 text-sm">Max Trust</div>
-                <div className="text-2xl font-bold text-green-400">{(analytics.trust_metrics.max_trust * 100).toFixed(1)}%</div>
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <div className="text-gray-600 text-sm font-medium">Max Trust</div>
+                <div className="text-2xl font-bold text-green-600">{(analytics.trust_metrics.max_trust * 100).toFixed(1)}%</div>
               </div>
             </div>
 
             {trustChartData.length > 0 && (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={trustChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="time" stroke="#10b981" />
-                  <YAxis stroke="#10b981" />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #10b981' }}
-                    labelStyle={{ color: '#10b981' }}
-                  />
-                  <Legend />
-                  <Line type="monotone" dataKey="trust" stroke="#10b981" name="Trust (τ)" strokeWidth={2} />
-                  <Line type="monotone" dataKey="contradiction" stroke="#ef4444" name="Contradiction" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={trustChartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="time" stroke="#374151" style={{ fontSize: '12px' }} />
+                    <YAxis stroke="#374151" style={{ fontSize: '12px' }} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#ffffff', border: '2px solid #10b981', borderRadius: '8px' }}
+                      labelStyle={{ color: '#374151', fontWeight: 'bold' }}
+                    />
+                    <Legend />
+                    <Line type="monotone" dataKey="trust" stroke="#10b981" name="Trust (τ)" strokeWidth={3} />
+                    <Line type="monotone" dataKey="contradiction" stroke="#ef4444" name="Contradiction" strokeWidth={3} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             )}
           </div>
 
           {/* Repair Metrics & Regulation Distribution */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Repair Metrics */}
-            <div className="bg-black/40 border border-vctt-accent/30 rounded-lg p-6">
-              <h3 className="text-xl font-bold text-vctt-accent mb-4">Repair Metrics</h3>
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-300 rounded-lg p-6 shadow-md">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Repair Metrics</h3>
               <div className="space-y-3">
-                <div>
-                  <div className="text-vctt-accent/70 text-sm">Total Repairs</div>
-                  <div className="text-2xl font-bold">{analytics.repair_metrics.total_repairs}</div>
+                <div className="bg-white p-3 rounded-lg border border-gray-200">
+                  <div className="text-gray-600 text-sm font-medium">Total Repairs</div>
+                  <div className="text-2xl font-bold text-orange-700">{analytics.repair_metrics.total_repairs}</div>
                 </div>
-                <div>
-                  <div className="text-vctt-accent/70 text-sm">Avg Repairs/Session</div>
-                  <div className="text-2xl font-bold">{analytics.repair_metrics.avg_repairs_per_session.toFixed(2)}</div>
+                <div className="bg-white p-3 rounded-lg border border-gray-200">
+                  <div className="text-gray-600 text-sm font-medium">Avg Repairs/Session</div>
+                  <div className="text-2xl font-bold text-orange-700">{analytics.repair_metrics.avg_repairs_per_session.toFixed(2)}</div>
                 </div>
-                <div>
-                  <div className="text-vctt-accent/70 text-sm">Max Repairs</div>
-                  <div className="text-2xl font-bold">{analytics.repair_metrics.max_repairs}</div>
+                <div className="bg-white p-3 rounded-lg border border-gray-200">
+                  <div className="text-gray-600 text-sm font-medium">Max Repairs</div>
+                  <div className="text-2xl font-bold text-orange-700">{analytics.repair_metrics.max_repairs}</div>
                 </div>
               </div>
             </div>
 
             {/* Regulation Distribution */}
-            <div className="bg-black/40 border border-vctt-accent/30 rounded-lg p-6">
-              <h3 className="text-xl font-bold text-vctt-accent mb-4">Regulation Distribution</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={regulationData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={(entry) => `${entry.name}: ${entry.value}`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {regulationData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="bg-gradient-to-br from-teal-50 to-teal-100 border-2 border-teal-300 rounded-lg p-6 shadow-md">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Regulation Distribution</h3>
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={regulationData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={(entry) => `${entry.name}: ${entry.value}`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {regulationData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ backgroundColor: '#ffffff', border: '2px solid #14b8a6', borderRadius: '8px' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-vctt-dark border-t border-vctt-accent p-4 flex justify-end">
-          <button onClick={onClose} className="px-6 py-2 bg-vctt-accent text-black rounded-lg hover:bg-vctt-accent/80 font-semibold">
+        <div className="sticky bottom-0 bg-gradient-to-r from-vctt-accent to-green-500 border-t border-gray-300 p-4 flex justify-end">
+          <button onClick={onClose} className="px-6 py-2 bg-white text-vctt-accent rounded-lg hover:bg-gray-100 font-bold shadow-md border-2 border-white">
             Close
           </button>
         </div>
