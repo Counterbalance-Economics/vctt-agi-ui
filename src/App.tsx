@@ -105,7 +105,7 @@ function App() {
       };
 
       const finalMessages = [...updatedMessages, assistantMessage];
-      const finalSession = { ...currentSession, messages: finalMessages };
+      const finalSession = { ...updatedSession, messages: finalMessages };
       setCurrentSession(finalSession);
       updateSessionInList(finalSession);
 

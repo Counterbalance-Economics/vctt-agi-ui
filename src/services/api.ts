@@ -131,7 +131,7 @@ class ApiService {
       if (userId) params.append('user_id', userId);
       params.append('limit', limit.toString());
 
-      const response = await fetch(`${this.baseUrl}/analytics/sessions?${params}`);
+      const response = await fetch(`${this.baseUrl}/api/v1/analytics/sessions?${params}`);
       if (!response.ok) return [];
 
       const data = await response.json();
@@ -149,7 +149,7 @@ class ApiService {
       const params = new URLSearchParams();
       if (userId) params.append('user_id', userId);
 
-      const response = await fetch(`${this.baseUrl}/analytics/trust-metrics?${params}`);
+      const response = await fetch(`${this.baseUrl}/api/v1/analytics/trust-metrics?${params}`);
       if (!response.ok) return [];
 
       const data = await response.json();
@@ -167,7 +167,7 @@ class ApiService {
       const params = new URLSearchParams();
       if (userId) params.append('user_id', userId);
 
-      const response = await fetch(`${this.baseUrl}/analytics/aggregate?${params}`);
+      const response = await fetch(`${this.baseUrl}/api/v1/analytics/aggregate?${params}`);
       if (!response.ok) return null;
 
       return await response.json();
@@ -181,7 +181,7 @@ class ApiService {
     if (!this.baseUrl) return null;
 
     try {
-      const response = await fetch(`${this.baseUrl}/analytics/sessions/${sessionId}/history`);
+      const response = await fetch(`${this.baseUrl}/api/v1/analytics/sessions/${sessionId}/history`);
       if (!response.ok) return null;
 
       return await response.json();
