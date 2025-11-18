@@ -2,17 +2,21 @@
 import { useState } from 'react';
 import { Lock, Unlock } from 'lucide-react';
 import type { VCTTState } from '../types';
+import LLMCommitteePanel from './LLMCommitteePanel';
+import { getApiUrl } from '../config/api';
 
 interface RightSidebarProps {
   vcttState: VCTTState;
   isAdminMode: boolean;
   onAdminToggle: (password: string) => boolean;
+  sessionId?: string | null;
 }
 
-export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle }: RightSidebarProps) {
+export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle, sessionId }: RightSidebarProps) {
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const backendUrl = getApiUrl();
 
   const handleUnlock = () => {
     if (onAdminToggle(password)) {
@@ -144,6 +148,9 @@ export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle }: 
             </div>
           </div>
         </div>
+
+        {/* LLM Committee */}
+        <LLMCommitteePanel sessionId={sessionId || null} backendUrl={backendUrl} />
 
         {/* Regulation Mode */}
         <div className="pt-4 border-t border-gray-700">

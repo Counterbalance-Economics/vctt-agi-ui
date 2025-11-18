@@ -239,6 +239,7 @@ function App() {
         vcttState={vcttState}
         isAdminMode={isAdminMode}
         onAdminToggle={handleAdminToggle}
+        sessionId={currentSession?.id}
       />
 
       {/* Analytics Dashboard */}
