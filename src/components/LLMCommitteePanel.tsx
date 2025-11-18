@@ -47,7 +47,8 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
       setLoading(true);
       setError(null);
       try {
-        const url = `${backendUrl}/api/v1/analytics/llm-committee/session/${sessionId}`;
+        const cacheBust = `?_cb=${Date.now()}`;
+        const url = `${backendUrl}/api/v1/analytics/llm-committee/session/${sessionId}${cacheBust}`;
         console.log('FETCHING SESSION:', url);
         
         const response = await fetch(url);
@@ -83,7 +84,8 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
       setLoading(true);
       setError(null);
       try {
-        const url = `${backendUrl}/api/v1/analytics/llm-committee/global?limit=50`;
+        const cacheBust = `&_cb=${Date.now()}`;
+        const url = `${backendUrl}/api/v1/analytics/llm-committee/global?limit=50${cacheBust}`;
         console.log('FETCHING:', url);
         
         const response = await fetch(url);

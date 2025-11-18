@@ -1,4 +1,8 @@
 
+/**
+ * LeftSidebar Component - Phase 3
+ * Version: 3.0.1 - Cache-busted with backend parseInt fix
+ */
 import { MessageSquare, Plus, BarChart3, MessageCircle } from 'lucide-react';
 import type { Session } from '../types';
 import TrustIndicator from './TrustIndicator';
