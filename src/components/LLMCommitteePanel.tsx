@@ -47,13 +47,23 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(
-          `${backendUrl}/api/v1/analytics/llm-committee/session/${sessionId}`
-        );
-        if (!response.ok) throw new Error('Failed to fetch session stats');
+        const url = `${backendUrl}/api/v1/analytics/llm-committee/session/${sessionId}`;
+        console.log('FETCHING SESSION:', url);
+        
+        const response = await fetch(url);
+        console.log('SESSION RESPONSE STATUS:', response.status, response.statusText);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('SESSION FETCH FAILED - Status:', response.status, 'Body:', errorText);
+          throw new Error(`Failed to fetch session stats: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('SESSION STATS DATA:', data);
         setSessionStats(data);
       } catch (err) {
+        console.error('LLM COMMITTEE SESSION FETCH FAILED:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch session stats');
       } finally {
         setLoading(false);
@@ -73,14 +83,32 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(
-          `${backendUrl}/api/v1/analytics/llm-committee/global?limit=50`
-        );
-        if (!response.ok) throw new Error('Failed to fetch global stats');
+        const url = `${backendUrl}/api/v1/analytics/llm-committee/global?limit=50`;
+        console.log('FETCHING:', url);
+        
+        const response = await fetch(url);
+        console.log('RESPONSE STATUS:', response.status, response.statusText);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('FETCH FAILED - Status:', response.status, 'Body:', errorText);
+          throw new Error(`Failed to fetch global stats: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('GLOBAL STATS DATA:', data);
         setGlobalStats(data);
       } catch (err) {
+        console.error('LLM COMMITTEE FETCH FAILED:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch global stats');
+        // Set empty fallback data
+        setGlobalStats({
+          questions_analyzed: 0,
+          time_range_start: new Date().toISOString(),
+          time_range_end: new Date().toISOString(),
+          models: [],
+          generated_at: new Date().toISOString(),
+        });
       } finally {
         setLoading(false);
       }
