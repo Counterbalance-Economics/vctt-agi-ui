@@ -105,7 +105,7 @@ export default function LeftSidebar({ sessions, currentSessionId, onSelectSessio
       {/* Footer */}
       <div className="p-4 border-t border-gray-700 text-xs text-gray-400">
         <p>© 2025 VCTT-AGI</p>
-        <p className="mt-1">Phase 2 - PostgreSQL + Analytics</p>
+        <p className="mt-1">Phase 3 - Real LLMs + Committee</p>
       </div>
     </div>
   );
