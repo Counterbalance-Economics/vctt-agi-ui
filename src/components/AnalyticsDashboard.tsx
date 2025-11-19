@@ -117,7 +117,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(95vh-180px)] p-6 space-y-6">
+        <div className="overflow-y-auto max-h-[calc(95vh-180px)] p-6 space-y-6 bg-vctt-panel">
           
           {/* Key Metrics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
