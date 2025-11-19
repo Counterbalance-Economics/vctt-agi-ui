@@ -43,8 +43,8 @@ export default function AnalyticsDashboard({ onClose }: Props) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div className="bg-gray-900 border border-vctt-gold rounded-xl p-8 shadow-2xl">
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="bg-vctt-panel border border-vctt-gold rounded-xl p-8 shadow-2xl">
           <div className="flex items-center gap-3">
             <div className="animate-spin rounded-full h-8 w-8 border-2 border-vctt-gold border-t-transparent"></div>
             <span className="text-vctt-gold text-xl font-medium">Loading Analytics...</span>
@@ -56,8 +56,8 @@ export default function AnalyticsDashboard({ onClose }: Props) {
 
   if (!analytics) {
     return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div className="bg-gray-900 border border-red-500 rounded-xl p-8 shadow-2xl max-w-md">
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="bg-vctt-panel border border-red-500 rounded-xl p-8 shadow-2xl max-w-md">
           <div className="text-red-400 text-xl mb-4 font-semibold">📊 No Analytics Data</div>
           <p className="text-gray-300 mb-6">No data available yet. Start a conversation to generate analytics.</p>
           <button 
@@ -95,8 +95,8 @@ export default function AnalyticsDashboard({ onClose }: Props) {
   const trustColor = getTrustColor(avgTrust);
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gray-900 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-700">
+    <div className="absolute inset-0 flex items-center justify-center p-4">
+      <div className="bg-vctt-panel rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-700">
         {/* Header */}
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700 p-6 flex justify-between items-center">
           <div className="flex items-center gap-3">
