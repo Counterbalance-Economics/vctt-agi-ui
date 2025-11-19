@@ -94,6 +94,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
   const avgTrust = Math.round(analytics.trust_metrics.average_trust_tau * 100);
   const trustColor = getTrustColor(avgTrust);
 
+  // Analytics Dashboard - 100% OPAQUE background (no transparency!)
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center z-50 p-4">
       <div className="bg-gray-900 rounded-2xl max-w-7xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-gray-700">
