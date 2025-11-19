@@ -104,7 +104,7 @@ export default function AnalyticsModal({ onClose }: Props) {
   return (
     <div 
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" 
-      onClick={(e) => {
+      onClick={() => {
         console.log('🔴 Backdrop clicked, closing modal');
         onClose();
       }}
