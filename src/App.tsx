@@ -214,35 +214,37 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen w-screen bg-vctt-panel text-white overflow-hidden">
-      {/* Left Sidebar */}
-      <LeftSidebar
-        sessions={sessions}
-        currentSessionId={currentSession?.id}
-        onSelectSession={handleSelectSession}
-        onNewSession={handleNewSession}
-      />
+    <>
+      <div className="flex h-screen w-screen bg-vctt-panel text-white overflow-hidden">
+        {/* Left Sidebar */}
+        <LeftSidebar
+          sessions={sessions}
+          currentSessionId={currentSession?.id}
+          onSelectSession={handleSelectSession}
+          onNewSession={handleNewSession}
+        />
 
-      {/* Center Chat Panel */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <ChatPanel
-          session={currentSession}
-          isLoading={isLoading}
-          onSendMessage={handleSendMessage}
-          trustScore={vcttState['Trust (τ)']}
+        {/* Center Chat Panel */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <ChatPanel
+            session={currentSession}
+            isLoading={isLoading}
+            onSendMessage={handleSendMessage}
+            trustScore={vcttState['Trust (τ)']}
+          />
+        </div>
+
+        {/* Right Sidebar */}
+        <RightSidebar
+          vcttState={vcttState}
+          isAdminMode={isAdminMode}
+          onAdminToggle={handleAdminToggle}
+          sessionId={currentSession?.id}
+          onShowAnalytics={() => setShowAnalytics(true)}
         />
       </div>
 
-      {/* Right Sidebar */}
-      <RightSidebar
-        vcttState={vcttState}
-        isAdminMode={isAdminMode}
-        onAdminToggle={handleAdminToggle}
-        sessionId={currentSession?.id}
-        onShowAnalytics={() => setShowAnalytics(true)}
-      />
-
-      {/* Analytics Modal */}
+      {/* Analytics Modal - Rendered outside main container for proper centering */}
       {showAnalytics && (
         <AnalyticsModal onClose={() => setShowAnalytics(false)} />
       )}
@@ -255,7 +257,7 @@ function App() {
           onForceRegulation={handleForceRegulation}
         />
       )}
-    </div>
+    </>
   );
 }
 
