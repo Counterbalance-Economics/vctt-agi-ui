@@ -44,7 +44,13 @@ export default function AnalyticsModal({ onClose }: Props) {
   if (loading) {
     console.log('🔵 AnalyticsModal: Rendering LOADING state');
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div 
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        onClick={(e) => {
+          e.stopPropagation();
+          console.log('🔴 Loading state backdrop clicked - IGNORING (do not close while loading)');
+        }}
+      >
         <div className="bg-gray-900 border-2 border-vctt-gold rounded-xl p-8 shadow-2xl">
           <div className="flex items-center gap-3">
             <div className="animate-spin rounded-full h-8 w-8 border-2 border-vctt-gold border-t-transparent"></div>
@@ -96,7 +102,13 @@ export default function AnalyticsModal({ onClose }: Props) {
 
   console.log('🔵 AnalyticsModal: Rendering NORMAL state with data:', analytics);
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" 
+      onClick={(e) => {
+        console.log('🔴 Backdrop clicked, closing modal');
+        onClose();
+      }}
+    >
       {/* Centered Modal - Click inside doesn't close */}
       <div 
         className="bg-gray-900 border-2 border-vctt-gold rounded-xl shadow-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden"

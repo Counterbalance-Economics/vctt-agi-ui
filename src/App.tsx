@@ -258,7 +258,8 @@ function App() {
         <>
           {console.log('🟡 Rendering AnalyticsModal component')}
           <AnalyticsModal onClose={() => {
-            console.log('🔴 Analytics modal closing');
+            console.log('🔴 onClose called! Stack trace:');
+            console.trace();
             setShowAnalytics(false);
           }} />
         </>

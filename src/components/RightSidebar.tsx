@@ -153,7 +153,12 @@ export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle, se
           {onShowAnalytics && (
             <div className="flex justify-center pt-2">
               <button
-                onClick={onShowAnalytics}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('🟢 Analytics button clicked - propagation stopped');
+                  onShowAnalytics();
+                }}
                 className="w-full bg-vctt-gold/10 hover:bg-vctt-gold/20 border border-vctt-gold/30 hover:border-vctt-gold text-vctt-gold px-4 py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm"
               >
                 <BarChart3 size={18} />
