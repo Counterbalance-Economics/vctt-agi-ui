@@ -21,6 +21,7 @@ export default function AnalyticsModal({ onClose }: Props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🔵 AnalyticsModal mounted, loading analytics...');
     loadAnalytics();
   }, []);
 

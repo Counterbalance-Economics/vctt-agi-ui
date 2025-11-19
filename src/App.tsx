@@ -24,6 +24,11 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(true);
 
+  // Debug: Log showAnalytics state changes
+  useEffect(() => {
+    console.log('📊 showAnalytics changed to:', showAnalytics);
+  }, [showAnalytics]);
+
   // Load persisted sessions from backend on mount
   useEffect(() => {
     loadBackendSessions();
@@ -240,13 +245,23 @@ function App() {
           isAdminMode={isAdminMode}
           onAdminToggle={handleAdminToggle}
           sessionId={currentSession?.id}
-          onShowAnalytics={() => setShowAnalytics(true)}
+          onShowAnalytics={() => {
+          console.log('🟢 Analytics button clicked, showAnalytics:', showAnalytics);
+          setShowAnalytics(true);
+          console.log('🟢 setShowAnalytics(true) called');
+        }}
         />
       </div>
 
       {/* Analytics Modal - Rendered outside main container for proper centering */}
       {showAnalytics && (
-        <AnalyticsModal onClose={() => setShowAnalytics(false)} />
+        <>
+          {console.log('🟡 Rendering AnalyticsModal component')}
+          <AnalyticsModal onClose={() => {
+            console.log('🔴 Analytics modal closing');
+            setShowAnalytics(false);
+          }} />
+        </>
       )}
 
       {/* Admin Panel Overlay */}
