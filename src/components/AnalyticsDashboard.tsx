@@ -43,7 +43,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="fixed top-0 left-0 right-0 bottom-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center">
         <div className="bg-gray-900 border border-vctt-gold rounded-xl p-8 shadow-2xl">
           <div className="flex items-center gap-3">
             <div className="animate-spin rounded-full h-8 w-8 border-2 border-vctt-gold border-t-transparent"></div>
@@ -56,7 +56,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
 
   if (!analytics) {
     return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="fixed top-0 left-0 right-0 bottom-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center">
         <div className="bg-gray-900 border border-red-500 rounded-xl p-8 shadow-2xl max-w-md">
           <div className="text-red-400 text-xl mb-4 font-semibold">📊 No Analytics Data</div>
           <p className="text-gray-300 mb-6">No data available yet. Start a conversation to generate analytics.</p>
@@ -95,8 +95,8 @@ export default function AnalyticsDashboard({ onClose }: Props) {
   const trustColor = getTrustColor(avgTrust);
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-700">
+    <div className="fixed top-0 left-0 right-0 bottom-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div className="bg-gray-900 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-700">
         {/* Header */}
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700 p-6 flex justify-between items-center">
           <div className="flex items-center gap-3">
