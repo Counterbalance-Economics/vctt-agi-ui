@@ -214,7 +214,7 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen w-screen bg-vctt-dark text-white overflow-hidden">
+    <div className="grid h-screen w-screen bg-vctt-dark text-white overflow-hidden grid-cols-[256px_1fr_320px]">
       {/* Left Sidebar */}
       <LeftSidebar
         sessions={sessions}
@@ -223,14 +223,18 @@ function App() {
         onNewSession={handleNewSession}
       />
 
-      {/* Center Chat Panel */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <ChatPanel
-          session={currentSession}
-          isLoading={isLoading}
-          onSendMessage={handleSendMessage}
-          trustScore={vcttState['Trust (τ)']}
-        />
+      {/* Center - Chat Panel OR Analytics */}
+      <div className="col-span-1 flex flex-col min-w-0 relative">
+        {showAnalytics ? (
+          <AnalyticsDashboard onClose={() => setShowAnalytics(false)} />
+        ) : (
+          <ChatPanel
+            session={currentSession}
+            isLoading={isLoading}
+            onSendMessage={handleSendMessage}
+            trustScore={vcttState['Trust (τ)']}
+          />
+        )}
       </div>
 
       {/* Right Sidebar */}
@@ -241,11 +245,6 @@ function App() {
         sessionId={currentSession?.id}
         onShowAnalytics={() => setShowAnalytics(true)}
       />
-
-      {/* Analytics Dashboard */}
-      {showAnalytics && (
-        <AnalyticsDashboard onClose={() => setShowAnalytics(false)} />
-      )}
 
       {/* Admin Panel Overlay */}
       {isAdminMode && lastResponse && (
