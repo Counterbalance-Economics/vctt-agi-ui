@@ -221,7 +221,6 @@ function App() {
         currentSessionId={currentSession?.id}
         onSelectSession={handleSelectSession}
         onNewSession={handleNewSession}
-        onShowAnalytics={() => setShowAnalytics(true)}
       />
 
       {/* Center Chat Panel */}
@@ -240,6 +239,7 @@ function App() {
         isAdminMode={isAdminMode}
         onAdminToggle={handleAdminToggle}
         sessionId={currentSession?.id}
+        onShowAnalytics={() => setShowAnalytics(true)}
       />
 
       {/* Analytics Dashboard */}

@@ -3,7 +3,7 @@
  * LeftSidebar Component - Phase 3
  * Version: 3.0.1 - Cache-busted with backend parseInt fix
  */
-import { MessageSquare, Plus, BarChart3, MessageCircle } from 'lucide-react';
+import { MessageSquare, Plus, MessageCircle } from 'lucide-react';
 import type { Session } from '../types';
 import TrustIndicator from './TrustIndicator';
 
@@ -12,10 +12,9 @@ interface LeftSidebarProps {
   currentSessionId?: string;
   onSelectSession: (session: Session) => void;
   onNewSession: () => void;
-  onShowAnalytics?: () => void;
 }
 
-export default function LeftSidebar({ sessions, currentSessionId, onSelectSession, onNewSession, onShowAnalytics }: LeftSidebarProps) {
+export default function LeftSidebar({ sessions, currentSessionId, onSelectSession, onNewSession }: LeftSidebarProps) {
   const formatTime = (date: Date) => {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -40,15 +39,6 @@ export default function LeftSidebar({ sessions, currentSessionId, onSelectSessio
             <Plus size={20} />
             New Chat
           </button>
-          {onShowAnalytics && (
-            <button
-              onClick={onShowAnalytics}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
-            >
-              <BarChart3 size={20} />
-              Analytics
-            </button>
-          )}
         </div>
       </div>
 
