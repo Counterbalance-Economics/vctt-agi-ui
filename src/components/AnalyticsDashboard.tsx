@@ -190,7 +190,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
               </div>
               <div className="bg-vctt-dark rounded-lg p-4">
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={trustChartData}>
+                  <LineChart data={trustChartData} style={{ backgroundColor: '#0f1419' }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                     <XAxis 
                       dataKey="time" 
@@ -248,7 +248,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
               </div>
               <div className="bg-vctt-dark rounded-lg p-4">
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={regulationData}>
+                  <BarChart data={regulationData} style={{ backgroundColor: '#0f1419' }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                     <XAxis 
                       dataKey="name" 
