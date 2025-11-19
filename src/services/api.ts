@@ -143,36 +143,63 @@ class ApiService {
   }
 
   async getTrustMetrics(userId?: string): Promise<TrustMetric[]> {
-    if (!this.baseUrl) return [];
+    console.log('🌐 getTrustMetrics: baseUrl=', this.baseUrl);
+    if (!this.baseUrl) {
+      console.warn('⚠️ No baseUrl configured, returning []');
+      return [];
+    }
 
     try {
       const params = new URLSearchParams();
       if (userId) params.append('user_id', userId);
 
-      const response = await fetch(`${this.baseUrl}/api/v1/analytics/trust-metrics?${params}`);
-      if (!response.ok) return [];
+      const url = `${this.baseUrl}/api/v1/analytics/trust-metrics?${params}`;
+      console.log('🌐 Fetching:', url);
+      const response = await fetch(url);
+      console.log('🌐 Response status:', response.status, response.ok ? '✅' : '❌');
+      
+      if (!response.ok) {
+        console.warn('⚠️ Response not OK, returning []');
+        return [];
+      }
 
       const data = await response.json();
-      return data.metrics || [];
+      console.log('🌐 Received metrics data:', data);
+      const metrics = data.metrics || [];
+      console.log('🌐 Extracted metrics array:', metrics);
+      return metrics;
     } catch (error) {
-      console.error('Error fetching trust metrics:', error);
+      console.error('❌ Error fetching trust metrics:', error);
       return [];
     }
   }
 
   async getAggregateAnalytics(userId?: string): Promise<AggregateAnalytics | null> {
-    if (!this.baseUrl) return null;
+    console.log('🌐 getAggregateAnalytics: baseUrl=', this.baseUrl);
+    if (!this.baseUrl) {
+      console.warn('⚠️ No baseUrl configured, returning null');
+      return null;
+    }
 
     try {
       const params = new URLSearchParams();
       if (userId) params.append('user_id', userId);
 
-      const response = await fetch(`${this.baseUrl}/api/v1/analytics/aggregate?${params}`);
-      if (!response.ok) return null;
+      const url = `${this.baseUrl}/api/v1/analytics/aggregate?${params}`;
+      console.log('🌐 Fetching:', url);
+      const response = await fetch(url);
+      console.log('🌐 Response status:', response.status, response.ok ? '✅' : '❌');
+      
+      if (!response.ok) {
+        console.warn('⚠️ Response not OK, returning null');
+        return null;
+      }
 
-      return await response.json();
+      const data = await response.json();
+      console.log('🌐 Received data:', data);
+      return data;
     } catch (error) {
-      console.error('Error fetching aggregate analytics:', error);
+      console.error('❌ Error fetching aggregate analytics:', error);
       return null;
     }
   }

@@ -27,17 +27,22 @@ export default function AnalyticsModal({ onClose }: Props) {
 
   const loadAnalytics = async () => {
     setLoading(true);
+    console.log('🔵 loadAnalytics: Starting fetch...');
     try {
+      console.log('🔵 Fetching aggregate analytics and trust metrics...');
       const [agg, metrics] = await Promise.all([
         api.getAggregateAnalytics(),
         api.getTrustMetrics(),
       ]);
+      console.log('🔵 Fetch complete! Aggregate:', agg, 'Metrics:', metrics);
       setAnalytics(agg);
       setTrustMetrics(metrics);
+      console.log('🔵 State updated. Analytics:', agg ? 'HAS DATA' : 'NULL', 'Metrics count:', metrics?.length || 0);
     } catch (error) {
-      console.error('Error loading analytics:', error);
+      console.error('❌ Error loading analytics:', error);
     } finally {
       setLoading(false);
+      console.log('🔵 Loading complete, loading=false');
     }
   };
 
