@@ -96,7 +96,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-2xl max-w-7xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-gray-700">
+      <div className="bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-700">
         {/* Header */}
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700 p-6 flex justify-between items-center">
           <div className="flex items-center gap-3">
