@@ -204,7 +204,7 @@ function App() {
 
   if (loadingSessions) {
     return (
-      <div className="flex h-screen w-screen bg-vctt-dark text-white items-center justify-center">
+      <div className="flex h-screen w-screen bg-vctt-panel text-white items-center justify-center">
         <div className="text-center">
           <div className="text-vctt-gold text-2xl font-bold mb-4">VCTT-AGI</div>
           <div className="text-gray-400">Loading sessions...</div>
@@ -214,7 +214,7 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen w-screen bg-vctt-dark text-white overflow-hidden">
+    <div className="flex h-screen w-screen bg-vctt-panel text-white overflow-hidden">
       {/* Left Sidebar */}
       <LeftSidebar
         sessions={sessions}
