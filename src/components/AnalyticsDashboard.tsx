@@ -43,8 +43,8 @@ export default function AnalyticsDashboard({ onClose }: Props) {
 
   if (loading) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-vctt-dark">
-        <div className="bg-vctt-panel border border-vctt-gold rounded-xl p-8 shadow-2xl">
+      <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: '#0f1419' }}>
+        <div className="border border-vctt-gold rounded-xl p-8 shadow-2xl" style={{ backgroundColor: '#1a1f2e' }}>
           <div className="flex items-center gap-3">
             <div className="animate-spin rounded-full h-8 w-8 border-2 border-vctt-gold border-t-transparent"></div>
             <span className="text-vctt-gold text-xl font-medium">Loading Analytics...</span>
@@ -56,8 +56,8 @@ export default function AnalyticsDashboard({ onClose }: Props) {
 
   if (!analytics) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-vctt-dark">
-        <div className="bg-vctt-panel border border-red-500 rounded-xl p-8 shadow-2xl max-w-md">
+      <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: '#0f1419' }}>
+        <div className="border border-red-500 rounded-xl p-8 shadow-2xl max-w-md" style={{ backgroundColor: '#1a1f2e' }}>
           <div className="text-red-400 text-xl mb-4 font-semibold">📊 No Analytics Data</div>
           <p className="text-gray-300 mb-6">No data available yet. Start a conversation to generate analytics.</p>
           <button 
@@ -95,8 +95,8 @@ export default function AnalyticsDashboard({ onClose }: Props) {
   const trustColor = getTrustColor(avgTrust);
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center p-4 bg-vctt-dark">
-      <div className="bg-vctt-panel rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-700">
+    <div className="absolute inset-0 flex items-center justify-center p-4" style={{ backgroundColor: '#0f1419' }}>
+      <div className="rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-700" style={{ backgroundColor: '#1a1f2e' }}>
         {/* Header */}
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700 p-6 flex justify-between items-center">
           <div className="flex items-center gap-3">
@@ -117,12 +117,12 @@ export default function AnalyticsDashboard({ onClose }: Props) {
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(95vh-180px)] p-6 space-y-6 bg-vctt-panel">
+        <div className="overflow-y-auto max-h-[calc(95vh-180px)] p-6 space-y-6" style={{ backgroundColor: '#1a1f2e' }}>
           
           {/* Key Metrics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Average Trust */}
-            <div className="bg-vctt-panel border border-gray-700 rounded-xl p-5 hover:border-vctt-gold transition-colors">
+            <div className="border border-gray-700 rounded-xl p-5" style={{ backgroundColor: '#1a1f2e' }} hover:border-vctt-gold transition-colors">
               <div className="flex items-start justify-between mb-3">
                 <div className="p-2 rounded-lg" style={{ backgroundColor: `${trustColor}20` }}>
                   <TrendingUp size={20} style={{ color: trustColor }} />
@@ -136,7 +136,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
             </div>
 
             {/* Total Sessions */}
-            <div className="bg-vctt-panel border border-gray-700 rounded-xl p-5 hover:border-blue-500 transition-colors">
+            <div className="border border-gray-700 rounded-xl p-5" style={{ backgroundColor: '#1a1f2e' }} hover:border-blue-500 transition-colors">
               <div className="flex items-start justify-between mb-3">
                 <div className="p-2 rounded-lg bg-blue-500/20">
                   <MessageSquare size={20} className="text-blue-400" />
@@ -150,7 +150,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
             </div>
 
             {/* Total Messages */}
-            <div className="bg-vctt-panel border border-gray-700 rounded-xl p-5 hover:border-purple-500 transition-colors">
+            <div className="border border-gray-700 rounded-xl p-5" style={{ backgroundColor: '#1a1f2e' }} hover:border-purple-500 transition-colors">
               <div className="flex items-start justify-between mb-3">
                 <div className="p-2 rounded-lg bg-purple-500/20">
                   <MessageSquare size={20} className="text-purple-400" />
@@ -164,7 +164,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
             </div>
 
             {/* Total Repairs */}
-            <div className="bg-vctt-panel border border-gray-700 rounded-xl p-5 hover:border-orange-500 transition-colors">
+            <div className="border border-gray-700 rounded-xl p-5" style={{ backgroundColor: '#1a1f2e' }} hover:border-orange-500 transition-colors">
               <div className="flex items-start justify-between mb-3">
                 <div className="p-2 rounded-lg bg-orange-500/20">
                   <RefreshCw size={20} className="text-orange-400" />
@@ -180,7 +180,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
 
           {/* Trust Timeline */}
           {trustChartData.length > 0 && (
-            <div className="bg-vctt-panel border border-gray-700 rounded-xl p-6">
+            <div className="border border-gray-700 rounded-xl p-6" style={{ backgroundColor: '#1a1f2e' }}>
               <div className="mb-4">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   <TrendingUp size={20} className="text-vctt-gold" />
@@ -188,7 +188,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
                 </h3>
                 <p className="text-sm text-gray-400 mt-1">Trust (τ) and contradiction over time (last 15 points)</p>
               </div>
-              <div className="bg-vctt-dark rounded-lg p-4">
+              <div className="rounded-lg p-4" style={{ backgroundColor: '#0f1419' }}>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={trustChartData} style={{ backgroundColor: '#0f1419' }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -238,7 +238,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
             {/* Regulation Distribution */}
-            <div className="bg-vctt-panel border border-gray-700 rounded-xl p-6">
+            <div className="border border-gray-700 rounded-xl p-6" style={{ backgroundColor: '#1a1f2e' }}>
               <div className="mb-4">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   <Activity size={20} className="text-vctt-gold" />
@@ -246,7 +246,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
                 </h3>
                 <p className="text-sm text-gray-400 mt-1">How often each mode was triggered</p>
               </div>
-              <div className="bg-vctt-dark rounded-lg p-4">
+              <div className="rounded-lg p-4" style={{ backgroundColor: '#0f1419' }}>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={regulationData} style={{ backgroundColor: '#0f1419' }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -289,7 +289,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
             </div>
 
             {/* Detailed Stats */}
-            <div className="bg-vctt-panel border border-gray-700 rounded-xl p-6">
+            <div className="border border-gray-700 rounded-xl p-6" style={{ backgroundColor: '#1a1f2e' }}>
               <div className="mb-4">
                 <h3 className="text-xl font-bold text-white">Detailed Statistics</h3>
                 <p className="text-sm text-gray-400 mt-1">In-depth system performance</p>
@@ -297,7 +297,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
               
               <div className="space-y-4">
                 {/* Trust Range */}
-                <div className="bg-vctt-dark rounded-lg p-4">
+                <div className="rounded-lg p-4" style={{ backgroundColor: '#0f1419' }}>
                   <div className="text-sm text-gray-400 mb-2 font-medium">Trust Range</div>
                   <div className="flex items-center justify-between">
                     <div>
@@ -324,7 +324,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
                 </div>
 
                 {/* Engagement */}
-                <div className="bg-vctt-dark rounded-lg p-4">
+                <div className="rounded-lg p-4" style={{ backgroundColor: '#0f1419' }}>
                   <div className="text-sm text-gray-400 mb-3 font-medium">Engagement</div>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
@@ -349,7 +349,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
                 </div>
 
                 {/* Health Indicator */}
-                <div className="bg-vctt-dark rounded-lg p-4">
+                <div className="rounded-lg p-4" style={{ backgroundColor: '#0f1419' }}>
                   <div className="text-sm text-gray-400 mb-3 font-medium">System Health</div>
                   <div className="flex items-center gap-3">
                     {avgTrust >= 80 ? (
