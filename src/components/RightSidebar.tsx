@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Lock, Unlock } from 'lucide-react';
+import { Lock, Unlock, BarChart3 } from 'lucide-react';
 import type { VCTTState } from '../types';
 import LLMCommitteePanel from './LLMCommitteePanel';
 import { getApiUrl } from '../config/api';
@@ -10,9 +10,10 @@ interface RightSidebarProps {
   isAdminMode: boolean;
   onAdminToggle: (password: string) => boolean;
   sessionId?: string | null;
+  onShowAnalytics?: () => void;
 }
 
-export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle, sessionId }: RightSidebarProps) {
+export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle, sessionId, onShowAnalytics }: RightSidebarProps) {
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -147,6 +148,19 @@ export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle, se
               />
             </div>
           </div>
+
+          {/* Analytics Button */}
+          {onShowAnalytics && (
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={onShowAnalytics}
+                className="w-full bg-vctt-gold/10 hover:bg-vctt-gold/20 border border-vctt-gold/30 hover:border-vctt-gold text-vctt-gold px-4 py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm"
+              >
+                <BarChart3 size={18} />
+                View Analytics
+              </button>
+            </div>
+          )}
         </div>
 
         {/* LLM Committee */}

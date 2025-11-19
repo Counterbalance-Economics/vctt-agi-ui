@@ -4,7 +4,7 @@ import LeftSidebar from './components/LeftSidebar';
 import ChatPanel from './components/ChatPanel';
 import RightSidebar from './components/RightSidebar';
 import AdminPanel from './components/AdminPanel';
-import AnalyticsDashboard from './components/AnalyticsDashboard';
+import AnalyticsModal from './components/AnalyticsModal';
 import type { Session, Message, VCTTState, StepResponse } from './types';
 import { api } from './services/api';
 
@@ -221,7 +221,6 @@ function App() {
         currentSessionId={currentSession?.id}
         onSelectSession={handleSelectSession}
         onNewSession={handleNewSession}
-        onShowAnalytics={() => setShowAnalytics(true)}
       />
 
       {/* Center Chat Panel */}
@@ -240,11 +239,12 @@ function App() {
         isAdminMode={isAdminMode}
         onAdminToggle={handleAdminToggle}
         sessionId={currentSession?.id}
+        onShowAnalytics={() => setShowAnalytics(true)}
       />
 
-      {/* Analytics Dashboard */}
+      {/* Analytics Modal */}
       {showAnalytics && (
-        <AnalyticsDashboard onClose={() => setShowAnalytics(false)} />
+        <AnalyticsModal onClose={() => setShowAnalytics(false)} />
       )}
 
       {/* Admin Panel Overlay */}

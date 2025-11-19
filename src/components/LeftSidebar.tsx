@@ -12,10 +12,9 @@ interface LeftSidebarProps {
   currentSessionId?: string;
   onSelectSession: (session: Session) => void;
   onNewSession: () => void;
-  onShowAnalytics?: () => void;
 }
 
-export default function LeftSidebar({ sessions, currentSessionId, onSelectSession, onNewSession, onShowAnalytics }: LeftSidebarProps) {
+export default function LeftSidebar({ sessions, currentSessionId, onSelectSession, onNewSession }: LeftSidebarProps) {
   const formatTime = (date: Date) => {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -32,24 +31,13 @@ export default function LeftSidebar({ sessions, currentSessionId, onSelectSessio
       {/* Header */}
       <div className="p-4 border-b border-gray-700">
         <h1 className="text-xl font-bold text-vctt-gold mb-4">VCTT-AGI</h1>
-        <div className="space-y-2">
-          <button
-            onClick={onNewSession}
-            className="w-full bg-vctt-gold hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
-          >
-            <Plus size={20} />
-            New Chat
-          </button>
-          {onShowAnalytics && (
-            <button
-              onClick={onShowAnalytics}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
-            >
-              <BarChart3 size={20} />
-              Analytics
-            </button>
-          )}
-        </div>
+        <button
+          onClick={onNewSession}
+          className="w-full bg-vctt-gold hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+        >
+          <Plus size={20} />
+          New Chat
+        </button>
       </div>
 
       {/* Sessions List */}
