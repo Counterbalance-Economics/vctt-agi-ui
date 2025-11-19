@@ -122,7 +122,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
           {/* Key Metrics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Average Trust */}
-            <div className="border border-gray-700 rounded-xl p-5" style={{ backgroundColor: '#1a1f2e' }} hover:border-vctt-gold transition-colors">
+            <div className="border border-gray-700 rounded-xl p-5 hover:border-vctt-gold transition-colors" style={{ backgroundColor: '#1a1f2e' }}>
               <div className="flex items-start justify-between mb-3">
                 <div className="p-2 rounded-lg" style={{ backgroundColor: `${trustColor}20` }}>
                   <TrendingUp size={20} style={{ color: trustColor }} />
@@ -136,7 +136,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
             </div>
 
             {/* Total Sessions */}
-            <div className="border border-gray-700 rounded-xl p-5" style={{ backgroundColor: '#1a1f2e' }} hover:border-blue-500 transition-colors">
+            <div className="border border-gray-700 rounded-xl p-5 hover:border-blue-500 transition-colors" style={{ backgroundColor: '#1a1f2e' }}>
               <div className="flex items-start justify-between mb-3">
                 <div className="p-2 rounded-lg bg-blue-500/20">
                   <MessageSquare size={20} className="text-blue-400" />
@@ -150,7 +150,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
             </div>
 
             {/* Total Messages */}
-            <div className="border border-gray-700 rounded-xl p-5" style={{ backgroundColor: '#1a1f2e' }} hover:border-purple-500 transition-colors">
+            <div className="border border-gray-700 rounded-xl p-5 hover:border-purple-500 transition-colors" style={{ backgroundColor: '#1a1f2e' }}>
               <div className="flex items-start justify-between mb-3">
                 <div className="p-2 rounded-lg bg-purple-500/20">
                   <MessageSquare size={20} className="text-purple-400" />
@@ -164,7 +164,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
             </div>
 
             {/* Total Repairs */}
-            <div className="border border-gray-700 rounded-xl p-5" style={{ backgroundColor: '#1a1f2e' }} hover:border-orange-500 transition-colors">
+            <div className="border border-gray-700 rounded-xl p-5 hover:border-orange-500 transition-colors" style={{ backgroundColor: '#1a1f2e' }}>
               <div className="flex items-start justify-between mb-3">
                 <div className="p-2 rounded-lg bg-orange-500/20">
                   <RefreshCw size={20} className="text-orange-400" />
