@@ -224,13 +224,18 @@ function App() {
       />
 
       {/* Center Chat Panel */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 relative">
         <ChatPanel
           session={currentSession}
           isLoading={isLoading}
           onSendMessage={handleSendMessage}
           trustScore={vcttState['Trust (τ)']}
         />
+        
+        {/* Analytics Dashboard - Overlays center when shown */}
+        {showAnalytics && (
+          <AnalyticsDashboard onClose={() => setShowAnalytics(false)} />
+        )}
       </div>
 
       {/* Right Sidebar */}
@@ -241,11 +246,6 @@ function App() {
         sessionId={currentSession?.id}
         onShowAnalytics={() => setShowAnalytics(true)}
       />
-
-      {/* Analytics Dashboard */}
-      {showAnalytics && (
-        <AnalyticsDashboard onClose={() => setShowAnalytics(false)} />
-      )}
 
       {/* Admin Panel Overlay */}
       {isAdminMode && lastResponse && (
