@@ -3,7 +3,7 @@ import { FileTree } from '../components/FileTree';
 import { CodeEditor } from '../components/CodeEditor';
 import { AIChat } from '../components/AIChat';
 import { GitPanel } from '../components/GitPanel';
-import { CmdKModal, EditStats } from '../components/CmdKModal';
+import CmdKModal, { EditStats } from '../components/CmdKModal';
 import { StatusBar } from '../components/StatusBar';
 
 const BACKEND_URL = 'https://vctt-agi-phase3-complete.onrender.com';
@@ -198,13 +198,13 @@ export default function DeepAgentMode() {
   return (
     <div className="h-screen bg-gray-950 text-green-400 font-mono flex flex-col">
       {/* Cmd+K Modal */}
-      <CmdKModal
-        isOpen={isCmdKOpen}
-        onClose={() => setIsCmdKOpen(false)}
-        selectedCode={selectedCode}
-        filePath={selectedFile || ''}
-        onAccept={handleCmdKAccept}
-      />
+      {isCmdKOpen && (
+        <CmdKModal
+          original={selectedCode}
+          onApply={handleCmdKAccept}
+          onClose={() => setIsCmdKOpen(false)}
+        />
+      )}
 
       {/* Header */}
       <div className="bg-gray-900 border-b border-gray-700 px-4 py-3">
