@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Lock, Unlock, BarChart3 } from 'lucide-react';
+import { Lock, Unlock, BarChart3, Terminal } from 'lucide-react';
 import type { VCTTState } from '../types';
 import LLMCommitteePanel from './LLMCommitteePanel';
 import { getApiUrl } from '../config/api';
@@ -166,6 +166,19 @@ export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle, se
       </button>
     </div>
   )}
+
+  {/* DeepAgent Button */}
+  <div className="flex justify-center pt-2">
+    <a
+      href="/deep"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="w-full bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 hover:border-green-500 text-green-400 px-4 py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm"
+    >
+      <Terminal size={18} />
+      DeepAgent Mode
+    </a>
+  </div>
 </div>
 
         {/* LLM Committee */}
