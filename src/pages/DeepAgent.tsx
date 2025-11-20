@@ -1,145 +1,186 @@
-
 import { useEffect, useState, useRef } from 'react';
-import io from 'socket.io-client';
+import { FileTree } from '../components/FileTree';
+import { CodeEditor } from '../components/CodeEditor';
+
+const BACKEND_URL = 'https://vctt-agi-phase3-complete.onrender.com';
 
 export default function DeepAgentMode() {
+  // Terminal state
   const [messages, setMessages] = useState<string[]>([
-    '🤖 MIN DeepAgent Mode - Autonomous Engineering Co-Pilot',
-    'Type commands in natural language. I can execute git, read files, build, deploy, and more.',
-    'Example: "Show git status" or "Commit changes with message \'Fixed bug\'"',
+    '✅ Code Editor + Terminal Ready',
+    'Select a file from the explorer or run commands below',
     '',
   ]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const socketRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Editor state
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [fileContent, setFileContent] = useState<string>('');
+  const [, setIsDirty] = useState(false);
+
   useEffect(() => {
-    // Connect to backend WebSocket
-    const backendUrl = 'https://vctt-agi-backend.onrender.com';
-    socketRef.current = io(`${backendUrl}/stream`);
-
-    socketRef.current.on('connect', () => {
-      console.log('🔌 Connected to DeepAgent backend');
-      setMessages(prev => [...prev, '✅ Connected to backend - ready for commands', '']);
-    });
-
-    socketRef.current.on('disconnect', () => {
-      console.log('🔌 Disconnected from backend');
-      setMessages(prev => [...prev, '⚠️ Disconnected from backend', '']);
-    });
-
-    socketRef.current.on('stream_start', () => {
-      setIsProcessing(true);
-      setMessages(prev => [...prev, '']);  // Add empty slot for streaming
-    });
-
-    socketRef.current.on('stream_chunk', (data: { chunk: string }) => {
-      setMessages(prev => {
-        const updated = [...prev];
-        updated[updated.length - 1] += data.chunk;
-        return updated;
-      });
-    });
-
-    socketRef.current.on('stream_complete', () => {
-      setIsProcessing(false);
-      setMessages(prev => [...prev, '']);  // Ready for next command
-    });
-
-    socketRef.current.on('stream_error', (data: { error: string }) => {
-      setMessages(prev => [...prev, `❌ Error: ${data.error}`, '']);
-      setIsProcessing(false);
-    });
-
-    return () => socketRef.current?.disconnect();
+    testConnection();
   }, []);
+
+  const testConnection = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/health`);
+      if (res.ok) {
+        addMessage('✅ Connected to backend');
+      }
+    } catch (err) {
+      addMessage('⚠️ Backend offline - using mock data');
+    }
+  };
 
   useEffect(() => {
     // Auto-scroll to bottom
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const send = () => {
+  const addMessage = (msg: string) => {
+    setMessages(prev => [...prev, msg]);
+  };
+
+  const handleFileSelect = async (path: string) => {
+    setSelectedFile(path);
+    setIsDirty(false);
+    // Mock file content for now - backend integration coming next
+    const mockContent = `// File: ${path}\n// Backend integration coming in Phase 2\n\nconsole.log('Hello from ${path}');\n`;
+    setFileContent(mockContent);
+    addMessage(`📂 Opened: ${path}`);
+  };
+
+  const handleEditorChange = (value: string | undefined) => {
+    if (value !== undefined) {
+      setFileContent(value);
+      setIsDirty(true);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!selectedFile) return;
+    addMessage(`💾 Saving: ${selectedFile}`);
+    // Mock save for now - backend integration coming next
+    setIsDirty(false);
+    addMessage(`✅ Saved: ${selectedFile}`);
+  };
+
+  const send = async () => {
     if (!input.trim() || isProcessing) return;
     
-    setMessages(prev => [...prev, `MIN > ${input}`]);
-    socketRef.current.emit('deepagent_command', { input });
+    const cmd = input;
     setInput('');
+    addMessage(`MIN > ${cmd}`);
+    setIsProcessing(true);
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/deep/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: cmd }),
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+      if (data.output) {
+        addMessage(data.output);
+      }
+      if (data.error) {
+        addMessage(`❌ ERROR: ${data.error}`);
+      }
+    } catch (err: any) {
+      addMessage(`❌ ERROR: ${err.message}`);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
-    <div className="h-screen bg-black text-green-400 font-mono flex flex-col">
+    <div className="h-screen bg-gray-950 text-green-400 font-mono flex flex-col">
       {/* Header */}
-      <div className="bg-green-900 bg-opacity-20 border-b border-green-700 px-6 py-3 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            🤖 MIN DeepAgent
-            <span className="text-sm font-normal text-green-500">Autonomous Engineering Co-Pilot</span>
-          </h1>
-          <p className="text-xs text-green-500 mt-1">
-            {socketRef.current?.connected ? '🟢 Connected' : '🔴 Disconnected'} • Real command execution enabled
-          </p>
+      <div className="bg-gray-900 border-b border-gray-700 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="text-2xl">🤖</div>
+            <h1 className="text-xl font-bold text-white">MIN DeepAgent</h1>
+            <span className="text-xs text-gray-500">Code Editor • Terminal • AI Co-Pilot</span>
+          </div>
+          <a
+            href="/chat"
+            className="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-gray-300 text-sm transition-all"
+          >
+            ← Back
+          </a>
         </div>
-        <a 
-          href="/"
-          className="text-green-500 hover:text-green-300 text-sm border border-green-700 px-3 py-1 rounded hover:bg-green-900 hover:bg-opacity-20 transition-colors"
-        >
-          ← Back to Chat
-        </a>
       </div>
 
-      {/* Terminal Output */}
-      <div className="flex-1 overflow-y-auto p-6 pb-0 space-y-2">
-        {messages.map((msg, i) => (
-          <pre key={i} className="whitespace-pre-wrap leading-relaxed text-sm text-green-400">
-            {msg || <span className="animate-pulse text-green-500">▋</span>}
-          </pre>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input Bar */}
-      <div className="border-t border-green-900 bg-green-950 bg-opacity-30 p-4">
-        <div className="flex items-center gap-3">
-          <span className="text-green-500 font-bold">MIN &gt;</span>
-          <input
-            autoFocus
-            disabled={isProcessing}
-            className="flex-1 bg-transparent outline-none text-white placeholder-green-700 disabled:opacity-50"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && send()}
-            placeholder={isProcessing ? 'Processing...' : 'Tell MIN what to do... (e.g., "Show git status")'}
-          />
-          {isProcessing && (
-            <span className="text-green-600 animate-pulse text-xl">●</span>
-          )}
+      {/* Main Layout: 4 panels */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Panel: File Tree */}
+        <div className="w-64 border-r border-gray-800">
+          <FileTree onFileSelect={handleFileSelect} selectedFile={selectedFile} />
         </div>
-        
-        {/* Quick Commands */}
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button
-            onClick={() => setInput('Show git status')}
-            disabled={isProcessing}
-            className="text-xs px-2 py-1 border border-green-800 rounded hover:bg-green-900 hover:bg-opacity-30 transition-colors disabled:opacity-50"
-          >
-            git status
-          </button>
-          <button
-            onClick={() => setInput('What can you do?')}
-            disabled={isProcessing}
-            className="text-xs px-2 py-1 border border-green-800 rounded hover:bg-green-900 hover:bg-opacity-30 transition-colors disabled:opacity-50"
-          >
-            help
-          </button>
-          <button
-            onClick={() => setInput('Show current branch')}
-            disabled={isProcessing}
-            className="text-xs px-2 py-1 border border-green-800 rounded hover:bg-green-900 hover:bg-opacity-30 transition-colors disabled:opacity-50"
-          >
-            branch info
-          </button>
+
+        {/* Center Panel: Code Editor + Terminal */}
+        <div className="flex-1 flex flex-col">
+          {/* Code Editor */}
+          <div className="flex-1">
+            <CodeEditor
+              filePath={selectedFile}
+              content={fileContent}
+              onChange={handleEditorChange}
+              onSave={handleSave}
+            />
+          </div>
+
+          {/* Bottom Panel: Terminal */}
+          <div className="h-64 border-t border-gray-800 flex flex-col bg-gray-950">
+            <div className="px-4 py-2 bg-gray-900 border-b border-gray-800">
+              <span className="text-xs text-gray-400 uppercase font-semibold">Terminal</span>
+            </div>
+            
+            <div ref={messagesEndRef} className="flex-1 overflow-y-auto p-4 space-y-1 text-sm">
+              {messages.map((msg, i) => (
+                <div key={i} className="text-green-400 whitespace-pre-wrap break-words">
+                  {msg}
+                </div>
+              ))}
+              {isProcessing && (
+                <div className="text-green-600 animate-pulse">⏳ Processing...</div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            <div className="border-t border-gray-800 bg-gray-900 p-3">
+              <div className="flex items-center gap-3">
+                <span className="text-green-500 font-bold">MIN &gt;</span>
+                <input
+                  disabled={isProcessing}
+                  className="flex-1 bg-transparent outline-none text-white placeholder-gray-600 disabled:opacity-50 text-sm"
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && send()}
+                  placeholder="Enter command..."
+                />
+                {isProcessing && (
+                  <span className="text-green-600 animate-pulse">●</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Panel: AI Chat (Phase 2) */}
+        <div className="w-80 border-l border-gray-800 bg-gray-900 flex items-center justify-center">
+          <div className="text-center text-gray-500 p-4">
+            <div className="text-4xl mb-3">🧠</div>
+            <p className="text-sm font-semibold text-gray-400">AI Assistant</p>
+            <p className="text-xs mt-2">Coming in Phase 2</p>
+          </div>
         </div>
       </div>
     </div>
