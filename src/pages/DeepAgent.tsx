@@ -106,7 +106,7 @@ export default function DeepAgentMode() {
           <input
             autoFocus
             disabled={isProcessing}
-            className="flex-1 bg-transparent outline-none text-green-400 placeholder-green-700 disabled:opacity-50"
+            className="flex-1 bg-transparent outline-none text-white placeholder-green-700 disabled:opacity-50"
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && send()}
