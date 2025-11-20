@@ -16,7 +16,7 @@ export default function DeepAgentMode() {
 
   useEffect(() => {
     // Connect to backend WebSocket
-    const backendUrl = 'https://vctt-agi-phase3-complete.abacusai.app';
+    const backendUrl = 'https://vctt-agi-backend.onrender.com';
     socketRef.current = io(`${backendUrl}/stream`);
 
     socketRef.current.on('connect', () => {
@@ -92,8 +92,8 @@ export default function DeepAgentMode() {
       {/* Terminal Output */}
       <div className="flex-1 overflow-y-auto p-6 pb-0 space-y-2">
         {messages.map((msg, i) => (
-          <pre key={i} className="whitespace-pre-wrap leading-relaxed text-sm">
-            {msg || <span className="animate-pulse">▋</span>}
+          <pre key={i} className="whitespace-pre-wrap leading-relaxed text-sm text-green-400">
+            {msg || <span className="animate-pulse text-green-500">▋</span>}
           </pre>
         ))}
         <div ref={messagesEndRef} />
