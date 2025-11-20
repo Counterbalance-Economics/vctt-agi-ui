@@ -94,10 +94,11 @@ export default function AnalyticsDashboard({ onClose }: Props) {
   const avgTrust = Math.round(analytics.trust_metrics.average_trust_tau * 100);
   const trustColor = getTrustColor(avgTrust);
 
-  return (
-    <div className="absolute inset-0 flex items-center justify-center p-4" style={{ backgroundColor: '#0f1419' }}>
-      <div className="rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-700" style={{ backgroundColor: '#1a1f2e' }}>
-        {/* Header */}
+// Analytics Dashboard - 100% OPAQUE background (no transparency!)
+return (
+  <div className="fixed inset-0 bg-black flex items-center justify-center z-50 p-4">
+    <div className="bg-gray-900 rounded-2xl max-w-7xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-gray-700">
+      {/* Header */}
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700 p-6 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <Activity className="text-vctt-gold" size={28} />

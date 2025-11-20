@@ -4,7 +4,7 @@ import LeftSidebar from './components/LeftSidebar';
 import ChatPanel from './components/ChatPanel';
 import RightSidebar from './components/RightSidebar';
 import AdminPanel from './components/AdminPanel';
-import AnalyticsDashboard from './components/AnalyticsDashboard';
+import AnalyticsModal from './components/AnalyticsModal';
 import type { Session, Message, VCTTState, StepResponse } from './types';
 import { api } from './services/api';
 
@@ -23,6 +23,11 @@ function App() {
   const [lastResponse, setLastResponse] = useState<StepResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(true);
+
+  // Debug: Log showAnalytics state changes
+  useEffect(() => {
+    console.log('📊 showAnalytics changed to:', showAnalytics);
+  }, [showAnalytics]);
 
   // Load persisted sessions from backend on mount
   useEffect(() => {
@@ -204,7 +209,7 @@ function App() {
 
   if (loadingSessions) {
     return (
-      <div className="flex h-screen w-screen bg-vctt-dark text-white items-center justify-center">
+      <div className="flex h-screen w-screen bg-vctt-panel text-white items-center justify-center">
         <div className="text-center">
           <div className="text-vctt-gold text-2xl font-bold mb-4">VCTT-AGI</div>
           <div className="text-gray-400">Loading sessions...</div>
@@ -213,8 +218,9 @@ function App() {
     );
   }
 
-  return (
-    <div className="flex h-screen w-screen bg-vctt-dark text-white overflow-hidden">
+return (
+  <>
+    <div className="flex h-screen w-screen bg-vctt-panel text-white overflow-hidden">
       {/* Left Sidebar */}
       <LeftSidebar
         sessions={sessions}
@@ -224,18 +230,13 @@ function App() {
       />
 
       {/* Center Chat Panel */}
-      <div className="flex-1 flex flex-col min-w-0 relative">
+      <div className="flex-1 flex flex-col min-w-0">
         <ChatPanel
           session={currentSession}
           isLoading={isLoading}
           onSendMessage={handleSendMessage}
           trustScore={vcttState['Trust (τ)']}
         />
-        
-        {/* Analytics Dashboard - Overlays center when shown */}
-        {showAnalytics && (
-          <AnalyticsDashboard onClose={() => setShowAnalytics(false)} />
-        )}
       </div>
 
       {/* Right Sidebar */}
@@ -246,17 +247,23 @@ function App() {
         sessionId={currentSession?.id}
         onShowAnalytics={() => setShowAnalytics(true)}
       />
-
-      {/* Admin Panel Overlay */}
-      {isAdminMode && lastResponse && (
-        <AdminPanel
-          response={lastResponse}
-          onClose={() => setIsAdminMode(false)}
-          onForceRegulation={handleForceRegulation}
-        />
-      )}
     </div>
-  );
+
+    {/* Analytics Modal - Rendered outside main container for proper centering */}
+    {showAnalytics && (
+      <AnalyticsModal onClose={() => setShowAnalytics(false)} />
+    )}
+
+    {/* Admin Panel Overlay */}
+    {isAdminMode && lastResponse && (
+      <AdminPanel
+        response={lastResponse}
+        onClose={() => setIsAdminMode(false)}
+        onForceRegulation={handleForceRegulation}
+      />
+    )}
+  </>
+);
 }
 
 export default App;

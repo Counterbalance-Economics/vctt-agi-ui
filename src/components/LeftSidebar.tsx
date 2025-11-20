@@ -29,18 +29,16 @@ export default function LeftSidebar({ sessions, currentSessionId, onSelectSessio
   return (
     <div className="w-64 min-w-64 max-w-64 bg-vctt-panel border-r border-gray-700 flex flex-col flex-shrink-0">
       {/* Header */}
-      <div className="p-4 border-b border-gray-700">
-        <h1 className="text-xl font-bold text-vctt-gold mb-4">VCTT-AGI</h1>
-        <div className="space-y-2">
-          <button
-            onClick={onNewSession}
-            className="w-full bg-vctt-gold hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
-          >
-            <Plus size={20} />
-            New Chat
-          </button>
-        </div>
-      </div>
+<div className="p-4 border-b border-gray-700">
+  <h1 className="text-xl font-bold text-vctt-gold mb-4">VCTT-AGI</h1>
+  <button
+    onClick={onNewSession}
+    className="w-full bg-vctt-gold hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+  >
+    <Plus size={20} />
+    New Chat
+  </button>
+</div>
 
       {/* Sessions List */}
       <div className="flex-1 overflow-y-auto">

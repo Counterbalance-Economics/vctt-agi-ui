@@ -147,19 +147,26 @@ export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle, se
                 style={{ width: `${vcttState['Trust (τ)'] * 100}%` }}
               />
             </div>
-          </div>
+  </div>
 
-          {/* View Analytics Button */}
-          {onShowAnalytics && (
-            <button
-              onClick={onShowAnalytics}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors mt-4"
-            >
-              <BarChart3 size={18} />
-              📊 View Analytics
-            </button>
-          )}
-        </div>
+  {/* Analytics Button */}
+  {onShowAnalytics && (
+    <div className="flex justify-center pt-2">
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🟢 Analytics button clicked - propagation stopped');
+          onShowAnalytics();
+        }}
+        className="w-full bg-vctt-gold/10 hover:bg-vctt-gold/20 border border-vctt-gold/30 hover:border-vctt-gold text-vctt-gold px-4 py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm"
+      >
+        <BarChart3 size={18} />
+        View Analytics
+      </button>
+    </div>
+  )}
+</div>
 
         {/* LLM Committee */}
         <LLMCommitteePanel sessionId={sessionId || null} backendUrl={backendUrl} />
