@@ -94,6 +94,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             options={{
               fontSize: 14,
               minimap: { enabled: true },
+              folding: true,
+              foldingHighlight: true,
+              foldingStrategy: 'indentation',
+              showFoldingControls: 'always',
               scrollBeyondLastLine: false,
               automaticLayout: true,
               tabSize: 2,
@@ -104,6 +108,12 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
               cursorBlinking: 'smooth',
               cursorSmoothCaretAnimation: 'on',
               smoothScrolling: true,
+              bracketPairColorization: { enabled: true },
+              guides: { indentation: true },
+              contextmenu: true,
+              columnSelection: true,
+              formatOnPaste: true,
+              formatOnType: true,
             }}
           />
         ) : (
