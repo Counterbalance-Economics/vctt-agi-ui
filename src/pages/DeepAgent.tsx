@@ -1,35 +1,35 @@
-import { useEffect, useState, useRef } from 'react';
-import { FileTree } from '../components/FileTree';
-import { CodeEditor } from '../components/CodeEditor';
-import { AIChat } from '../components/AIChat';
-import { GitPanel } from '../components/GitPanel';
-import CmdKModal, { EditStats } from '../components/CmdKModal';
-import CommandPalette from '../components/CommandPalette';
-import TestExplorer from '../components/TestExplorer';
-import DeploymentPanel from '../components/DeploymentPanel';
-import { StatusBar } from '../components/StatusBar';
+import { useEffect, useState, useRef } from "react";
+import { FileTree } from "../components/FileTree";
+import { CodeEditor } from "../components/CodeEditor";
+import { AIChat } from "../components/AIChat";
+import { GitPanel } from "../components/GitPanel";
+import CmdKModal, { EditStats } from "../components/CmdKModal";
+import CommandPalette from "../components/CommandPalette";
+import TestExplorer from "../components/TestExplorer";
+import DeploymentPanel from "../components/DeploymentPanel";
+import { StatusBar } from "../components/StatusBar";
 
-const BACKEND_URL = 'https://vctt-agi-phase3-complete.onrender.com';
+const BACKEND_URL = "https://vctt-agi-phase3-complete.onrender.com";
 
 export default function DeepAgentMode() {
   // Terminal state
   const [messages, setMessages] = useState<string[]>([
-    '✅ Phase 4: Cmd+K AI Editing Ready',
-    '✨ Select code and press Cmd+K to edit with Claude 3.5 Sonnet',
-    '',
+    "✅ Phase 4: Cmd+K AI Editing Ready",
+    "✨ Select code and press Cmd+K to edit with Claude 3.5 Sonnet",
+    "",
   ]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Editor state
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
-  const [fileContent, setFileContent] = useState<string>('');
+  const [fileContent, setFileContent] = useState<string>("");
   const [, setIsDirty] = useState(false);
 
   // Cmd+K state
   const [isCmdKOpen, setIsCmdKOpen] = useState(false);
-  const [selectedCode, setSelectedCode] = useState('');
+  const [selectedCode, setSelectedCode] = useState("");
 
   // Command Palette state
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
@@ -42,7 +42,7 @@ export default function DeepAgentMode() {
   const [lastEditTokens, setLastEditTokens] = useState<number | null>(null);
   const [trustTau, setTrustTau] = useState<number | null>(null);
   const [grokConfidence, setGrokConfidence] = useState<number | null>(null);
-  const [currentBranch] = useState('main');
+  const [currentBranch] = useState("main");
 
   useEffect(() => {
     testConnection();
@@ -50,13 +50,13 @@ export default function DeepAgentMode() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.metaKey && e.shiftKey && e.key === 'P') {
+      if (e.metaKey && e.shiftKey && e.key === "P") {
         e.preventDefault();
-        setIsCommandPaletteOpen(prev => !prev);
+        setIsCommandPaletteOpen((prev) => !prev);
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   const testConnection = async () => {
@@ -64,23 +64,23 @@ export default function DeepAgentMode() {
       const res = await fetch(`${BACKEND_URL}/health`);
       if (res.ok) {
         setIsConnected(true);
-        addMessage('✅ Connected to backend');
+        addMessage("✅ Connected to backend");
       } else {
         setIsConnected(false);
       }
     } catch (err) {
       setIsConnected(false);
-      addMessage('⚠️ Backend offline - using mock data');
+      addMessage("⚠️ Backend offline - using mock data");
     }
   };
 
   useEffect(() => {
     // Auto-scroll to bottom
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const addMessage = (msg: string) => {
-    setMessages(prev => [...prev, msg]);
+    setMessages((prev) => [...prev, msg]);
   };
 
   const handleFileSelect = async (path: string) => {
@@ -102,11 +102,11 @@ export default function DeepAgentMode() {
   const handleSave = async () => {
     if (!selectedFile) return;
     addMessage(`💾 Saving: ${selectedFile}`);
-    
+
     // Save the file
     setIsDirty(false);
     addMessage(`✅ Saved: ${selectedFile}`);
-    
+
     // Auto-commit with AI-generated message
     const commitMsg = generateCommitMessage(selectedFile);
     addMessage(`📝 Auto-committing: "${commitMsg}"`);
@@ -115,7 +115,7 @@ export default function DeepAgentMode() {
 
   const generateCommitMessage = (filePath: string): string => {
     // AI-powered commit message generation (mock for now)
-    const fileName = filePath.split('/').pop();
+    const fileName = filePath.split("/").pop();
     const messages = [
       `Update ${fileName}`,
       `Refactor ${fileName}`,
@@ -144,34 +144,36 @@ export default function DeepAgentMode() {
 
   const handleCmdK = () => {
     if (!selectedFile) {
-      addMessage('⚠️ Please select a file first');
+      addMessage("⚠️ Please select a file first");
       return;
     }
     // Get selected text from editor (or entire file if no selection)
     setSelectedCode(fileContent);
     setIsCmdKOpen(true);
-    addMessage('✨ Cmd+K: AI editing mode activated');
+    addMessage("✨ Cmd+K: AI editing mode activated");
   };
 
   const handleCmdKAccept = (editedCode: string, stats: EditStats) => {
     // Apply the edited code
     setFileContent(editedCode);
     setIsDirty(true);
-    
+
     // Update status bar (including MIN trust metrics!)
     setLastEditCost(stats.cost);
     setLastEditTokens(stats.tokensUsed);
     setTrustTau(stats.trustTau ?? null);
     setGrokConfidence(stats.grokConfidence ?? null);
-    
+
     // Log stats with trust metrics
     addMessage(`✅ AI edit applied (MIN Autonomous Engine):`);
     addMessage(`   +${stats.linesAdded} -${stats.linesDeleted} ~${stats.linesModified} lines`);
     addMessage(`   $${stats.cost.toFixed(4)} • ${stats.tokensUsed} tokens • ${stats.latency}ms`);
     if (stats.trustTau !== undefined) {
-      addMessage(`   Trust τ: ${stats.trustTau.toFixed(2)} • Grok: ${((stats.grokConfidence ?? 0) * 100).toFixed(0)}%`);
+      addMessage(
+        `   Trust τ: ${stats.trustTau.toFixed(2)} • Grok: ${((stats.grokConfidence ?? 0) * 100).toFixed(0)}%`
+      );
     }
-    
+
     // Auto-save
     handleSave();
   };
@@ -183,16 +185,16 @@ export default function DeepAgentMode() {
 
   const send = async () => {
     if (!input.trim() || isProcessing) return;
-    
+
     const cmd = input;
-    setInput('');
+    setInput("");
     addMessage(`MIN > ${cmd}`);
     setIsProcessing(true);
 
     try {
       const res = await fetch(`${BACKEND_URL}/api/deep/execute`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ command: cmd }),
       });
 
@@ -276,16 +278,14 @@ export default function DeepAgentMode() {
             <div className="px-4 py-2 bg-gray-900 border-b border-gray-800">
               <span className="text-xs text-gray-400 uppercase font-semibold">Terminal</span>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-4 space-y-1 text-sm">
               {messages.map((msg, i) => (
                 <div key={i} className="text-green-400 whitespace-pre-wrap break-words">
                   {msg}
                 </div>
               ))}
-              {isProcessing && (
-                <div className="text-green-600 animate-pulse">⏳ Processing...</div>
-              )}
+              {isProcessing && <div className="text-green-600 animate-pulse">⏳ Processing...</div>}
               <div ref={messagesEndRef} />
             </div>
 
@@ -296,13 +296,11 @@ export default function DeepAgentMode() {
                   disabled={isProcessing}
                   className="flex-1 bg-transparent outline-none text-white placeholder-gray-600 disabled:opacity-50 text-sm"
                   value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && send()}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && send()}
                   placeholder="Enter command..."
                 />
-                {isProcessing && (
-                  <span className="text-green-600 animate-pulse">●</span>
-                )}
+                {isProcessing && <span className="text-green-600 animate-pulse">●</span>}
               </div>
             </div>
           </div>

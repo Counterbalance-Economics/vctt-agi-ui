@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect, useRef } from 'react';
-import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect, useRef } from "react";
+import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 interface SearchResult {
   filePath: string;
@@ -16,10 +15,10 @@ interface SearchModalProps {
   onResultSelect: (filePath: string, lineNumber: number) => void;
 }
 
-const BACKEND_URL = 'https://vctt-agi-backend.onrender.com';
+const BACKEND_URL = "https://vctt-agi-backend.onrender.com";
 
 export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onResultSelect }) => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -36,12 +35,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onRes
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === "Escape" && isOpen) {
         onClose();
       }
     };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
 
   useEffect(() => {
@@ -59,8 +58,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onRes
     setIsSearching(true);
     try {
       const response = await fetch(`${BACKEND_URL}/api/ide/search-files`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query,
           caseSensitive,
@@ -75,20 +74,20 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onRes
         setSelectedIndex(0);
       }
     } catch (error) {
-      console.error('Search error:', error);
+      console.error("Search error:", error);
     } finally {
       setIsSearching(false);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
       setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setSelectedIndex((prev) => Math.max(prev - 1, 0));
-    } else if (e.key === 'Enter' && results[selectedIndex]) {
+    } else if (e.key === "Enter" && results[selectedIndex]) {
       e.preventDefault();
       handleResultClick(results[selectedIndex]);
     }
@@ -161,7 +160,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onRes
           </label>
           {results.length > 0 && (
             <span className="ml-auto text-gray-500">
-              {results.length} result{results.length !== 1 ? 's' : ''}
+              {results.length} result{results.length !== 1 ? "s" : ""}
             </span>
           )}
         </div>
@@ -183,7 +182,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onRes
               key={`${result.filePath}-${result.lineNumber}-${idx}`}
               onClick={() => handleResultClick(result)}
               className={`px-4 py-2 cursor-pointer border-b border-gray-800 hover:bg-gray-800 transition-colors ${
-                idx === selectedIndex ? 'bg-gray-800 border-l-2 border-blue-500' : ''
+                idx === selectedIndex ? "bg-gray-800 border-l-2 border-blue-500" : ""
               }`}
             >
               <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">

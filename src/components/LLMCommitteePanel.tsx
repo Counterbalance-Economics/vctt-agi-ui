@@ -1,6 +1,5 @@
-
-import { useState, useEffect } from 'react';
-import { Activity, Globe } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Activity, Globe } from "lucide-react";
 
 export interface ModelStats {
   model_name: string;
@@ -33,7 +32,7 @@ interface LLMCommitteePanelProps {
 }
 
 export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitteePanelProps) {
-  const [activeTab, setActiveTab] = useState<'session' | 'global'>('session');
+  const [activeTab, setActiveTab] = useState<"session" | "global">("session");
   const [sessionStats, setSessionStats] = useState<SessionCommitteeStats | null>(null);
   const [globalStats, setGlobalStats] = useState<GlobalCommitteeStats | null>(null);
   const [loading, setLoading] = useState(false);
@@ -41,7 +40,7 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
 
   // Fetch session stats
   useEffect(() => {
-    if (!sessionId || !backendUrl || activeTab !== 'session') return;
+    if (!sessionId || !backendUrl || activeTab !== "session") return;
 
     const fetchSessionStats = async () => {
       setLoading(true);
@@ -49,23 +48,23 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
       try {
         const cacheBust = `?_cb=${Date.now()}`;
         const url = `${backendUrl}/api/v1/analytics/llm-committee/session/${sessionId}${cacheBust}`;
-        console.log('FETCHING SESSION:', url);
-        
+        console.log("FETCHING SESSION:", url);
+
         const response = await fetch(url);
-        console.log('SESSION RESPONSE STATUS:', response.status, response.statusText);
-        
+        console.log("SESSION RESPONSE STATUS:", response.status, response.statusText);
+
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('SESSION FETCH FAILED - Status:', response.status, 'Body:', errorText);
+          console.error("SESSION FETCH FAILED - Status:", response.status, "Body:", errorText);
           throw new Error(`Failed to fetch session stats: ${response.status}`);
         }
-        
+
         const data = await response.json();
-        console.log('SESSION STATS DATA:', data);
+        console.log("SESSION STATS DATA:", data);
         setSessionStats(data);
       } catch (err) {
-        console.error('LLM COMMITTEE SESSION FETCH FAILED:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch session stats');
+        console.error("LLM COMMITTEE SESSION FETCH FAILED:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch session stats");
       } finally {
         setLoading(false);
       }
@@ -78,7 +77,7 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
 
   // Fetch global stats
   useEffect(() => {
-    if (!backendUrl || activeTab !== 'global') return;
+    if (!backendUrl || activeTab !== "global") return;
 
     const fetchGlobalStats = async () => {
       setLoading(true);
@@ -86,23 +85,23 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
       try {
         const cacheBust = `&_cb=${Date.now()}`;
         const url = `${backendUrl}/api/v1/analytics/llm-committee/global?limit=50${cacheBust}`;
-        console.log('FETCHING:', url);
-        
+        console.log("FETCHING:", url);
+
         const response = await fetch(url);
-        console.log('RESPONSE STATUS:', response.status, response.statusText);
-        
+        console.log("RESPONSE STATUS:", response.status, response.statusText);
+
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('FETCH FAILED - Status:', response.status, 'Body:', errorText);
+          console.error("FETCH FAILED - Status:", response.status, "Body:", errorText);
           throw new Error(`Failed to fetch global stats: ${response.status}`);
         }
-        
+
         const data = await response.json();
-        console.log('GLOBAL STATS DATA:', data);
+        console.log("GLOBAL STATS DATA:", data);
         setGlobalStats(data);
       } catch (err) {
-        console.error('LLM COMMITTEE FETCH FAILED:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch global stats');
+        console.error("LLM COMMITTEE FETCH FAILED:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch global stats");
         // Set empty fallback data
         setGlobalStats({
           questions_analyzed: 0,
@@ -122,19 +121,19 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
   }, [backendUrl, activeTab]);
 
   const getContributionColor = (percentage: number) => {
-    if (percentage >= 80) return 'text-green-400';
-    if (percentage >= 40) return 'text-yellow-400';
-    return 'text-red-400';
+    if (percentage >= 80) return "text-green-400";
+    if (percentage >= 40) return "text-yellow-400";
+    return "text-red-400";
   };
 
   const getModelDisplayName = (modelName: string) => {
     const names: Record<string, string> = {
-      'grok-3': 'Grok-3',
-      'grok-3-direct': 'Grok-3',
-      'claude-3.5': 'Claude 3.5',
-      'claude': 'Claude 3.5',
-      'gpt-5': 'GPT-5',
-      'gpt-4o': 'GPT-4o',
+      "grok-3": "Grok-3",
+      "grok-3-direct": "Grok-3",
+      "claude-3.5": "Claude 3.5",
+      claude: "Claude 3.5",
+      "gpt-5": "GPT-5",
+      "gpt-4o": "GPT-4o",
     };
     return names[modelName] || modelName;
   };
@@ -144,15 +143,13 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
       <div className="pt-4 border-t border-gray-700">
         <h3 className="text-sm font-semibold mb-3">LLM Committee</h3>
         <div className="bg-gray-800 rounded-lg p-3">
-          <p className="text-xs text-gray-400 text-center">
-            Backend not configured
-          </p>
+          <p className="text-xs text-gray-400 text-center">Backend not configured</p>
         </div>
       </div>
     );
   }
 
-  if (!sessionId && activeTab === 'session') {
+  if (!sessionId && activeTab === "session") {
     return (
       <div className="pt-4 border-t border-gray-700">
         <h3 className="text-sm font-semibold mb-3">LLM Committee</h3>
@@ -172,22 +169,22 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
       {/* Tabs */}
       <div className="flex gap-2 mb-3">
         <button
-          onClick={() => setActiveTab('session')}
+          onClick={() => setActiveTab("session")}
           className={`flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-            activeTab === 'session'
-              ? 'bg-vctt-gold text-vctt-dark'
-              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            activeTab === "session"
+              ? "bg-vctt-gold text-vctt-dark"
+              : "bg-gray-800 text-gray-400 hover:bg-gray-700"
           }`}
         >
           <Activity size={14} />
           Session
         </button>
         <button
-          onClick={() => setActiveTab('global')}
+          onClick={() => setActiveTab("global")}
           className={`flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-            activeTab === 'global'
-              ? 'bg-vctt-gold text-vctt-dark'
-              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            activeTab === "global"
+              ? "bg-vctt-gold text-vctt-dark"
+              : "bg-gray-800 text-gray-400 hover:bg-gray-700"
           }`}
         >
           <Globe size={14} />
@@ -203,23 +200,18 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
           </div>
         )}
 
-        {error && (
-          <div className="text-xs text-red-400 text-center">{error}</div>
-        )}
+        {error && <div className="text-xs text-red-400 text-center">{error}</div>}
 
         {/* Session Stats */}
-        {activeTab === 'session' && sessionStats && !error && (
+        {activeTab === "session" && sessionStats && !error && (
           <div className="space-y-2">
             <div className="text-xs text-gray-400 mb-3">
-              {sessionStats.total_questions === 0 
-                ? 'No questions yet'
-                : `${sessionStats.total_questions} question${sessionStats.total_questions !== 1 ? 's' : ''}`
-              }
+              {sessionStats.total_questions === 0
+                ? "No questions yet"
+                : `${sessionStats.total_questions} question${sessionStats.total_questions !== 1 ? "s" : ""}`}
             </div>
             {sessionStats.models.length === 0 ? (
-              <div className="text-xs text-gray-400 text-center py-4">
-                No model data yet
-              </div>
+              <div className="text-xs text-gray-400 text-center py-4">No model data yet</div>
             ) : (
               sessionStats.models.map((model) => (
                 <div
@@ -238,9 +230,7 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
                     </span>
                   </div>
                   {model.offline_count > 0 && (
-                    <span className="text-xs text-red-400">
-                      {model.offline_count} offline
-                    </span>
+                    <span className="text-xs text-red-400">{model.offline_count} offline</span>
                   )}
                 </div>
               ))
@@ -249,15 +239,13 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
         )}
 
         {/* Global Stats */}
-        {activeTab === 'global' && globalStats && !error && (
+        {activeTab === "global" && globalStats && !error && (
           <div className="space-y-2">
             <div className="text-xs text-gray-400 mb-3">
               Last {globalStats.questions_analyzed} questions
             </div>
             {globalStats.models.length === 0 ? (
-              <div className="text-xs text-gray-400 text-center py-4">
-                No global data yet
-              </div>
+              <div className="text-xs text-gray-400 text-center py-4">No global data yet</div>
             ) : (
               globalStats.models.map((model) => (
                 <div
@@ -276,9 +264,7 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
                     </span>
                   </div>
                   {model.offline_count > 0 && (
-                    <span className="text-xs text-red-400">
-                      {model.offline_count} off
-                    </span>
+                    <span className="text-xs text-red-400">{model.offline_count} off</span>
                   )}
                 </div>
               ))

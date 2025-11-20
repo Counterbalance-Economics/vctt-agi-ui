@@ -1,4 +1,3 @@
-
 // src/components/TestExplorer.tsx
 "use client";
 
@@ -22,9 +21,9 @@ const mockTests: Test[] = [
 
 export default function TestExplorer() {
   const [tests] = useState(mockTests);
-  const passed = tests.filter(t => t.status === "pass").length;
-  const failed = tests.filter(t => t.status === "fail").length;
-  const pending = tests.filter(t => t.status === "pending").length;
+  const passed = tests.filter((t) => t.status === "pass").length;
+  const failed = tests.filter((t) => t.status === "fail").length;
+  const pending = tests.filter((t) => t.status === "pending").length;
 
   const jumpToTest = (file: string, line: number) => {
     alert(`Jump to ${file}:${line}`);

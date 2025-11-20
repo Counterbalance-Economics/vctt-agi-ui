@@ -1,19 +1,37 @@
-
-import { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
-import { api, type AggregateAnalytics, type TrustMetric } from '../services/api';
-import { TrendingUp, MessageSquare, RefreshCw, Activity, AlertTriangle, CheckCircle } from 'lucide-react';
+import { useState, useEffect } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Cell,
+} from "recharts";
+import { api, type AggregateAnalytics, type TrustMetric } from "../services/api";
+import {
+  TrendingUp,
+  MessageSquare,
+  RefreshCw,
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+} from "lucide-react";
 
 interface Props {
   onClose: () => void;
 }
 
 const COLORS = {
-  green: '#10b981',
-  yellow: '#f59e0b',
-  red: '#ef4444',
-  blue: '#3b82f6',
-  purple: '#8b5cf6',
+  green: "#10b981",
+  yellow: "#f59e0b",
+  red: "#ef4444",
+  blue: "#3b82f6",
+  purple: "#8b5cf6",
 };
 
 export default function AnalyticsDashboard({ onClose }: Props) {
@@ -35,7 +53,7 @@ export default function AnalyticsDashboard({ onClose }: Props) {
       setAnalytics(agg);
       setTrustMetrics(metrics);
     } catch (error) {
-      console.error('Error loading analytics:', error);
+      console.error("Error loading analytics:", error);
     } finally {
       setLoading(false);
     }
@@ -43,8 +61,14 @@ export default function AnalyticsDashboard({ onClose }: Props) {
 
   if (loading) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: '#0f1419' }}>
-        <div className="border border-vctt-gold rounded-xl p-8 shadow-2xl" style={{ backgroundColor: '#1a1f2e' }}>
+      <div
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ backgroundColor: "#0f1419" }}
+      >
+        <div
+          className="border border-vctt-gold rounded-xl p-8 shadow-2xl"
+          style={{ backgroundColor: "#1a1f2e" }}
+        >
           <div className="flex items-center gap-3">
             <div className="animate-spin rounded-full h-8 w-8 border-2 border-vctt-gold border-t-transparent"></div>
             <span className="text-vctt-gold text-xl font-medium">Loading Analytics...</span>
@@ -56,12 +80,20 @@ export default function AnalyticsDashboard({ onClose }: Props) {
 
   if (!analytics) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: '#0f1419' }}>
-        <div className="border border-red-500 rounded-xl p-8 shadow-2xl max-w-md" style={{ backgroundColor: '#1a1f2e' }}>
+      <div
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ backgroundColor: "#0f1419" }}
+      >
+        <div
+          className="border border-red-500 rounded-xl p-8 shadow-2xl max-w-md"
+          style={{ backgroundColor: "#1a1f2e" }}
+        >
           <div className="text-red-400 text-xl mb-4 font-semibold">📊 No Analytics Data</div>
-          <p className="text-gray-300 mb-6">No data available yet. Start a conversation to generate analytics.</p>
-          <button 
-            onClick={onClose} 
+          <p className="text-gray-300 mb-6">
+            No data available yet. Start a conversation to generate analytics.
+          </p>
+          <button
+            onClick={onClose}
             className="w-full px-6 py-3 bg-vctt-gold hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors"
           >
             Close
@@ -72,14 +104,17 @@ export default function AnalyticsDashboard({ onClose }: Props) {
   }
 
   const regulationData = [
-    { name: 'Normal', value: analytics.regulation.normal, fill: COLORS.green },
-    { name: 'Clarify', value: analytics.regulation.clarify, fill: COLORS.yellow },
-    { name: 'Slow Down', value: analytics.regulation.slow_down, fill: COLORS.red },
+    { name: "Normal", value: analytics.regulation.normal, fill: COLORS.green },
+    { name: "Clarify", value: analytics.regulation.clarify, fill: COLORS.yellow },
+    { name: "Slow Down", value: analytics.regulation.slow_down, fill: COLORS.red },
   ];
 
   const trustChartData = trustMetrics
-    .map(m => ({
-      time: new Date(m.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    .map((m) => ({
+      time: new Date(m.timestamp).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
       trust: Math.round(m.trust_tau * 100),
       contradiction: Math.round(m.contradiction * 100),
     }))
@@ -94,11 +129,11 @@ export default function AnalyticsDashboard({ onClose }: Props) {
   const avgTrust = Math.round(analytics.trust_metrics.average_trust_tau * 100);
   const trustColor = getTrustColor(avgTrust);
 
-// Analytics Dashboard - 100% OPAQUE background (no transparency!)
-return (
-  <div className="fixed inset-0 bg-black flex items-center justify-center z-50 p-4">
-    <div className="bg-gray-900 rounded-2xl max-w-7xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-gray-700">
-      {/* Header */}
+  // Analytics Dashboard - 100% OPAQUE background (no transparency!)
+  return (
+    <div className="fixed inset-0 bg-black flex items-center justify-center z-50 p-4">
+      <div className="bg-gray-900 rounded-2xl max-w-7xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-gray-700">
+        {/* Header */}
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700 p-6 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <Activity className="text-vctt-gold" size={28} />
@@ -107,23 +142,33 @@ return (
               <p className="text-gray-400 text-sm mt-1">System performance and trust metrics</p>
             </div>
           </div>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-700 rounded-lg"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(95vh-180px)] p-6 space-y-6" style={{ backgroundColor: '#1a1f2e' }}>
-          
+        <div
+          className="overflow-y-auto max-h-[calc(95vh-180px)] p-6 space-y-6"
+          style={{ backgroundColor: "#1a1f2e" }}
+        >
           {/* Key Metrics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Average Trust */}
-            <div className="border border-gray-700 rounded-xl p-5 hover:border-vctt-gold transition-colors" style={{ backgroundColor: '#1a1f2e' }}>
+            <div
+              className="border border-gray-700 rounded-xl p-5 hover:border-vctt-gold transition-colors"
+              style={{ backgroundColor: "#1a1f2e" }}
+            >
               <div className="flex items-start justify-between mb-3">
                 <div className="p-2 rounded-lg" style={{ backgroundColor: `${trustColor}20` }}>
                   <TrendingUp size={20} style={{ color: trustColor }} />
@@ -137,7 +182,10 @@ return (
             </div>
 
             {/* Total Sessions */}
-            <div className="border border-gray-700 rounded-xl p-5 hover:border-blue-500 transition-colors" style={{ backgroundColor: '#1a1f2e' }}>
+            <div
+              className="border border-gray-700 rounded-xl p-5 hover:border-blue-500 transition-colors"
+              style={{ backgroundColor: "#1a1f2e" }}
+            >
               <div className="flex items-start justify-between mb-3">
                 <div className="p-2 rounded-lg bg-blue-500/20">
                   <MessageSquare size={20} className="text-blue-400" />
@@ -151,7 +199,10 @@ return (
             </div>
 
             {/* Total Messages */}
-            <div className="border border-gray-700 rounded-xl p-5 hover:border-purple-500 transition-colors" style={{ backgroundColor: '#1a1f2e' }}>
+            <div
+              className="border border-gray-700 rounded-xl p-5 hover:border-purple-500 transition-colors"
+              style={{ backgroundColor: "#1a1f2e" }}
+            >
               <div className="flex items-start justify-between mb-3">
                 <div className="p-2 rounded-lg bg-purple-500/20">
                   <MessageSquare size={20} className="text-purple-400" />
@@ -165,7 +216,10 @@ return (
             </div>
 
             {/* Total Repairs */}
-            <div className="border border-gray-700 rounded-xl p-5 hover:border-orange-500 transition-colors" style={{ backgroundColor: '#1a1f2e' }}>
+            <div
+              className="border border-gray-700 rounded-xl p-5 hover:border-orange-500 transition-colors"
+              style={{ backgroundColor: "#1a1f2e" }}
+            >
               <div className="flex items-start justify-between mb-3">
                 <div className="p-2 rounded-lg bg-orange-500/20">
                   <RefreshCw size={20} className="text-orange-400" />
@@ -181,51 +235,57 @@ return (
 
           {/* Trust Timeline */}
           {trustChartData.length > 0 && (
-            <div className="border border-gray-700 rounded-xl p-6" style={{ backgroundColor: '#1a1f2e' }}>
+            <div
+              className="border border-gray-700 rounded-xl p-6"
+              style={{ backgroundColor: "#1a1f2e" }}
+            >
               <div className="mb-4">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   <TrendingUp size={20} className="text-vctt-gold" />
                   Trust Timeline
                 </h3>
-                <p className="text-sm text-gray-400 mt-1">Trust (τ) and contradiction over time (last 15 points)</p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Trust (τ) and contradiction over time (last 15 points)
+                </p>
               </div>
-              <div className="rounded-lg p-4" style={{ backgroundColor: '#0f1419' }}>
+              <div className="rounded-lg p-4" style={{ backgroundColor: "#0f1419" }}>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={trustChartData} style={{ backgroundColor: '#0f1419' }}>
+                  <LineChart data={trustChartData} style={{ backgroundColor: "#0f1419" }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis 
-                      dataKey="time" 
-                      stroke="#9ca3af" 
-                      style={{ fontSize: '12px' }}
-                    />
-                    <YAxis 
-                      stroke="#9ca3af" 
-                      style={{ fontSize: '12px' }}
-                      label={{ value: 'Percentage (%)', angle: -90, position: 'insideLeft', style: { fill: '#9ca3af' } }}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1f2937', 
-                        border: '1px solid #374151', 
-                        borderRadius: '8px',
-                        color: '#fff'
+                    <XAxis dataKey="time" stroke="#9ca3af" style={{ fontSize: "12px" }} />
+                    <YAxis
+                      stroke="#9ca3af"
+                      style={{ fontSize: "12px" }}
+                      label={{
+                        value: "Percentage (%)",
+                        angle: -90,
+                        position: "insideLeft",
+                        style: { fill: "#9ca3af" },
                       }}
-                      labelStyle={{ color: '#f3f4f6', fontWeight: 'bold' }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#1f2937",
+                        border: "1px solid #374151",
+                        borderRadius: "8px",
+                        color: "#fff",
+                      }}
+                      labelStyle={{ color: "#f3f4f6", fontWeight: "bold" }}
                     />
                     <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="trust" 
-                      stroke={COLORS.green} 
-                      name="Trust (τ)" 
+                    <Line
+                      type="monotone"
+                      dataKey="trust"
+                      stroke={COLORS.green}
+                      name="Trust (τ)"
                       strokeWidth={3}
                       dot={{ fill: COLORS.green, r: 4 }}
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="contradiction" 
-                      stroke={COLORS.red} 
-                      name="Contradiction" 
+                    <Line
+                      type="monotone"
+                      dataKey="contradiction"
+                      stroke={COLORS.red}
+                      name="Contradiction"
                       strokeWidth={3}
                       dot={{ fill: COLORS.red, r: 4 }}
                     />
@@ -237,9 +297,11 @@ return (
 
           {/* Two Column Layout: Regulation & Details */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
             {/* Regulation Distribution */}
-            <div className="border border-gray-700 rounded-xl p-6" style={{ backgroundColor: '#1a1f2e' }}>
+            <div
+              className="border border-gray-700 rounded-xl p-6"
+              style={{ backgroundColor: "#1a1f2e" }}
+            >
               <div className="mb-4">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   <Activity size={20} className="text-vctt-gold" />
@@ -247,22 +309,22 @@ return (
                 </h3>
                 <p className="text-sm text-gray-400 mt-1">How often each mode was triggered</p>
               </div>
-              <div className="rounded-lg p-4" style={{ backgroundColor: '#0f1419' }}>
+              <div className="rounded-lg p-4" style={{ backgroundColor: "#0f1419" }}>
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={regulationData} style={{ backgroundColor: '#0f1419' }}>
+                  <BarChart data={regulationData} style={{ backgroundColor: "#0f1419" }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="#9ca3af" 
-                      style={{ fontSize: '13px', fontWeight: '500' }}
+                    <XAxis
+                      dataKey="name"
+                      stroke="#9ca3af"
+                      style={{ fontSize: "13px", fontWeight: "500" }}
                     />
-                    <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1f2937', 
-                        border: '1px solid #374151', 
-                        borderRadius: '8px',
-                        color: '#fff'
+                    <YAxis stroke="#9ca3af" style={{ fontSize: "12px" }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#1f2937",
+                        border: "1px solid #374151",
+                        borderRadius: "8px",
+                        color: "#fff",
                       }}
                     />
                     <Bar dataKey="value" radius={[8, 8, 0, 0]}>
@@ -290,15 +352,18 @@ return (
             </div>
 
             {/* Detailed Stats */}
-            <div className="border border-gray-700 rounded-xl p-6" style={{ backgroundColor: '#1a1f2e' }}>
+            <div
+              className="border border-gray-700 rounded-xl p-6"
+              style={{ backgroundColor: "#1a1f2e" }}
+            >
               <div className="mb-4">
                 <h3 className="text-xl font-bold text-white">Detailed Statistics</h3>
                 <p className="text-sm text-gray-400 mt-1">In-depth system performance</p>
               </div>
-              
+
               <div className="space-y-4">
                 {/* Trust Range */}
-                <div className="rounded-lg p-4" style={{ backgroundColor: '#0f1419' }}>
+                <div className="rounded-lg p-4" style={{ backgroundColor: "#0f1419" }}>
                   <div className="text-sm text-gray-400 mb-2 font-medium">Trust Range</div>
                   <div className="flex items-center justify-between">
                     <div>
@@ -310,9 +375,7 @@ return (
                     <div className="text-gray-600">→</div>
                     <div>
                       <div className="text-xs text-gray-500">Avg</div>
-                      <div className="text-lg font-bold text-green-400">
-                        {avgTrust}%
-                      </div>
+                      <div className="text-lg font-bold text-green-400">{avgTrust}%</div>
                     </div>
                     <div className="text-gray-600">→</div>
                     <div>
@@ -325,7 +388,7 @@ return (
                 </div>
 
                 {/* Engagement */}
-                <div className="rounded-lg p-4" style={{ backgroundColor: '#0f1419' }}>
+                <div className="rounded-lg p-4" style={{ backgroundColor: "#0f1419" }}>
                   <div className="text-sm text-gray-400 mb-3 font-medium">Engagement</div>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
@@ -350,7 +413,7 @@ return (
                 </div>
 
                 {/* Health Indicator */}
-                <div className="rounded-lg p-4" style={{ backgroundColor: '#0f1419' }}>
+                <div className="rounded-lg p-4" style={{ backgroundColor: "#0f1419" }}>
                   <div className="text-sm text-gray-400 mb-3 font-medium">System Health</div>
                   <div className="flex items-center gap-3">
                     {avgTrust >= 80 ? (
@@ -390,8 +453,8 @@ return (
           <div className="text-sm text-gray-400">
             Last updated: {new Date().toLocaleTimeString()}
           </div>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="px-6 py-2.5 bg-vctt-gold hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors shadow-lg"
           >
             Close Dashboard

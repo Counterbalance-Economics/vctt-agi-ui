@@ -1,6 +1,5 @@
-
-import React, { useRef, useEffect } from 'react';
-import Editor from '@monaco-editor/react';
+import React, { useRef, useEffect } from "react";
+import Editor from "@monaco-editor/react";
 
 interface CodeEditorProps {
   filePath: string | null;
@@ -11,18 +10,18 @@ interface CodeEditorProps {
   onCursorPositionChange?: (line: number, column: number) => void;
   gitDecorations?: Array<{
     range: [number, number, number, number];
-    type: 'added' | 'modified' | 'deleted';
+    type: "added" | "modified" | "deleted";
   }>;
 }
 
-export const CodeEditor: React.FC<CodeEditorProps> = ({ 
-  filePath, 
-  content, 
-  onChange, 
+export const CodeEditor: React.FC<CodeEditorProps> = ({
+  filePath,
+  content,
+  onChange,
   onSave,
   onCmdK,
   onCursorPositionChange,
-  gitDecorations = []
+  gitDecorations = [],
 }) => {
   const editorRef = useRef<any>(null);
   const monacoRef = useRef<any>(null);
@@ -32,12 +31,12 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     if (editorRef.current && monacoRef.current && gitDecorations.length > 0) {
       const newDecorations = gitDecorations.map((d) => {
         const colorMap = {
-          added: { bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981', glyph: '✓' },
-          modified: { bg: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6', glyph: '●' },
-          deleted: { bg: 'rgba(239, 68, 68, 0.2)', border: '#ef4444', glyph: '✗' }
+          added: { bg: "rgba(16, 185, 129, 0.2)", border: "#10b981", glyph: "✓" },
+          modified: { bg: "rgba(59, 130, 246, 0.2)", border: "#3b82f6", glyph: "●" },
+          deleted: { bg: "rgba(239, 68, 68, 0.2)", border: "#ef4444", glyph: "✗" },
         };
         const colors = colorMap[d.type];
-        
+
         return {
           range: new monacoRef.current.Range(...d.range),
           options: {
@@ -46,12 +45,12 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             glyphMarginClassName: `git-${d.type}-glyph`,
             overviewRuler: {
               color: colors.border,
-              position: monacoRef.current.editor.OverviewRulerLane.Right
-            }
-          }
+              position: monacoRef.current.editor.OverviewRulerLane.Right,
+            },
+          },
         };
       });
-      
+
       decorationsRef.current = editorRef.current.deltaDecorations(
         decorationsRef.current,
         newDecorations
@@ -84,32 +83,30 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   };
 
   const getLanguage = (path: string | null): string => {
-    if (!path) return 'plaintext';
-    const ext = path.split('.').pop()?.toLowerCase();
+    if (!path) return "plaintext";
+    const ext = path.split(".").pop()?.toLowerCase();
     const languageMap: Record<string, string> = {
-      ts: 'typescript',
-      tsx: 'typescript',
-      js: 'javascript',
-      jsx: 'javascript',
-      json: 'json',
-      md: 'markdown',
-      py: 'python',
-      css: 'css',
-      html: 'html',
-      yml: 'yaml',
-      yaml: 'yaml',
-      sh: 'shell',
+      ts: "typescript",
+      tsx: "typescript",
+      js: "javascript",
+      jsx: "javascript",
+      json: "json",
+      md: "markdown",
+      py: "python",
+      css: "css",
+      html: "html",
+      yml: "yaml",
+      yaml: "yaml",
+      sh: "shell",
     };
-    return languageMap[ext || ''] || 'plaintext';
+    return languageMap[ext || ""] || "plaintext";
   };
 
   return (
     <div className="h-full flex flex-col bg-gray-900">
       {/* Header with file name */}
       <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
-        <span className="text-sm text-gray-300">
-          {filePath ? filePath : 'No file selected'}
-        </span>
+        <span className="text-sm text-gray-300">{filePath ? filePath : "No file selected"}</span>
         {filePath && (
           <button
             onClick={onSave}
@@ -135,19 +132,19 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
               minimap: { enabled: true },
               folding: true,
               foldingHighlight: true,
-              foldingStrategy: 'indentation',
-              showFoldingControls: 'always',
+              foldingStrategy: "indentation",
+              showFoldingControls: "always",
               glyphMargin: true,
-              renderLineHighlight: 'all',
+              renderLineHighlight: "all",
               scrollBeyondLastLine: false,
               automaticLayout: true,
               tabSize: 2,
               insertSpaces: true,
-              wordWrap: 'on',
-              lineNumbers: 'on',
-              renderWhitespace: 'selection',
-              cursorBlinking: 'smooth',
-              cursorSmoothCaretAnimation: 'on',
+              wordWrap: "on",
+              lineNumbers: "on",
+              renderWhitespace: "selection",
+              cursorBlinking: "smooth",
+              cursorSmoothCaretAnimation: "on",
               smoothScrolling: true,
               bracketPairColorization: { enabled: true },
               guides: { indentation: true },
@@ -173,6 +170,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
 const DocumentIcon = ({ className }: { className: string }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+    />
   </svg>
 );

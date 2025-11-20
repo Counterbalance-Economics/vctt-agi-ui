@@ -1,8 +1,7 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
 }
 
@@ -14,24 +13,25 @@ interface AIChatProps {
 export const AIChat: React.FC<AIChatProps> = ({ selectedFile }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
-      role: 'assistant',
-      content: '👋 Hi! I\'m MIN, your AI coding assistant.\n\nI can:\n• Fix bugs\n• Add features\n• Refactor code\n• Write tests\n• Explain code\n\nJust tell me what you need!',
+      role: "assistant",
+      content:
+        "👋 Hi! I'm MIN, your AI coding assistant.\n\nI can:\n• Fix bugs\n• Add features\n• Refactor code\n• Write tests\n• Explain code\n\nJust tell me what you need!",
     },
   ]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const sendMessage = async () => {
     if (!input.trim() || isProcessing) return;
 
     const userMessage = input;
-    setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setInput("");
+    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setIsProcessing(true);
 
     // Mock AI response - we'll connect to backend in next iteration
@@ -39,10 +39,10 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile }) => {
       const aiResponse = `I understand you want to: "${userMessage}"\n\n${
         selectedFile
           ? `I can help with ${selectedFile}. Backend integration coming soon!`
-          : 'Please select a file first, then I can help you edit it.'
+          : "Please select a file first, then I can help you edit it."
       }`;
-      
-      setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
+
+      setMessages((prev) => [...prev, { role: "assistant", content: aiResponse }]);
       setIsProcessing(false);
     }, 1000);
   };
@@ -63,15 +63,10 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile }) => {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
+          <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             <div
               className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                msg.role === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-800 text-gray-100'
+                msg.role === "user" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-100"
               }`}
             >
               <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
@@ -103,8 +98,8 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile }) => {
           <input
             type="text"
             value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && sendMessage()}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             placeholder="Ask MIN anything..."
             disabled={isProcessing}
             className="flex-1 bg-gray-800 text-white rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
@@ -117,10 +112,10 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile }) => {
             Send
           </button>
         </div>
-        
+
         {/* Quick prompts */}
         <div className="mt-2 flex flex-wrap gap-2">
-          {['Fix bugs', 'Add comments', 'Refactor', 'Add tests'].map((prompt) => (
+          {["Fix bugs", "Add comments", "Refactor", "Add tests"].map((prompt) => (
             <button
               key={prompt}
               onClick={() => setInput(prompt)}

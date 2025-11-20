@@ -1,11 +1,10 @@
-
-import { X, AlertTriangle, Zap } from 'lucide-react';
-import type { StepResponse } from '../types';
+import { X, AlertTriangle, Zap } from "lucide-react";
+import type { StepResponse } from "../types";
 
 interface AdminPanelProps {
   response: StepResponse;
   onClose: () => void;
-  onForceRegulation: (mode: 'normal' | 'clarify' | 'slow_down') => void;
+  onForceRegulation: (mode: "normal" | "clarify" | "slow_down") => void;
 }
 
 export default function AdminPanel({ response, onClose, onForceRegulation }: AdminPanelProps) {
@@ -18,10 +17,7 @@ export default function AdminPanel({ response, onClose, onForceRegulation }: Adm
             <Zap size={24} />
             Admin Panel
           </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-          >
+          <button onClick={onClose} className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
             <X size={24} />
           </button>
         </div>
@@ -66,19 +62,19 @@ export default function AdminPanel({ response, onClose, onForceRegulation }: Adm
             </h3>
             <div className="flex gap-3">
               <button
-                onClick={() => onForceRegulation('normal')}
+                onClick={() => onForceRegulation("normal")}
                 className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-lg transition-colors"
               >
                 NORMAL
               </button>
               <button
-                onClick={() => onForceRegulation('clarify')}
+                onClick={() => onForceRegulation("clarify")}
                 className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-3 rounded-lg transition-colors"
               >
                 CLARIFY
               </button>
               <button
-                onClick={() => onForceRegulation('slow_down')}
+                onClick={() => onForceRegulation("slow_down")}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-lg transition-colors"
               >
                 SLOW DOWN

@@ -1,10 +1,9 @@
-
-import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2 } from 'lucide-react';
-import type { Session } from '../types';
-import TrustIndicator from './TrustIndicator';
-import PhaseProgress from './PhaseProgress';
-import type { PhaseEvent } from '../services/websocket';
+import { useState, useRef, useEffect } from "react";
+import { Send, Loader2 } from "lucide-react";
+import type { Session } from "../types";
+import TrustIndicator from "./TrustIndicator";
+import PhaseProgress from "./PhaseProgress";
+import type { PhaseEvent } from "../services/websocket";
 
 interface ChatPanelProps {
   session: Session | null;
@@ -15,28 +14,35 @@ interface ChatPanelProps {
   isResuming?: boolean;
 }
 
-export default function ChatPanel({ session, isLoading, onSendMessage, trustScore, currentPhase, isResuming }: ChatPanelProps) {
-  const [input, setInput] = useState('');
+export default function ChatPanel({
+  session,
+  isLoading,
+  onSendMessage,
+  trustScore,
+  currentPhase,
+  isResuming,
+}: ChatPanelProps) {
+  const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [session?.messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim() && !isLoading) {
       onSendMessage(input.trim());
-      setInput('');
+      setInput("");
       if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
+        textareaRef.current.style.height = "auto";
       }
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
@@ -45,8 +51,8 @@ export default function ChatPanel({ session, isLoading, onSendMessage, trustScor
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     // Auto-resize textarea
-    e.target.style.height = 'auto';
-    e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
+    e.target.style.height = "auto";
+    e.target.style.height = Math.min(e.target.scrollHeight, 200) + "px";
   };
 
   return (
@@ -54,9 +60,7 @@ export default function ChatPanel({ session, isLoading, onSendMessage, trustScor
       {/* Header with Trust Indicator */}
       {trustScore !== undefined && (
         <div className="border-b border-gray-700 p-4 bg-vctt-panel flex items-center justify-between">
-          <div className="text-sm text-gray-400">
-            Current Session
-          </div>
+          <div className="text-sm text-gray-400">Current Session</div>
           <TrustIndicator trustScore={trustScore} compact />
         </div>
       )}
@@ -70,17 +74,13 @@ export default function ChatPanel({ session, isLoading, onSendMessage, trustScor
               <h2 className="text-2xl font-bold text-vctt-gold mb-2">
                 Resuming Previous Session...
               </h2>
-              <p className="text-gray-400">
-                Loading your conversation history
-              </p>
+              <p className="text-gray-400">Loading your conversation history</p>
             </div>
           </div>
         ) : !session || session.messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-vctt-gold mb-2">
-                Welcome to VCTT-AGI
-              </h2>
+              <h2 className="text-2xl font-bold text-vctt-gold mb-2">Welcome to VCTT-AGI</h2>
               <p className="text-gray-400">
                 Start a conversation to experience coherent AI reasoning
               </p>
@@ -92,14 +92,14 @@ export default function ChatPanel({ session, isLoading, onSendMessage, trustScor
               <div
                 key={message.id}
                 className={`message-bubble flex ${
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                  message.role === "user" ? "justify-end" : "justify-start"
                 }`}
               >
                 <div
                   className={`max-w-[70%] rounded-2xl px-6 py-4 ${
-                    message.role === 'user'
-                      ? 'bg-vctt-blue text-white'
-                      : 'bg-vctt-panel text-white border border-vctt-gold'
+                    message.role === "user"
+                      ? "bg-vctt-blue text-white"
+                      : "bg-vctt-panel text-white border border-vctt-gold"
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{message.content}</p>
@@ -156,11 +156,7 @@ export default function ChatPanel({ session, isLoading, onSendMessage, trustScor
             disabled={!input.trim() || isLoading}
             className="bg-vctt-gold hover:bg-yellow-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white p-3 rounded-xl transition-colors flex-shrink-0"
           >
-            {isLoading ? (
-              <Loader2 size={24} className="animate-spin" />
-            ) : (
-              <Send size={24} />
-            )}
+            {isLoading ? <Loader2 size={24} className="animate-spin" /> : <Send size={24} />}
           </button>
         </form>
       </div>

@@ -1,7 +1,6 @@
-
 export interface Message {
   id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   timestamp: Date;
 }
@@ -10,8 +9,8 @@ export interface VCTTState {
   Voice: number;
   Choice: number;
   Transparency: number;
-  'Trust (τ)': number;
-  Regulation: 'normal' | 'clarify' | 'slow_down';
+  "Trust (τ)": number;
+  Regulation: "normal" | "clarify" | "slow_down";
 }
 
 export interface Session {

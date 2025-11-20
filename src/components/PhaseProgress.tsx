@@ -1,15 +1,20 @@
-
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 interface PhaseProgressProps {
   phase: string;
   description: string;
   progress: number;
   emoji: string;
-  status: 'in_progress' | 'complete' | 'error';
+  status: "in_progress" | "complete" | "error";
 }
 
-export default function PhaseProgress({ phase, description, progress, emoji, status }: PhaseProgressProps) {
+export default function PhaseProgress({
+  phase,
+  description,
+  progress,
+  emoji,
+  status,
+}: PhaseProgressProps) {
   const [animatedProgress, setAnimatedProgress] = useState(0);
   const [lastUpdateTime, setLastUpdateTime] = useState(Date.now());
 
@@ -24,14 +29,14 @@ export default function PhaseProgress({ phase, description, progress, emoji, sta
 
   // Heartbeat: Keep progress creeping if stuck for >8 seconds
   useEffect(() => {
-    if (status !== 'in_progress') return;
+    if (status !== "in_progress") return;
 
     const heartbeat = setInterval(() => {
       const timeSinceUpdate = Date.now() - lastUpdateTime;
-      
+
       // If no update for >8 seconds, slowly creep progress to 98%
       if (timeSinceUpdate > 8000) {
-        setAnimatedProgress(prev => {
+        setAnimatedProgress((prev) => {
           if (prev >= 98) return 98; // Cap at 98%
           return Math.min(prev + 0.5, 98); // Slow creep
         });
@@ -46,16 +51,12 @@ export default function PhaseProgress({ phase, description, progress, emoji, sta
       <div className="bg-vctt-panel border border-vctt-gold rounded-2xl px-6 py-4 max-w-[70%] min-w-[300px]">
         {/* Emoji Spinner */}
         <div className="flex items-center gap-4 mb-3">
-          <div className={`text-4xl ${status === 'in_progress' ? 'animate-pulse' : ''}`}>
+          <div className={`text-4xl ${status === "in_progress" ? "animate-pulse" : ""}`}>
             {emoji}
           </div>
           <div className="flex-1">
-            <div className="text-vctt-gold font-semibold mb-1 capitalize">
-              {phase} Agent
-            </div>
-            <div className="text-gray-300 text-sm">
-              {description}
-            </div>
+            <div className="text-vctt-gold font-semibold mb-1 capitalize">{phase} Agent</div>
+            <div className="text-gray-300 text-sm">{description}</div>
           </div>
         </div>
 

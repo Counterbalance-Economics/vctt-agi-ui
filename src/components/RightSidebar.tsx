@@ -1,9 +1,8 @@
-
-import { useState } from 'react';
-import { Lock, Unlock, BarChart3, Terminal } from 'lucide-react';
-import type { VCTTState } from '../types';
-import LLMCommitteePanel from './LLMCommitteePanel';
-import { getApiUrl } from '../config/api';
+import { useState } from "react";
+import { Lock, Unlock, BarChart3, Terminal } from "lucide-react";
+import type { VCTTState } from "../types";
+import LLMCommitteePanel from "./LLMCommitteePanel";
+import { getApiUrl } from "../config/api";
 
 interface RightSidebarProps {
   vcttState: VCTTState;
@@ -13,43 +12,49 @@ interface RightSidebarProps {
   onShowAnalytics?: () => void;
 }
 
-export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle, sessionId, onShowAnalytics }: RightSidebarProps) {
+export default function RightSidebar({
+  vcttState,
+  isAdminMode,
+  onAdminToggle,
+  sessionId,
+  onShowAnalytics,
+}: RightSidebarProps) {
   const [showPasswordInput, setShowPasswordInput] = useState(false);
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const backendUrl = getApiUrl();
 
   const handleUnlock = () => {
     if (onAdminToggle(password)) {
       setShowPasswordInput(false);
-      setPassword('');
-      setError('');
+      setPassword("");
+      setError("");
     } else {
-      setError('Invalid password');
+      setError("Invalid password");
     }
   };
 
   const getRegulationColor = (regulation: string) => {
     switch (regulation) {
-      case 'normal':
-        return 'text-green-400';
-      case 'clarify':
-        return 'text-yellow-400';
-      case 'slow_down':
-        return 'text-red-400';
+      case "normal":
+        return "text-green-400";
+      case "clarify":
+        return "text-yellow-400";
+      case "slow_down":
+        return "text-red-400";
       default:
-        return 'text-gray-400';
+        return "text-gray-400";
     }
   };
 
   const getMetricColor = (value: number) => {
-    if (value >= 0.8) return 'bg-green-500';
-    if (value >= 0.6) return 'bg-yellow-500';
-    return 'bg-red-500';
+    if (value >= 0.8) return "bg-green-500";
+    if (value >= 0.6) return "bg-yellow-500";
+    return "bg-red-500";
   };
 
   const formatMetric = (value: number) => {
-    return (value * 100).toFixed(0) + '%';
+    return (value * 100).toFixed(0) + "%";
   };
 
   return (
@@ -58,10 +63,16 @@ export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle, se
       <div className="p-4 border-b border-gray-700 flex items-center justify-between">
         <h2 className="text-lg font-semibold">VCTT State</h2>
         <button
-          onClick={() => isAdminMode ? onAdminToggle('') : setShowPasswordInput(!showPasswordInput)}
+          onClick={() =>
+            isAdminMode ? onAdminToggle("") : setShowPasswordInput(!showPasswordInput)
+          }
           className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
         >
-          {isAdminMode ? <Unlock size={20} className="text-vctt-gold" /> : <Lock size={20} className="text-gray-400" />}
+          {isAdminMode ? (
+            <Unlock size={20} className="text-vctt-gold" />
+          ) : (
+            <Lock size={20} className="text-gray-400" />
+          )}
         </button>
       </div>
 
@@ -72,7 +83,7 @@ export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle, se
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
+            onKeyDown={(e) => e.key === "Enter" && handleUnlock()}
             placeholder="Enter admin password"
             className="w-full bg-vctt-dark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-vctt-gold mb-2"
           />
@@ -139,47 +150,49 @@ export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle, se
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">Trust (τ)</span>
-              <span className="text-sm text-vctt-gold font-bold">{formatMetric(vcttState['Trust (τ)'])}</span>
+              <span className="text-sm text-vctt-gold font-bold">
+                {formatMetric(vcttState["Trust (τ)"])}
+              </span>
             </div>
             <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
               <div
-                className={`metric-bar h-full ${getMetricColor(vcttState['Trust (τ)'])}`}
-                style={{ width: `${vcttState['Trust (τ)'] * 100}%` }}
+                className={`metric-bar h-full ${getMetricColor(vcttState["Trust (τ)"])}`}
+                style={{ width: `${vcttState["Trust (τ)"] * 100}%` }}
               />
             </div>
-  </div>
+          </div>
 
-  {/* Analytics Button */}
-  {onShowAnalytics && (
-    <div className="flex justify-center pt-2">
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log('🟢 Analytics button clicked - propagation stopped');
-          onShowAnalytics();
-        }}
-        className="w-full bg-vctt-gold/10 hover:bg-vctt-gold/20 border border-vctt-gold/30 hover:border-vctt-gold text-vctt-gold px-4 py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm"
-      >
-        <BarChart3 size={18} />
-        View Analytics
-      </button>
-    </div>
-  )}
+          {/* Analytics Button */}
+          {onShowAnalytics && (
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log("🟢 Analytics button clicked - propagation stopped");
+                  onShowAnalytics();
+                }}
+                className="w-full bg-vctt-gold/10 hover:bg-vctt-gold/20 border border-vctt-gold/30 hover:border-vctt-gold text-vctt-gold px-4 py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm"
+              >
+                <BarChart3 size={18} />
+                View Analytics
+              </button>
+            </div>
+          )}
 
-  {/* DeepAgent Button */}
-  <div className="flex justify-center pt-2">
-    <a
-      href="/deep"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="w-full bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 hover:border-green-500 text-green-400 px-4 py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm"
-    >
-      <Terminal size={18} />
-      DeepAgent Mode
-    </a>
-  </div>
-</div>
+          {/* DeepAgent Button */}
+          <div className="flex justify-center pt-2">
+            <a
+              href="/deep"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 hover:border-green-500 text-green-400 px-4 py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm"
+            >
+              <Terminal size={18} />
+              DeepAgent Mode
+            </a>
+          </div>
+        </div>
 
         {/* LLM Committee */}
         <LLMCommitteePanel sessionId={sessionId || null} backendUrl={backendUrl} />
@@ -188,7 +201,9 @@ export default function RightSidebar({ vcttState, isAdminMode, onAdminToggle, se
         <div className="pt-4 border-t border-gray-700">
           <h3 className="text-sm font-semibold mb-3">Regulation Mode</h3>
           <div className="bg-gray-800 rounded-lg p-3 text-center">
-            <p className={`text-lg font-bold uppercase ${getRegulationColor(vcttState.Regulation)}`}>
+            <p
+              className={`text-lg font-bold uppercase ${getRegulationColor(vcttState.Regulation)}`}
+            >
               {vcttState.Regulation}
             </p>
           </div>

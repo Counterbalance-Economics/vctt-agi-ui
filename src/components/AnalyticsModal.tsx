@@ -1,18 +1,29 @@
-
-import { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
-import { api, type AggregateAnalytics, type TrustMetric } from '../services/api';
-import { TrendingUp, X, Activity, BarChart3 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Cell,
+} from "recharts";
+import { api, type AggregateAnalytics, type TrustMetric } from "../services/api";
+import { TrendingUp, X, Activity, BarChart3 } from "lucide-react";
 
 interface Props {
   onClose: () => void;
 }
 
 const COLORS = {
-  green: '#10b981',
-  yellow: '#f59e0b',
-  red: '#ef4444',
-  blue: '#3b82f6',
+  green: "#10b981",
+  yellow: "#f59e0b",
+  red: "#ef4444",
+  blue: "#3b82f6",
 };
 
 export default function AnalyticsModal({ onClose }: Props) {
@@ -21,39 +32,44 @@ export default function AnalyticsModal({ onClose }: Props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('🔵 AnalyticsModal mounted, loading analytics...');
+    console.log("🔵 AnalyticsModal mounted, loading analytics...");
     loadAnalytics();
   }, []);
 
   const loadAnalytics = async () => {
     setLoading(true);
-    console.log('🔵 loadAnalytics: Starting fetch...');
+    console.log("🔵 loadAnalytics: Starting fetch...");
     try {
-      console.log('🔵 Fetching aggregate analytics and trust metrics...');
+      console.log("🔵 Fetching aggregate analytics and trust metrics...");
       const [agg, metrics] = await Promise.all([
         api.getAggregateAnalytics(),
         api.getTrustMetrics(),
       ]);
-      console.log('🔵 Fetch complete! Aggregate:', agg, 'Metrics:', metrics);
+      console.log("🔵 Fetch complete! Aggregate:", agg, "Metrics:", metrics);
       setAnalytics(agg);
       setTrustMetrics(metrics);
-      console.log('🔵 State updated. Analytics:', agg ? 'HAS DATA' : 'NULL', 'Metrics count:', metrics?.length || 0);
+      console.log(
+        "🔵 State updated. Analytics:",
+        agg ? "HAS DATA" : "NULL",
+        "Metrics count:",
+        metrics?.length || 0
+      );
     } catch (error) {
-      console.error('❌ Error loading analytics:', error);
+      console.error("❌ Error loading analytics:", error);
     } finally {
       setLoading(false);
-      console.log('🔵 Loading complete, loading=false');
+      console.log("🔵 Loading complete, loading=false");
     }
   };
 
   if (loading) {
-    console.log('🔵 AnalyticsModal: Rendering LOADING state');
+    console.log("🔵 AnalyticsModal: Rendering LOADING state");
     return (
-      <div 
+      <div
         className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm"
         onClick={(e) => {
           e.stopPropagation();
-          console.log('🔴 Loading state backdrop clicked - IGNORING (do not close while loading)');
+          console.log("🔴 Loading state backdrop clicked - IGNORING (do not close while loading)");
         }}
       >
         <div className="bg-gray-900 border-2 border-vctt-gold rounded-xl p-8 shadow-2xl">
@@ -67,14 +83,14 @@ export default function AnalyticsModal({ onClose }: Props) {
   }
 
   if (!analytics) {
-    console.log('🔵 AnalyticsModal: Rendering NO DATA state');
+    console.log("🔵 AnalyticsModal: Rendering NO DATA state");
     return (
       <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
         <div className="bg-gray-900 border-2 border-red-500 rounded-xl p-8 shadow-2xl max-w-md">
           <div className="text-red-400 text-xl mb-4 font-semibold">📊 No Analytics Data</div>
           <p className="text-gray-300 mb-6">Start a conversation to generate analytics.</p>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="w-full px-6 py-3 bg-vctt-gold hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors"
           >
             Close
@@ -85,14 +101,17 @@ export default function AnalyticsModal({ onClose }: Props) {
   }
 
   const regulationData = [
-    { name: 'Normal', value: analytics.regulation.normal, fill: COLORS.green },
-    { name: 'Clarify', value: analytics.regulation.clarify, fill: COLORS.yellow },
-    { name: 'Slow Down', value: analytics.regulation.slow_down, fill: COLORS.red },
+    { name: "Normal", value: analytics.regulation.normal, fill: COLORS.green },
+    { name: "Clarify", value: analytics.regulation.clarify, fill: COLORS.yellow },
+    { name: "Slow Down", value: analytics.regulation.slow_down, fill: COLORS.red },
   ];
 
   const trustChartData = trustMetrics
-    .map(m => ({
-      time: new Date(m.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    .map((m) => ({
+      time: new Date(m.timestamp).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
       trust: Math.round(m.trust_tau * 100),
       contradiction: Math.round(m.contradiction * 100),
     }))
@@ -105,17 +124,17 @@ export default function AnalyticsModal({ onClose }: Props) {
     return COLORS.red;
   };
 
-  console.log('🔵 AnalyticsModal: Rendering NORMAL state with data:', analytics);
+  console.log("🔵 AnalyticsModal: Rendering NORMAL state with data:", analytics);
   return (
-    <div 
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" 
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       onClick={() => {
-        console.log('🔴 Backdrop clicked, closing modal');
+        console.log("🔴 Backdrop clicked, closing modal");
         onClose();
       }}
     >
       {/* Centered Modal - Click inside doesn't close */}
-      <div 
+      <div
         className="bg-gray-900 border-2 border-vctt-gold rounded-xl shadow-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
@@ -125,8 +144,8 @@ export default function AnalyticsModal({ onClose }: Props) {
             <BarChart3 className="text-vctt-gold" size={24} />
             <h2 className="text-xl font-bold text-white">Analytics Dashboard</h2>
           </div>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-700 rounded-lg"
           >
             <X size={20} />
@@ -135,7 +154,6 @@ export default function AnalyticsModal({ onClose }: Props) {
 
         {/* Content */}
         <div className="overflow-y-auto max-h-[calc(85vh-160px)] p-6 space-y-6">
-          
           {/* Key Metrics */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
@@ -166,7 +184,6 @@ export default function AnalyticsModal({ onClose }: Props) {
 
           {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
             {/* Trust Timeline */}
             {trustChartData.length > 0 && (
               <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
@@ -177,19 +194,31 @@ export default function AnalyticsModal({ onClose }: Props) {
                 <ResponsiveContainer width="100%" height={200}>
                   <LineChart data={trustChartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="time" stroke="#9ca3af" style={{ fontSize: '10px' }} />
-                    <YAxis stroke="#9ca3af" style={{ fontSize: '10px' }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1f2937', 
-                        border: '1px solid #374151', 
-                        borderRadius: '6px',
-                        fontSize: '12px'
+                    <XAxis dataKey="time" stroke="#9ca3af" style={{ fontSize: "10px" }} />
+                    <YAxis stroke="#9ca3af" style={{ fontSize: "10px" }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#1f2937",
+                        border: "1px solid #374151",
+                        borderRadius: "6px",
+                        fontSize: "12px",
                       }}
                     />
-                    <Legend wrapperStyle={{ fontSize: '12px' }} />
-                    <Line type="monotone" dataKey="trust" stroke={COLORS.green} name="Trust" strokeWidth={2} />
-                    <Line type="monotone" dataKey="contradiction" stroke={COLORS.red} name="Contradiction" strokeWidth={2} />
+                    <Legend wrapperStyle={{ fontSize: "12px" }} />
+                    <Line
+                      type="monotone"
+                      dataKey="trust"
+                      stroke={COLORS.green}
+                      name="Trust"
+                      strokeWidth={2}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="contradiction"
+                      stroke={COLORS.red}
+                      name="Contradiction"
+                      strokeWidth={2}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -204,14 +233,14 @@ export default function AnalyticsModal({ onClose }: Props) {
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={regulationData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="name" stroke="#9ca3af" style={{ fontSize: '11px' }} />
-                  <YAxis stroke="#9ca3af" style={{ fontSize: '10px' }} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#1f2937', 
-                      border: '1px solid #374151', 
-                      borderRadius: '6px',
-                      fontSize: '12px'
+                  <XAxis dataKey="name" stroke="#9ca3af" style={{ fontSize: "11px" }} />
+                  <YAxis stroke="#9ca3af" style={{ fontSize: "10px" }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1f2937",
+                      border: "1px solid #374151",
+                      borderRadius: "6px",
+                      fontSize: "12px",
                     }}
                   />
                   <Bar dataKey="value" radius={[6, 6, 0, 0]}>
@@ -230,16 +259,21 @@ export default function AnalyticsModal({ onClose }: Props) {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
               <div>
                 <div className="text-gray-400 text-xs mb-1">Avg Messages/Session</div>
-                <div className="text-white font-semibold">{analytics.overview.avg_messages_per_session.toFixed(1)}</div>
+                <div className="text-white font-semibold">
+                  {analytics.overview.avg_messages_per_session.toFixed(1)}
+                </div>
               </div>
               <div>
                 <div className="text-gray-400 text-xs mb-1">Avg Repairs/Session</div>
-                <div className="text-white font-semibold">{analytics.repair_metrics.avg_repairs_per_session.toFixed(2)}</div>
+                <div className="text-white font-semibold">
+                  {analytics.repair_metrics.avg_repairs_per_session.toFixed(2)}
+                </div>
               </div>
               <div>
                 <div className="text-gray-400 text-xs mb-1">Trust Range</div>
                 <div className="text-white font-semibold">
-                  {Math.round(analytics.trust_metrics.min_trust * 100)}% - {Math.round(analytics.trust_metrics.max_trust * 100)}%
+                  {Math.round(analytics.trust_metrics.min_trust * 100)}% -{" "}
+                  {Math.round(analytics.trust_metrics.max_trust * 100)}%
                 </div>
               </div>
             </div>
@@ -251,8 +285,8 @@ export default function AnalyticsModal({ onClose }: Props) {
           <div className="text-xs text-gray-400">
             Last updated: {new Date().toLocaleTimeString()}
           </div>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="px-4 py-2 bg-vctt-gold hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors text-sm"
           >
             Close

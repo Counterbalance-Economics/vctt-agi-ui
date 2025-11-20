@@ -1,7 +1,6 @@
-
-import type { StepResponse } from '../types';
-import { getApiUrl } from '../config/api';
-import { mockApi } from './mockApi';
+import type { StepResponse } from "../types";
+import { getApiUrl } from "../config/api";
+import { mockApi } from "./mockApi";
 
 export interface SessionSummary {
   session_id: string;
@@ -59,22 +58,22 @@ class ApiService {
 
     try {
       const response = await fetch(`${this.baseUrl}/api/v1/session/start`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ user_id: userId, input }),
       });
 
       if (!response.ok) {
-        console.error('Backend error, falling back to mock');
+        console.error("Backend error, falling back to mock");
         return mockApi.startSession(userId, input);
       }
 
       const data = await response.json();
       return data.session_id;
     } catch (error) {
-      console.error('Network error, falling back to mock:', error);
+      console.error("Network error, falling back to mock:", error);
       return mockApi.startSession(userId, input);
     }
   }
@@ -87,38 +86,38 @@ class ApiService {
 
     try {
       const response = await fetch(`${this.baseUrl}/api/v1/session/step`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ session_id: sessionId, input }),
       });
 
       if (!response.ok) {
-        console.error('Backend error, falling back to mock');
+        console.error("Backend error, falling back to mock");
         return mockApi.sendStep(sessionId, input);
       }
 
       const data = await response.json();
-      
+
       // Transform backend response to match UI expectations
       const sim = data.internal_state?.sim || {};
-      
+
       return {
         response: data.response,
         state: {
           Voice: Math.round((1 - (sim.tension || 0)) * 100),
           Choice: Math.round((1 - (sim.emotional_intensity || 0)) * 100),
           Transparency: Math.round((1 - (sim.uncertainty || 0)) * 100),
-          'Trust (τ)': Math.round((data.internal_state?.trust_tau || 0) * 100),
-          Regulation: data.internal_state?.regulation || 'normal'
+          "Trust (τ)": Math.round((data.internal_state?.trust_tau || 0) * 100),
+          Regulation: data.internal_state?.regulation || "normal",
         },
         repair_count: data.internal_state?.repair_count || 0,
         agent_logs: data.agent_logs || [],
-        raw_json: data
+        raw_json: data,
       };
     } catch (error) {
-      console.error('Network error, falling back to mock:', error);
+      console.error("Network error, falling back to mock:", error);
       return mockApi.sendStep(sessionId, input);
     }
   }
@@ -128,8 +127,8 @@ class ApiService {
 
     try {
       const params = new URLSearchParams();
-      if (userId) params.append('user_id', userId);
-      params.append('limit', limit.toString());
+      if (userId) params.append("user_id", userId);
+      params.append("limit", limit.toString());
 
       const response = await fetch(`${this.baseUrl}/api/v1/analytics/sessions?${params}`);
       if (!response.ok) return [];
@@ -137,69 +136,69 @@ class ApiService {
       const data = await response.json();
       return data.sessions || [];
     } catch (error) {
-      console.error('Error fetching sessions:', error);
+      console.error("Error fetching sessions:", error);
       return [];
     }
   }
 
   async getTrustMetrics(userId?: string): Promise<TrustMetric[]> {
-    console.log('🌐 getTrustMetrics: baseUrl=', this.baseUrl);
+    console.log("🌐 getTrustMetrics: baseUrl=", this.baseUrl);
     if (!this.baseUrl) {
-      console.warn('⚠️ No baseUrl configured, returning []');
+      console.warn("⚠️ No baseUrl configured, returning []");
       return [];
     }
 
     try {
       const params = new URLSearchParams();
-      if (userId) params.append('user_id', userId);
+      if (userId) params.append("user_id", userId);
 
       const url = `${this.baseUrl}/api/v1/analytics/trust-metrics?${params}`;
-      console.log('🌐 Fetching:', url);
+      console.log("🌐 Fetching:", url);
       const response = await fetch(url);
-      console.log('🌐 Response status:', response.status, response.ok ? '✅' : '❌');
-      
+      console.log("🌐 Response status:", response.status, response.ok ? "✅" : "❌");
+
       if (!response.ok) {
-        console.warn('⚠️ Response not OK, returning []');
+        console.warn("⚠️ Response not OK, returning []");
         return [];
       }
 
       const data = await response.json();
-      console.log('🌐 Received metrics data:', data);
+      console.log("🌐 Received metrics data:", data);
       const metrics = data.metrics || [];
-      console.log('🌐 Extracted metrics array:', metrics);
+      console.log("🌐 Extracted metrics array:", metrics);
       return metrics;
     } catch (error) {
-      console.error('❌ Error fetching trust metrics:', error);
+      console.error("❌ Error fetching trust metrics:", error);
       return [];
     }
   }
 
   async getAggregateAnalytics(userId?: string): Promise<AggregateAnalytics | null> {
-    console.log('🌐 getAggregateAnalytics: baseUrl=', this.baseUrl);
+    console.log("🌐 getAggregateAnalytics: baseUrl=", this.baseUrl);
     if (!this.baseUrl) {
-      console.warn('⚠️ No baseUrl configured, returning null');
+      console.warn("⚠️ No baseUrl configured, returning null");
       return null;
     }
 
     try {
       const params = new URLSearchParams();
-      if (userId) params.append('user_id', userId);
+      if (userId) params.append("user_id", userId);
 
       const url = `${this.baseUrl}/api/v1/analytics/aggregate?${params}`;
-      console.log('🌐 Fetching:', url);
+      console.log("🌐 Fetching:", url);
       const response = await fetch(url);
-      console.log('🌐 Response status:', response.status, response.ok ? '✅' : '❌');
-      
+      console.log("🌐 Response status:", response.status, response.ok ? "✅" : "❌");
+
       if (!response.ok) {
-        console.warn('⚠️ Response not OK, returning null');
+        console.warn("⚠️ Response not OK, returning null");
         return null;
       }
 
       const data = await response.json();
-      console.log('🌐 Received data:', data);
+      console.log("🌐 Received data:", data);
       return data;
     } catch (error) {
-      console.error('❌ Error fetching aggregate analytics:', error);
+      console.error("❌ Error fetching aggregate analytics:", error);
       return null;
     }
   }
@@ -208,12 +207,14 @@ class ApiService {
     if (!this.baseUrl) return null;
 
     try {
-      const response = await fetch(`${this.baseUrl}/api/v1/analytics/sessions/${sessionId}/history`);
+      const response = await fetch(
+        `${this.baseUrl}/api/v1/analytics/sessions/${sessionId}/history`
+      );
       if (!response.ok) return null;
 
       return await response.json();
     } catch (error) {
-      console.error('Error fetching session history:', error);
+      console.error("Error fetching session history:", error);
       return null;
     }
   }

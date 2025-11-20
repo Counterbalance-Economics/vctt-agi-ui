@@ -1,4 +1,3 @@
-
 // src/components/CommandPalette.tsx
 "use client";
 
@@ -6,7 +5,13 @@ import { useState, useEffect } from "react";
 import { Command } from "cmdk";
 import { GitCommit, GitBranch, Save, Play, Terminal, Upload } from "lucide-react";
 
-export default function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export default function CommandPalette({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
   const [search, setSearch] = useState("");
 
   const commands = [
@@ -34,7 +39,10 @@ export default function CommandPalette({ isOpen, onClose }: { isOpen: boolean; o
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-32 bg-black/50" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center pt-32 bg-black/50"
+      onClick={onClose}
+    >
       <div className="w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
         <Command className="bg-gray-900 rounded-lg shadow-2xl overflow-hidden border border-gray-700">
           <Command.Input
@@ -45,7 +53,9 @@ export default function CommandPalette({ isOpen, onClose }: { isOpen: boolean; o
             autoFocus
           />
           <Command.List className="max-h-96 overflow-y-auto p-2">
-            <Command.Empty className="text-center text-gray-500 py-6">No results found.</Command.Empty>
+            <Command.Empty className="text-center text-gray-500 py-6">
+              No results found.
+            </Command.Empty>
             {commands
               .filter((cmd) => cmd.name.toLowerCase().includes(search.toLowerCase()))
               .map((cmd) => (

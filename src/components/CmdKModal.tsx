@@ -1,4 +1,3 @@
-
 // src/components/CmdKModal.tsx
 "use client";
 
@@ -91,7 +90,7 @@ export default function CmdKModal({
 
   const handleAccept = () => {
     if (!edited || !responseData) return;
-    
+
     const stats: EditStats = {
       cost: responseData.cost ?? 0,
       tokensUsed: responseData.tokensUsed ?? 0,
@@ -102,7 +101,7 @@ export default function CmdKModal({
       trustTau: responseData.verification?.trustTau,
       grokConfidence: responseData.verification?.grokConfidence,
     };
-    
+
     onApply(edited, stats);
   };
 
@@ -115,12 +114,20 @@ export default function CmdKModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-gray-900 rounded-lg w-[900px] max-h-[80vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div
+        className="bg-gray-900 rounded-lg w-[900px] max-h-[80vh] overflow-hidden flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="p-4 border-b border-gray-700 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Cmd+K • AI Edit</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white"><X size={20} /></button>
+          <button onClick={onClose} className="text-gray-400 hover:text-white">
+            <X size={20} />
+          </button>
         </div>
 
         {/* Progress + Trust Bar */}
@@ -130,7 +137,9 @@ export default function CmdKModal({
             <span>→</span>
             <span className={stage === "streaming" ? "animate-pulse" : ""}>Generating</span>
             <span>→</span>
-            <span className={stage === "jazz" ? "animate-pulse text-cyan-400" : ""}>Jazz Analysis</span>
+            <span className={stage === "jazz" ? "animate-pulse text-cyan-400" : ""}>
+              Jazz Analysis
+            </span>
             {stage === "done" && <Check className="text-green-400" size={18} />}
           </div>
           <div className="mt-2 h-2 bg-gray-800 rounded-full overflow-hidden">
@@ -151,8 +160,8 @@ export default function CmdKModal({
           <input
             type="text"
             value={instruction}
-            onChange={e => setInstruction(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && !e.shiftKey && handleSubmit()}
+            onChange={(e) => setInstruction(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSubmit()}
             placeholder="e.g. make this async with error handling"
             className="w-full bg-gray-800 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             autoFocus
@@ -178,10 +187,19 @@ export default function CmdKModal({
           <div className="p-4 bg-gray-800 border-t border-gray-700">
             <div className="text-sm font-medium mb-2">Jazz Team Self-Review</div>
             <div className="grid grid-cols-4 gap-3 text-xs">
-              <div>Voice <span className="text-cyan-400">{(jazz.voice * 100).toFixed(0)}%</span></div>
-              <div>Choice <span className="text-cyan-400">{(jazz.choice * 100).toFixed(0)}%</span></div>
-              <div>Transparency <span className="text-cyan-400">{(jazz.transparency * 100).toFixed(0)}%</span></div>
-              <div>Trust τ <span className="text-green-400">{(jazz.trust * 100).toFixed(1)}%</span></div>
+              <div>
+                Voice <span className="text-cyan-400">{(jazz.voice * 100).toFixed(0)}%</span>
+              </div>
+              <div>
+                Choice <span className="text-cyan-400">{(jazz.choice * 100).toFixed(0)}%</span>
+              </div>
+              <div>
+                Transparency{" "}
+                <span className="text-cyan-400">{(jazz.transparency * 100).toFixed(0)}%</span>
+              </div>
+              <div>
+                Trust τ <span className="text-green-400">{(jazz.trust * 100).toFixed(1)}%</span>
+              </div>
             </div>
             <div className="mt-2 text-xs text-gray-300 space-y-1">
               {jazz.suggestions.map((s, i) => (
@@ -193,7 +211,9 @@ export default function CmdKModal({
 
         {/* Actions */}
         <div className="p-4 flex justify-end gap-3">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600">Cancel</button>
+          <button onClick={onClose} className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600">
+            Cancel
+          </button>
           {jazz?.suggestions && jazz.suggestions.length > 0 && (
             <button
               onClick={handleRefined}
