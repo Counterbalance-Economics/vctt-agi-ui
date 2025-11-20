@@ -80,10 +80,12 @@ export default function CmdKModal({
       if (data.jazzAnalysis) {
         setJazz(data.jazzAnalysis);
         setStage("jazz");
-        setTimeout(() => setStage("done"), 1200);
+        setTimeout(() => setStage("done"), 1200); // Smooth transition
       } else {
         setStage("done");
       }
+    } else {
+      setStage("idle"); // Reset on failure
     }
   };
 
@@ -107,9 +109,9 @@ export default function CmdKModal({
   const handleRefined = async () => {
     if (!jazz?.suggestions?.length) return;
     setStage("thinking");
-    setInstruction(prev => `${prev} → ${jazz.suggestions[0]}`);
-    // Re-run the same flow with the refined prompt
-    await handleSubmit();
+    const refinedPrompt = `${instruction} → ${jazz.suggestions[0].replace(/^\d+\.\s*/, "")}`; // Clean suggestion prefix
+    setInstruction(refinedPrompt);
+    await handleSubmit(); // Re-run with refined prompt
   };
 
   return (
@@ -176,16 +178,16 @@ export default function CmdKModal({
           <div className="p-4 bg-gray-800 border-t border-gray-700">
             <div className="text-sm font-medium mb-2">Jazz Team Self-Review</div>
             <div className="grid grid-cols-4 gap-3 text-xs">
-              <div>Voice <span className="text-cyan-400">{(jazz.voice*100).toFixed(0)}%</span></div>
-              <div>Choice <span className="text-cyan-400">{(jazz.choice*100).toFixed(0)}%</span></div>
-              <div>Transparency <span className="text-cyan-400">{(jazz.transparency*100).toFixed(0)}%</span></div>
-              <div>Trust τ <span className="text-green-400">{(jazz.trust*100).toFixed(1)}%</span></div>
+              <div>Voice <span className="text-cyan-400">{(jazz.voice * 100).toFixed(0)}%</span></div>
+              <div>Choice <span className="text-cyan-400">{(jazz.choice * 100).toFixed(0)}%</span></div>
+              <div>Transparency <span className="text-cyan-400">{(jazz.transparency * 100).toFixed(0)}%</span></div>
+              <div>Trust τ <span className="text-green-400">{(jazz.trust * 100).toFixed(1)}%</span></div>
             </div>
-            {jazz.suggestions.length > 0 && (
-              <div className="mt-2 text-xs text-gray-300">
-                Suggestion: {jazz.suggestions[0]}
-              </div>
-            )}
+            <div className="mt-2 text-xs text-gray-300 space-y-1">
+              {jazz.suggestions.map((s, i) => (
+                <div key={i}>{`${i + 1}. ${s}`}</div>
+              ))}
+            </div>
           </div>
         )}
 
