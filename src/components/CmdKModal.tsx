@@ -20,7 +20,16 @@ export interface EditStats {
   grokConfidence?: number;  // Grok-4.1 verification confidence (0-1)
 }
 
-const BACKEND_URL = 'https://vctt-agi-phase3-complete.abacusai.app';
+export interface JazzAnalysis {
+  voice: number;           // 0-1 (logical coherence)
+  choice: number;          // 0-1 (emotional balance)
+  transparency: number;    // 0-1 (clarity of reasoning)
+  trust: number;           // 0-1 (enhanced trust score)
+  suggestions: string[];   // Actionable improvement suggestions
+  refinedInstruction?: string; // Optional improved instruction prompt
+}
+
+const BACKEND_URL = 'https://vctt-agi-backend.onrender.com';
 
 export const CmdKModal: React.FC<CmdKModalProps> = ({
   isOpen,
@@ -33,6 +42,7 @@ export const CmdKModal: React.FC<CmdKModalProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [editedCode, setEditedCode] = useState('');
   const [stats, setStats] = useState<EditStats | null>(null);
+  const [jazzAnalysis, setJazzAnalysis] = useState<JazzAnalysis | null>(null);
   const [error, setError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -94,6 +104,18 @@ export const CmdKModal: React.FC<CmdKModalProps> = ({
         trustTau: data.verification?.trustTau,         // MIN's trust metric
         grokConfidence: data.verification?.grokConfidence,  // Grok-4.1 confidence
       });
+
+      // Extract jazz team analysis if available
+      if (data.jazzAnalysis) {
+        setJazzAnalysis({
+          voice: data.jazzAnalysis.analysis?.voice || 0,
+          choice: data.jazzAnalysis.analysis?.choice || 0,
+          transparency: data.jazzAnalysis.analysis?.transparency || 0,
+          trust: data.jazzAnalysis.analysis?.trust || 0,
+          suggestions: data.jazzAnalysis.suggestions || [],
+          refinedInstruction: data.jazzAnalysis.refinedInstruction,
+        });
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to process edit');
       console.error('Edit error:', err);
@@ -110,6 +132,7 @@ export const CmdKModal: React.FC<CmdKModalProps> = ({
       setInstruction('');
       setEditedCode('');
       setStats(null);
+      setJazzAnalysis(null);
       setError('');
     }
   };
@@ -117,8 +140,21 @@ export const CmdKModal: React.FC<CmdKModalProps> = ({
   const handleReject = () => {
     setEditedCode('');
     setStats(null);
+    setJazzAnalysis(null);
     setError('');
     setInstruction('');
+  };
+
+  const handleApplyRefined = () => {
+    if (jazzAnalysis?.refinedInstruction) {
+      setInstruction(jazzAnalysis.refinedInstruction);
+      setEditedCode('');
+      setStats(null);
+      setJazzAnalysis(null);
+      setError('');
+      // Auto-submit with refined instruction
+      setTimeout(() => handleSubmit(), 100);
+    }
   };
 
   const getLanguageFromPath = (path: string): string => {
@@ -258,6 +294,79 @@ export const CmdKModal: React.FC<CmdKModalProps> = ({
                   )}
                 </div>
               </div>
+
+              {/* Jazz Team Analysis */}
+              {jazzAnalysis && (
+                <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-700/50 rounded p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-xl">🎵</span>
+                    <h3 className="text-sm font-semibold text-purple-300">Jazz Team Self-Analysis</h3>
+                  </div>
+                  
+                  {/* Jazz Metrics */}
+                  <div className="grid grid-cols-4 gap-3 mb-4">
+                    <div className="text-center">
+                      <div className="text-xl font-bold text-purple-300">
+                        {(jazzAnalysis.voice * 100).toFixed(0)}%
+                      </div>
+                      <div className="text-xs text-purple-400">Voice</div>
+                      <div className="text-xs text-gray-500">Logic</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-xl font-bold text-pink-300">
+                        {(jazzAnalysis.choice * 100).toFixed(0)}%
+                      </div>
+                      <div className="text-xs text-pink-400">Choice</div>
+                      <div className="text-xs text-gray-500">Balance</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-xl font-bold text-blue-300">
+                        {(jazzAnalysis.transparency * 100).toFixed(0)}%
+                      </div>
+                      <div className="text-xs text-blue-400">Clarity</div>
+                      <div className="text-xs text-gray-500">Transparent</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-xl font-bold text-green-300">
+                        {(jazzAnalysis.trust * 100).toFixed(0)}%
+                      </div>
+                      <div className="text-xs text-green-400">Trust τ</div>
+                      <div className="text-xs text-gray-500">Enhanced</div>
+                    </div>
+                  </div>
+
+                  {/* Suggestions */}
+                  {jazzAnalysis.suggestions.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="text-xs font-semibold text-purple-300 mb-1">
+                        💡 Improvement Suggestions:
+                      </div>
+                      {jazzAnalysis.suggestions.map((suggestion, idx) => (
+                        <div key={idx} className="text-xs text-gray-300 bg-black/20 rounded px-3 py-2 border-l-2 border-purple-500">
+                          {suggestion}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Apply Refined Button */}
+                  {jazzAnalysis.refinedInstruction && (
+                    <div className="mt-4 pt-4 border-t border-purple-700/50">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleApplyRefined}
+                          className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded font-medium text-sm transition-all"
+                        >
+                          ✨ Apply Refined Instruction
+                        </button>
+                      </div>
+                      <div className="mt-2 text-xs text-purple-300 bg-black/20 rounded px-3 py-2">
+                        <span className="font-semibold">Refined:</span> {jazzAnalysis.refinedInstruction}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Side-by-side Diff */}
               <div className="grid grid-cols-2 gap-4">
