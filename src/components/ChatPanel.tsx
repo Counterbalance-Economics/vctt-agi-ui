@@ -12,9 +12,10 @@ interface ChatPanelProps {
   onSendMessage: (content: string) => void;
   trustScore?: number; // 0-100
   currentPhase?: PhaseEvent | null;
+  isResuming?: boolean;
 }
 
-export default function ChatPanel({ session, isLoading, onSendMessage, trustScore, currentPhase }: ChatPanelProps) {
+export default function ChatPanel({ session, isLoading, onSendMessage, trustScore, currentPhase, isResuming }: ChatPanelProps) {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -62,7 +63,19 @@ export default function ChatPanel({ session, isLoading, onSendMessage, trustScor
 
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
-        {!session || session.messages.length === 0 ? (
+        {isResuming ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <div className="text-4xl mb-4 animate-pulse">🔄</div>
+              <h2 className="text-2xl font-bold text-vctt-gold mb-2">
+                Resuming Previous Session...
+              </h2>
+              <p className="text-gray-400">
+                Loading your conversation history
+              </p>
+            </div>
+          </div>
+        ) : !session || session.messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-vctt-gold mb-2">

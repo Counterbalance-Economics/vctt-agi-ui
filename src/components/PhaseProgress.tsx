@@ -11,14 +11,35 @@ interface PhaseProgressProps {
 
 export default function PhaseProgress({ phase, description, progress, emoji, status }: PhaseProgressProps) {
   const [animatedProgress, setAnimatedProgress] = useState(0);
+  const [lastUpdateTime, setLastUpdateTime] = useState(Date.now());
 
   useEffect(() => {
     // Smooth progress animation
     const timer = setTimeout(() => {
       setAnimatedProgress(progress);
+      setLastUpdateTime(Date.now());
     }, 100);
     return () => clearTimeout(timer);
   }, [progress]);
+
+  // Heartbeat: Keep progress creeping if stuck for >8 seconds
+  useEffect(() => {
+    if (status !== 'in_progress') return;
+
+    const heartbeat = setInterval(() => {
+      const timeSinceUpdate = Date.now() - lastUpdateTime;
+      
+      // If no update for >8 seconds, slowly creep progress to 98%
+      if (timeSinceUpdate > 8000) {
+        setAnimatedProgress(prev => {
+          if (prev >= 98) return 98; // Cap at 98%
+          return Math.min(prev + 0.5, 98); // Slow creep
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(heartbeat);
+  }, [lastUpdateTime, status]);
 
   return (
     <div className="flex justify-start mb-4">
@@ -51,7 +72,7 @@ export default function PhaseProgress({ phase, description, progress, emoji, sta
 
         {/* Progress Text */}
         <div className="text-right text-xs text-gray-400 mt-2">
-          {animatedProgress}% complete
+          {Math.floor(animatedProgress)}% complete
         </div>
       </div>
     </div>

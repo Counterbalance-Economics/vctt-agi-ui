@@ -25,11 +25,21 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(true);
   const [currentPhase, setCurrentPhase] = useState<PhaseEvent | null>(null);
+  const [isResuming, setIsResuming] = useState(false);
 
   // Debug: Log showAnalytics state changes
   useEffect(() => {
     console.log('📊 showAnalytics changed to:', showAnalytics);
   }, [showAnalytics]);
+
+  // Sync current session ID to URL
+  useEffect(() => {
+    if (currentSession?.id) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('session', currentSession.id);
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [currentSession?.id]);
 
   // Load persisted sessions from backend on mount
   useEffect(() => {
@@ -39,6 +49,10 @@ function App() {
   const loadBackendSessions = async () => {
     setLoadingSessions(true);
     try {
+      // Check URL for session to resume
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionToResume = urlParams.get('session');
+
       const backendSessions = await api.getAllSessions(undefined, 50);
       
       if (backendSessions.length > 0) {
@@ -56,7 +70,17 @@ function App() {
         }));
         
         setSessions(uiSessions);
-        // Don't auto-select, let user choose
+        
+        // If there's a session ID in URL, try to resume it
+        if (sessionToResume) {
+          const sessionToLoad = uiSessions.find(s => s.id === sessionToResume);
+          if (sessionToLoad) {
+            console.log('🔄 Resuming session from URL:', sessionToResume);
+            setIsResuming(true);
+            await handleSelectSession(sessionToLoad);
+            setIsResuming(false);
+          }
+        }
       } else {
         // No backend sessions, create initial empty session
         handleNewSession();
@@ -307,6 +331,7 @@ return (
           onSendMessage={handleSendMessage}
           trustScore={vcttState['Trust (τ)']}
           currentPhase={currentPhase}
+          isResuming={isResuming}
         />
       </div>
 
