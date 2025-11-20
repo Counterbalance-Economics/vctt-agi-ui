@@ -2,7 +2,7 @@
 // src/components/CmdKModal.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { DiffEditor } from "@monaco-editor/react";
 import { Check, X, RefreshCw } from "lucide-react";
 
@@ -18,6 +18,23 @@ interface CodeEditResponse {
   editedCode: string;
   jazzAnalysis?: JazzAnalysis;
   verification: { trustTau: number; grokConfidence: number };
+  cost?: number;
+  tokensUsed?: number;
+  latency?: number;
+  linesAdded?: number;
+  linesDeleted?: number;
+  linesModified?: number;
+}
+
+export interface EditStats {
+  cost: number;
+  tokensUsed: number;
+  latency: number;
+  linesAdded: number;
+  linesDeleted: number;
+  linesModified: number;
+  trustTau?: number;
+  grokConfidence?: number;
 }
 
 export default function CmdKModal({
@@ -26,14 +43,15 @@ export default function CmdKModal({
   onClose,
 }: {
   original: string;
-  onApply: (code: string) => void;
+  onApply: (code: string, stats: EditStats) => void;
   onClose: () => void;
 }) {
   const [instruction, setInstruction] = useState("");
   const [stage, setStage] = useState<"idle" | "thinking" | "streaming" | "jazz" | "done">("idle");
   const [edited, setEdited] = useState("");
-  const [jazz, setJazzAnalysis] = useState<JazzAnalysis | null>(null);
+  const [jazz, setJazz] = useState<JazzAnalysis | null>(null);
   const [trust, setTrust] = useState(0);
+  const [responseData, setResponseData] = useState<CodeEditResponse | null>(null);
 
   const handleSubmit = async () => {
     if (!instruction.trim()) return;
@@ -41,6 +59,7 @@ export default function CmdKModal({
     setEdited("");
     setJazz(null);
     setTrust(0);
+    setResponseData(null);
 
     const res = await fetch("/api/ide/code-edit", {
       method: "POST",
@@ -54,6 +73,7 @@ export default function CmdKModal({
     });
 
     const data: CodeEditResponse = await res.json();
+    setResponseData(data);
     if (data.editedCode) {
       setEdited(data.editedCode);
       setTrust(data.verification.trustTau);
@@ -65,6 +85,23 @@ export default function CmdKModal({
         setStage("done");
       }
     }
+  };
+
+  const handleAccept = () => {
+    if (!edited || !responseData) return;
+    
+    const stats: EditStats = {
+      cost: responseData.cost ?? 0,
+      tokensUsed: responseData.tokensUsed ?? 0,
+      latency: responseData.latency ?? 0,
+      linesAdded: responseData.linesAdded ?? 0,
+      linesDeleted: responseData.linesDeleted ?? 0,
+      linesModified: responseData.linesModified ?? 0,
+      trustTau: responseData.verification?.trustTau,
+      grokConfidence: responseData.verification?.grokConfidence,
+    };
+    
+    onApply(edited, stats);
   };
 
   const handleRefined = async () => {
@@ -155,7 +192,7 @@ export default function CmdKModal({
         {/* Actions */}
         <div className="p-4 flex justify-end gap-3">
           <button onClick={onClose} className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600">Cancel</button>
-          {jazz?.suggestions?.length > 0 && (
+          {jazz?.suggestions && jazz.suggestions.length > 0 && (
             <button
               onClick={handleRefined}
               className="px-4 py-2 bg-cyan-600 rounded hover:bg-cyan-500 flex items-center gap-2"
@@ -165,7 +202,7 @@ export default function CmdKModal({
             </button>
           )}
           <button
-            onClick={() => onApply(edited)}
+            onClick={handleAccept}
             disabled={!edited}
             className="px-6 py-2 bg-green-600 rounded hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
