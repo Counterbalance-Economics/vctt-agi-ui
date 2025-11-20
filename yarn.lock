@@ -1080,6 +1080,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/jasmine@npm:^3.6.3":
+  version: 3.10.18
+  resolution: "@types/jasmine@npm:3.10.18"
+  checksum: 10c0/09914c65b09cb90536debd21c90000b27a26b730881d45e32c5c19cd429cdcf7407cf27dad2b11a5319bbba7e7e6d756b4a6f1f3c854b691bd1f0ac4f4ea1226
+  languageName: node
+  linkType: hard
+
 "@types/react-dom@npm:^19.2.3":
   version: 19.2.3
   resolution: "@types/react-dom@npm:19.2.3"
@@ -2793,6 +2800,7 @@ __metadata:
     tailwindcss: "npm:^4.1.17"
     typescript: "npm:^5.9.3"
     vite: "npm:^7.2.2"
+    vscode-icons-js: "npm:^11.6.1"
   languageName: unknown
   linkType: soft
 
@@ -2870,6 +2878,15 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 10c0/9c76ee441f8dbec645ddaecc28d1f9cf35670ffa91cff69af7b1d5081545331603f0b1289d437b2fa8dc43cdc77b4d96b5bd9c9aed66310f490cb1a06f9c814c
+  languageName: node
+  linkType: hard
+
+"vscode-icons-js@npm:^11.6.1":
+  version: 11.6.1
+  resolution: "vscode-icons-js@npm:11.6.1"
+  dependencies:
+    "@types/jasmine": "npm:^3.6.3"
+  checksum: 10c0/bae04f20e3a981cd730f92fed29ff07f389837a12f22c7c36656f7ed005bd672d19dd2213c3db16f8dbbf9c4e0655ccb303a847616fbdb290071c7ec4dc99b99
   languageName: node
   linkType: hard
 

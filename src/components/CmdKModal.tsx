@@ -16,9 +16,11 @@ export interface EditStats {
   tokensUsed: number;
   cost: number;
   latency: number;
+  trustTau?: number;        // MIN's trust metric (0-1)
+  grokConfidence?: number;  // Grok-4.1 verification confidence (0-1)
 }
 
-const BACKEND_URL = 'https://vctt-agi-phase3-complete.onrender.com';
+const BACKEND_URL = 'https://vctt-agi-phase3-complete.abacusai.app';
 
 export const CmdKModal: React.FC<CmdKModalProps> = ({
   isOpen,
@@ -83,12 +85,14 @@ export const CmdKModal: React.FC<CmdKModalProps> = ({
       
       setEditedCode(data.editedCode);
       setStats({
-        linesAdded: data.stats.linesAdded,
-        linesDeleted: data.stats.linesDeleted,
-        linesModified: data.stats.linesModified,
-        tokensUsed: data.stats.tokensUsed,
-        cost: data.stats.cost,
-        latency: data.stats.latency,
+        linesAdded: data.stats.linesAdded || 0,
+        linesDeleted: data.stats.linesDeleted || 0,
+        linesModified: data.stats.linesModified || data.stats.linesChanged || 0,
+        tokensUsed: data.stats.tokensUsed || 0,
+        cost: data.stats.costUSD || data.stats.cost || 0,
+        latency: data.stats.latencyMs || data.stats.latency || 0,
+        trustTau: data.verification?.trustTau,         // MIN's trust metric
+        grokConfidence: data.verification?.grokConfidence,  // Grok-4.1 confidence
       });
     } catch (err: any) {
       setError(err.message || 'Failed to process edit');
@@ -144,7 +148,7 @@ export const CmdKModal: React.FC<CmdKModalProps> = ({
             <div className="text-2xl">✨</div>
             <div>
               <h2 className="text-lg font-semibold text-white">AI Code Edit</h2>
-              <p className="text-sm text-gray-400">Claude 3.5 Sonnet · {filePath}</p>
+              <p className="text-sm text-gray-400">MIN Autonomous Engine · {filePath}</p>
             </div>
           </div>
           <button
@@ -215,7 +219,7 @@ export const CmdKModal: React.FC<CmdKModalProps> = ({
             <div className="space-y-4">
               {/* Stats */}
               <div className="bg-gray-800 rounded p-4">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-center">
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3 text-center">
                   <div>
                     <div className="text-2xl font-bold text-green-400">+{stats.linesAdded}</div>
                     <div className="text-xs text-gray-400">Added</div>
@@ -240,6 +244,18 @@ export const CmdKModal: React.FC<CmdKModalProps> = ({
                     <div className="text-2xl font-bold text-cyan-400">{stats.latency}ms</div>
                     <div className="text-xs text-gray-400">Latency</div>
                   </div>
+                  {stats.trustTau !== undefined && (
+                    <div className="bg-indigo-900/30 border border-indigo-700/50 rounded px-2">
+                      <div className="text-2xl font-bold text-indigo-300">τ {stats.trustTau.toFixed(2)}</div>
+                      <div className="text-xs text-indigo-400">Trust</div>
+                    </div>
+                  )}
+                  {stats.grokConfidence !== undefined && (
+                    <div className="bg-emerald-900/30 border border-emerald-700/50 rounded px-2">
+                      <div className="text-2xl font-bold text-emerald-300">{(stats.grokConfidence * 100).toFixed(0)}%</div>
+                      <div className="text-xs text-emerald-400">Grok</div>
+                    </div>
+                  )}
                 </div>
               </div>
 

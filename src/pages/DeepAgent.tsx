@@ -34,6 +34,8 @@ export default function DeepAgentMode() {
   const [isConnected, setIsConnected] = useState(false);
   const [lastEditCost, setLastEditCost] = useState<number | null>(null);
   const [lastEditTokens, setLastEditTokens] = useState<number | null>(null);
+  const [trustTau, setTrustTau] = useState<number | null>(null);
+  const [grokConfidence, setGrokConfidence] = useState<number | null>(null);
   const [currentBranch] = useState('main');
 
   useEffect(() => {
@@ -139,14 +141,19 @@ export default function DeepAgentMode() {
     setFileContent(editedCode);
     setIsDirty(true);
     
-    // Update status bar
+    // Update status bar (including MIN trust metrics!)
     setLastEditCost(stats.cost);
     setLastEditTokens(stats.tokensUsed);
+    setTrustTau(stats.trustTau ?? null);
+    setGrokConfidence(stats.grokConfidence ?? null);
     
-    // Log stats
-    addMessage(`✅ AI edit applied:`);
+    // Log stats with trust metrics
+    addMessage(`✅ AI edit applied (MIN Autonomous Engine):`);
     addMessage(`   +${stats.linesAdded} -${stats.linesDeleted} ~${stats.linesModified} lines`);
     addMessage(`   $${stats.cost.toFixed(4)} • ${stats.tokensUsed} tokens • ${stats.latency}ms`);
+    if (stats.trustTau !== undefined) {
+      addMessage(`   Trust τ: ${stats.trustTau.toFixed(2)} • Grok: ${((stats.grokConfidence ?? 0) * 100).toFixed(0)}%`);
+    }
     
     // Auto-save
     handleSave();
@@ -292,6 +299,8 @@ export default function DeepAgentMode() {
         isConnected={isConnected}
         lastEditCost={lastEditCost}
         lastEditTokens={lastEditTokens}
+        trustTau={trustTau}
+        grokConfidence={grokConfidence}
       />
     </div>
   );

@@ -8,6 +8,8 @@ interface StatusBarProps {
   isConnected: boolean;
   lastEditCost: number | null;
   lastEditTokens: number | null;
+  trustTau?: number | null;          // MIN's trust metric (0-1)
+  grokConfidence?: number | null;    // Grok-4.1 confidence (0-1)
 }
 
 export const StatusBar: React.FC<StatusBarProps> = ({
@@ -17,6 +19,8 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   isConnected,
   lastEditCost,
   lastEditTokens,
+  trustTau,
+  grokConfidence,
 }) => {
   return (
     <div className="h-6 bg-blue-600 text-white flex items-center justify-between px-4 text-xs font-medium">
@@ -37,11 +41,22 @@ export const StatusBar: React.FC<StatusBarProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        {/* Trust & Confidence Metrics (NEW!) */}
+        {(trustTau !== null && trustTau !== undefined) && (
+          <div className="flex items-center gap-1 px-2 py-0.5 bg-indigo-700 rounded">
+            <span className="font-bold">τ: {trustTau.toFixed(2)}</span>
+          </div>
+        )}
+        {(grokConfidence !== null && grokConfidence !== undefined) && (
+          <div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-700 rounded">
+            <span className="font-bold">Grok: {(grokConfidence * 100).toFixed(0)}%</span>
+          </div>
+        )}
+        
         {/* Last Edit Cost */}
         {lastEditCost !== null && lastEditTokens !== null && (
           <div className="flex items-center gap-2 px-2 py-0.5 bg-blue-700 rounded">
-            <span>Last edit:</span>
             <span className="font-bold">${lastEditCost.toFixed(4)}</span>
             <span className="text-blue-200">•</span>
             <span>{lastEditTokens} tokens</span>
