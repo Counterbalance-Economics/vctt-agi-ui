@@ -7,9 +7,18 @@ interface CodeEditorProps {
   content: string;
   onChange: (value: string | undefined) => void;
   onSave: () => void;
+  onCmdK?: () => void;
+  onCursorPositionChange?: (line: number, column: number) => void;
 }
 
-export const CodeEditor: React.FC<CodeEditorProps> = ({ filePath, content, onChange, onSave }) => {
+export const CodeEditor: React.FC<CodeEditorProps> = ({ 
+  filePath, 
+  content, 
+  onChange, 
+  onSave,
+  onCmdK,
+  onCursorPositionChange
+}) => {
   const editorRef = useRef<any>(null);
 
   const handleEditorDidMount = (editor: any, monaco: any) => {
@@ -19,6 +28,20 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ filePath, content, onCha
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
       onSave();
     });
+
+    // Add Cmd+K keyboard shortcut for AI editing
+    if (onCmdK) {
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK, () => {
+        onCmdK();
+      });
+    }
+
+    // Track cursor position
+    if (onCursorPositionChange) {
+      editor.onDidChangeCursorPosition((e: any) => {
+        onCursorPositionChange(e.position.lineNumber, e.position.column);
+      });
+    }
   };
 
   const getLanguage = (path: string | null): string => {

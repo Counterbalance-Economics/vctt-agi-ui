@@ -3,14 +3,16 @@ import { FileTree } from '../components/FileTree';
 import { CodeEditor } from '../components/CodeEditor';
 import { AIChat } from '../components/AIChat';
 import { GitPanel } from '../components/GitPanel';
+import { CmdKModal, EditStats } from '../components/CmdKModal';
+import { StatusBar } from '../components/StatusBar';
 
 const BACKEND_URL = 'https://vctt-agi-phase3-complete.onrender.com';
 
 export default function DeepAgentMode() {
   // Terminal state
   const [messages, setMessages] = useState<string[]>([
-    '✅ Phase 2: Code Editor + AI Chat + Git Ready',
-    'Select a file, chat with AI, or run commands below',
+    '✅ Phase 4: Cmd+K AI Editing Ready',
+    '✨ Select code and press Cmd+K to edit with Claude 3.5 Sonnet',
     '',
   ]);
   const [input, setInput] = useState('');
@@ -22,6 +24,18 @@ export default function DeepAgentMode() {
   const [fileContent, setFileContent] = useState<string>('');
   const [, setIsDirty] = useState(false);
 
+  // Cmd+K state
+  const [isCmdKOpen, setIsCmdKOpen] = useState(false);
+  const [selectedCode, setSelectedCode] = useState('');
+
+  // Status bar state
+  const [cursorLine, setCursorLine] = useState(1);
+  const [cursorColumn, setCursorColumn] = useState(1);
+  const [isConnected, setIsConnected] = useState(false);
+  const [lastEditCost, setLastEditCost] = useState<number | null>(null);
+  const [lastEditTokens, setLastEditTokens] = useState<number | null>(null);
+  const [currentBranch] = useState('main');
+
   useEffect(() => {
     testConnection();
   }, []);
@@ -30,9 +44,13 @@ export default function DeepAgentMode() {
     try {
       const res = await fetch(`${BACKEND_URL}/health`);
       if (res.ok) {
+        setIsConnected(true);
         addMessage('✅ Connected to backend');
+      } else {
+        setIsConnected(false);
       }
     } catch (err) {
+      setIsConnected(false);
       addMessage('⚠️ Backend offline - using mock data');
     }
   };
@@ -105,6 +123,40 @@ export default function DeepAgentMode() {
     }
   };
 
+  const handleCmdK = () => {
+    if (!selectedFile) {
+      addMessage('⚠️ Please select a file first');
+      return;
+    }
+    // Get selected text from editor (or entire file if no selection)
+    setSelectedCode(fileContent);
+    setIsCmdKOpen(true);
+    addMessage('✨ Cmd+K: AI editing mode activated');
+  };
+
+  const handleCmdKAccept = (editedCode: string, stats: EditStats) => {
+    // Apply the edited code
+    setFileContent(editedCode);
+    setIsDirty(true);
+    
+    // Update status bar
+    setLastEditCost(stats.cost);
+    setLastEditTokens(stats.tokensUsed);
+    
+    // Log stats
+    addMessage(`✅ AI edit applied:`);
+    addMessage(`   +${stats.linesAdded} -${stats.linesDeleted} ~${stats.linesModified} lines`);
+    addMessage(`   $${stats.cost.toFixed(4)} • ${stats.tokensUsed} tokens • ${stats.latency}ms`);
+    
+    // Auto-save
+    handleSave();
+  };
+
+  const handleCursorPositionChange = (line: number, column: number) => {
+    setCursorLine(line);
+    setCursorColumn(column);
+  };
+
   const send = async () => {
     if (!input.trim() || isProcessing) return;
     
@@ -138,6 +190,15 @@ export default function DeepAgentMode() {
 
   return (
     <div className="h-screen bg-gray-950 text-green-400 font-mono flex flex-col">
+      {/* Cmd+K Modal */}
+      <CmdKModal
+        isOpen={isCmdKOpen}
+        onClose={() => setIsCmdKOpen(false)}
+        selectedCode={selectedCode}
+        filePath={selectedFile || ''}
+        onAccept={handleCmdKAccept}
+      />
+
       {/* Header */}
       <div className="bg-gray-900 border-b border-gray-700 px-4 py-3">
         <div className="flex items-center justify-between">
@@ -145,6 +206,7 @@ export default function DeepAgentMode() {
             <div className="text-2xl">🤖</div>
             <h1 className="text-xl font-bold text-white">MIN DeepAgent</h1>
             <span className="text-xs text-gray-500">Code Editor • Terminal • AI Co-Pilot</span>
+            <span className="text-xs text-blue-400 font-semibold">✨ Cmd+K to edit</span>
           </div>
           <a
             href="/chat"
@@ -174,6 +236,8 @@ export default function DeepAgentMode() {
               content={fileContent}
               onChange={handleEditorChange}
               onSave={handleSave}
+              onCmdK={handleCmdK}
+              onCursorPositionChange={handleCursorPositionChange}
             />
           </div>
 
@@ -219,6 +283,16 @@ export default function DeepAgentMode() {
           <AIChat selectedFile={selectedFile} onCodeEdit={handleCodeEdit} />
         </div>
       </div>
+
+      {/* Status Bar */}
+      <StatusBar
+        branch={currentBranch}
+        line={cursorLine}
+        column={cursorColumn}
+        isConnected={isConnected}
+        lastEditCost={lastEditCost}
+        lastEditTokens={lastEditTokens}
+      />
     </div>
   );
 }
