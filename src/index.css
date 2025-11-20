@@ -56,6 +56,20 @@ body {
   }
 }
 
+/* Shimmer animation for phase progress bar */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
 .metric-bar {
   transition: width 0.5s ease-out;
 }

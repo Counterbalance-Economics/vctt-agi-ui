@@ -3,15 +3,18 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 import type { Session } from '../types';
 import TrustIndicator from './TrustIndicator';
+import PhaseProgress from './PhaseProgress';
+import type { PhaseEvent } from '../services/websocket';
 
 interface ChatPanelProps {
   session: Session | null;
   isLoading: boolean;
   onSendMessage: (content: string) => void;
   trustScore?: number; // 0-100
+  currentPhase?: PhaseEvent | null;
 }
 
-export default function ChatPanel({ session, isLoading, onSendMessage, trustScore }: ChatPanelProps) {
+export default function ChatPanel({ session, isLoading, onSendMessage, trustScore, currentPhase }: ChatPanelProps) {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -94,8 +97,19 @@ export default function ChatPanel({ session, isLoading, onSendMessage, trustScor
               </div>
             ))}
 
-            {/* Typing Indicator */}
-            {isLoading && (
+            {/* Phase Progress Spinner */}
+            {currentPhase && (
+              <PhaseProgress
+                phase={currentPhase.phase}
+                description={currentPhase.description}
+                progress={currentPhase.progress}
+                emoji={currentPhase.emoji}
+                status={currentPhase.status}
+              />
+            )}
+
+            {/* Typing Indicator - Only show if loading but no phase info */}
+            {isLoading && !currentPhase && (
               <div className="flex justify-start">
                 <div className="bg-vctt-panel border border-vctt-gold rounded-2xl px-6 py-4">
                   <div className="typing-indicator flex space-x-2">

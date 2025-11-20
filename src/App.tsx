@@ -7,6 +7,7 @@ import AdminPanel from './components/AdminPanel';
 import AnalyticsModal from './components/AnalyticsModal';
 import type { Session, Message, VCTTState, StepResponse } from './types';
 import { api } from './services/api';
+import { websocketService, type PhaseEvent } from './services/websocket';
 
 function App() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -23,6 +24,7 @@ function App() {
   const [lastResponse, setLastResponse] = useState<StepResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(true);
+  const [currentPhase, setCurrentPhase] = useState<PhaseEvent | null>(null);
 
   // Debug: Log showAnalytics state changes
   useEffect(() => {
@@ -72,6 +74,7 @@ function App() {
     if (!currentSession || isLoading) return;
 
     setIsLoading(true);
+    setCurrentPhase(null); // Reset phase tracker
 
     // Add user message
     const userMessage: Message = {
@@ -98,7 +101,73 @@ function App() {
         updateSessionInList(updatedSession);
       }
       
-      // Call backend API
+      // Try WebSocket streaming first, fallback to REST on any error
+      const useStreaming = true; // Enable streaming by default
+      
+      if (useStreaming) {
+        try {
+          let accumulatedContent = '';
+          let streamingSucceeded = false;
+
+          await new Promise<void>((resolve, reject) => {
+            websocketService.streamQuery(
+              sessionId,
+              content,
+              // onChunk
+              (chunk: string) => {
+                accumulatedContent += chunk;
+                console.log('📦 Received chunk:', chunk.substring(0, 50) + '...');
+              },
+              // onPhase
+              (phase: PhaseEvent) => {
+                console.log('📊 Phase update:', phase.phase, phase.progress + '%');
+                setCurrentPhase(phase);
+              },
+              // onComplete
+              () => {
+                console.log('✅ Streaming complete, accumulated:', accumulatedContent.length, 'chars');
+                streamingSucceeded = true;
+                setCurrentPhase(null);
+                
+                // Add final assistant message
+                const assistantMessage: Message = {
+                  id: crypto.randomUUID(),
+                  role: 'assistant',
+                  content: accumulatedContent || 'Response completed',
+                  timestamp: new Date()
+                };
+
+                const finalMessages = [...updatedMessages, assistantMessage];
+                const finalSession = { ...updatedSession, messages: finalMessages };
+                setCurrentSession(finalSession);
+                updateSessionInList(finalSession);
+                
+                websocketService.removeAllListeners();
+                resolve();
+              },
+              // onError
+              (error: string) => {
+                console.error('❌ WebSocket error:', error);
+                setCurrentPhase(null);
+                websocketService.removeAllListeners();
+                reject(new Error(error));
+              }
+            );
+          });
+
+          // If streaming succeeded, we're done
+          if (streamingSucceeded) {
+            setIsLoading(false);
+            return;
+          }
+        } catch (wsError) {
+          console.warn('⚠️ WebSocket streaming failed, falling back to REST:', wsError);
+          setCurrentPhase(null);
+        }
+      }
+      
+      // Fallback to REST API
+      console.log('📡 Using REST API fallback');
       const response = await api.sendStep(sessionId, content);
       
       // Add assistant message
@@ -119,6 +188,7 @@ function App() {
       setLastResponse(response);
     } catch (error) {
       console.error('Error sending message:', error);
+      setCurrentPhase(null);
     } finally {
       setIsLoading(false);
     }
@@ -236,6 +306,7 @@ return (
           isLoading={isLoading}
           onSendMessage={handleSendMessage}
           trustScore={vcttState['Trust (τ)']}
+          currentPhase={currentPhase}
         />
       </div>
 
