@@ -4,6 +4,7 @@ import { CodeEditor } from '../components/CodeEditor';
 import { AIChat } from '../components/AIChat';
 import { GitPanel } from '../components/GitPanel';
 import CmdKModal, { EditStats } from '../components/CmdKModal';
+import CommandPalette from '../components/CommandPalette';
 import { StatusBar } from '../components/StatusBar';
 
 const BACKEND_URL = 'https://vctt-agi-phase3-complete.onrender.com';
@@ -28,6 +29,9 @@ export default function DeepAgentMode() {
   const [isCmdKOpen, setIsCmdKOpen] = useState(false);
   const [selectedCode, setSelectedCode] = useState('');
 
+  // Command Palette state
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
   // Status bar state
   const [cursorLine, setCursorLine] = useState(1);
   const [cursorColumn, setCursorColumn] = useState(1);
@@ -40,6 +44,17 @@ export default function DeepAgentMode() {
 
   useEffect(() => {
     testConnection();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        setIsCommandPaletteOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const testConnection = async () => {
@@ -205,6 +220,12 @@ export default function DeepAgentMode() {
           onClose={() => setIsCmdKOpen(false)}
         />
       )}
+
+      {/* Command Palette */}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+      />
 
       {/* Header */}
       <div className="bg-gray-900 border-b border-gray-700 px-4 py-3">
