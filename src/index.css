@@ -122,3 +122,46 @@ body {
   overflow-x: hidden;
   text-overflow: ellipsis;
 }
+
+/* Git gutter decorations */
+.git-added-line {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-left: 3px solid #10b981 !important;
+}
+
+.git-modified-line {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-left: 3px solid #3b82f6 !important;
+}
+
+.git-deleted-line {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-left: 3px solid #ef4444 !important;
+}
+
+.git-added-glyph::before {
+  content: "✓";
+  color: #10b981;
+  font-weight: bold;
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+}
+
+.git-modified-glyph::before {
+  content: "●";
+  color: #3b82f6;
+  font-weight: bold;
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+}
+
+.git-deleted-glyph::before {
+  content: "✗";
+  color: #ef4444;
+  font-weight: bold;
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+}

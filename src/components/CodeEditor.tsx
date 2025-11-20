@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 
 interface CodeEditorProps {
@@ -9,6 +9,10 @@ interface CodeEditorProps {
   onSave: () => void;
   onCmdK?: () => void;
   onCursorPositionChange?: (line: number, column: number) => void;
+  gitDecorations?: Array<{
+    range: [number, number, number, number];
+    type: 'added' | 'modified' | 'deleted';
+  }>;
 }
 
 export const CodeEditor: React.FC<CodeEditorProps> = ({ 
@@ -17,12 +21,47 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   onChange, 
   onSave,
   onCmdK,
-  onCursorPositionChange
+  onCursorPositionChange,
+  gitDecorations = []
 }) => {
   const editorRef = useRef<any>(null);
+  const monacoRef = useRef<any>(null);
+  const decorationsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    if (editorRef.current && monacoRef.current && gitDecorations.length > 0) {
+      const newDecorations = gitDecorations.map((d) => {
+        const colorMap = {
+          added: { bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981', glyph: '✓' },
+          modified: { bg: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6', glyph: '●' },
+          deleted: { bg: 'rgba(239, 68, 68, 0.2)', border: '#ef4444', glyph: '✗' }
+        };
+        const colors = colorMap[d.type];
+        
+        return {
+          range: new monacoRef.current.Range(...d.range),
+          options: {
+            isWholeLine: true,
+            className: `git-${d.type}-line`,
+            glyphMarginClassName: `git-${d.type}-glyph`,
+            overviewRuler: {
+              color: colors.border,
+              position: monacoRef.current.editor.OverviewRulerLane.Right
+            }
+          }
+        };
+      });
+      
+      decorationsRef.current = editorRef.current.deltaDecorations(
+        decorationsRef.current,
+        newDecorations
+      );
+    }
+  }, [gitDecorations, content]);
 
   const handleEditorDidMount = (editor: any, monaco: any) => {
     editorRef.current = editor;
+    monacoRef.current = monaco;
 
     // Add save keyboard shortcut (Cmd+S / Ctrl+S)
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
@@ -98,6 +137,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
               foldingHighlight: true,
               foldingStrategy: 'indentation',
               showFoldingControls: 'always',
+              glyphMargin: true,
+              renderLineHighlight: 'all',
               scrollBeyondLastLine: false,
               automaticLayout: true,
               tabSize: 2,
