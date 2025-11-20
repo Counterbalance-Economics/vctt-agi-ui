@@ -6,6 +6,7 @@ import { GitPanel } from '../components/GitPanel';
 import CmdKModal, { EditStats } from '../components/CmdKModal';
 import CommandPalette from '../components/CommandPalette';
 import TestExplorer from '../components/TestExplorer';
+import DeploymentPanel from '../components/DeploymentPanel';
 import { StatusBar } from '../components/StatusBar';
 
 const BACKEND_URL = 'https://vctt-agi-phase3-complete.onrender.com';
@@ -309,6 +310,9 @@ export default function DeepAgentMode() {
 
         {/* Test Explorer Panel */}
         <TestExplorer />
+
+        {/* Deployment Panel */}
+        <DeploymentPanel />
 
         {/* Right Panel: AI Chat */}
         <div className="w-96 border-l border-gray-800">
