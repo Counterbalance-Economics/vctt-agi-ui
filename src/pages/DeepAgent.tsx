@@ -772,12 +772,21 @@ Start coding now! Select any file from the explorer.`;
             <span className="text-xs text-gray-500">Code Editor • Terminal • AI Co-Pilot</span>
             <span className="text-xs text-blue-400 font-semibold">✨ {modKeyFull}+K to edit</span>
           </div>
-          <a
-            href="/deep"
-            className="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-gray-300 text-sm transition-all"
-          >
-            ← Back to VCTT
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href="/admin/safety"
+              className="px-3 py-1 bg-orange-600 hover:bg-orange-700 rounded text-white text-sm transition-all font-medium flex items-center gap-2"
+              title="Admin Safety Dashboard - Control AGI system"
+            >
+              🛡️ Safety Dashboard
+            </a>
+            <a
+              href="/deep"
+              className="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-gray-300 text-sm transition-all"
+            >
+              ← Back to VCTT
+            </a>
+          </div>
         </div>
       </div>
 
