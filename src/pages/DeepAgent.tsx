@@ -5,6 +5,7 @@ import { AIChat } from "../components/AIChat";
 import { GitPanel } from "../components/GitPanel";
 import CmdKModal, { EditStats } from "../components/CmdKModal";
 import CommandPalette from "../components/CommandPalette";
+import { QuickFileSwitcher } from "../components/QuickFileSwitcher";
 import TestExplorer from "../components/TestExplorer";
 import DeploymentPanel from "../components/DeploymentPanel";
 import { StatusBar } from "../components/StatusBar";
@@ -39,6 +40,26 @@ export default function DeepAgentMode() {
 
   // Command Palette state
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isQuickFileSwitcherOpen, setIsQuickFileSwitcherOpen] = useState(false);
+
+  // Mock file list - in production, this would come from backend
+  const availableFiles = [
+    "/README.md",
+    "/src/main.ts",
+    "/src/components/Button.tsx",
+    "/src/components/Input.tsx",
+    "/src/components/Modal.tsx",
+    "/src/utils/helpers.ts",
+    "/src/utils/validators.ts",
+    "/src/styles/globals.css",
+    "/src/styles/theme.ts",
+    "/tests/unit/helpers.test.ts",
+    "/tests/integration/api.test.ts",
+    "/package.json",
+    "/tsconfig.json",
+    "/vite.config.ts",
+    ...openFiles, // Include all currently open files
+  ];
 
   // Status bar state
   const [cursorLine, setCursorLine] = useState(1);
@@ -62,6 +83,11 @@ export default function DeepAgentMode() {
       if (e.metaKey && e.shiftKey && e.key === "P") {
         e.preventDefault();
         setIsCommandPaletteOpen((prev) => !prev);
+      }
+      // Cmd+P - Quick File Switcher
+      if (e.metaKey && !e.shiftKey && e.key === "p") {
+        e.preventDefault();
+        setIsQuickFileSwitcherOpen((prev) => !prev);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -391,6 +417,14 @@ Start coding now! Select any file from the explorer.`;
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
+      />
+
+      {/* Quick File Switcher */}
+      <QuickFileSwitcher
+        isOpen={isQuickFileSwitcherOpen}
+        onClose={() => setIsQuickFileSwitcherOpen(false)}
+        onFileSelect={handleFileSelect}
+        files={availableFiles}
       />
 
       {/* Header */}
