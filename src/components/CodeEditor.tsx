@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import Editor, { OnMount } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
 
@@ -83,7 +83,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             height="100%"
             language={getLanguage(filePath)}
             value={content}
-            onChange={onChange}
+            onChange={(value) => onChange(value || "")}
             onMount={handleEditorDidMount}
             theme="vs-dark"
             options={{
