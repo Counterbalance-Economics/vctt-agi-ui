@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import { Command } from "cmdk";
 import { GitCommit, GitBranch, Save, Play, Terminal, Upload } from "lucide-react";
+import { getModKey } from "../utils/keyboard";
 
 export default function CommandPalette({
   isOpen,
@@ -26,7 +27,7 @@ export default function CommandPalette({
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.metaKey && e.shiftKey && e.key === "P") {
+      if (getModKey(e) && e.shiftKey && e.key === "P") {
         e.preventDefault();
         onClose(); // toggle
       }

@@ -2,6 +2,7 @@
 import { useRef, useImperativeHandle, forwardRef } from "react";
 import Editor, { OnMount } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
+import { modKeyFull } from "../utils/keyboard";
 
 interface CodeEditorProps {
   filePath: string | null;
@@ -97,7 +98,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(
 
           // "View Problem" action - simpler approach without edit
           actions.push({
-            title: '🔍 View Problem (Cmd+K to fix)',
+            title: `🔍 View Problem (${modKeyFull}+K to fix)`,
             kind: 'quickfix',
             diagnostics: context.markers,
             command: {

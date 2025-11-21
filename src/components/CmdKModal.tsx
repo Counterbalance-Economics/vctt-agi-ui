@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { DiffEditor } from "@monaco-editor/react";
 import { Check, X, RefreshCw } from "lucide-react";
+import { modKeyFull } from "../utils/keyboard";
 
 interface JazzAnalysis {
   voice: number;
@@ -124,7 +125,7 @@ export default function CmdKModal({
       >
         {/* Header */}
         <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Cmd+K • AI Edit</h2>
+          <h2 className="text-lg font-semibold">{modKeyFull}+K • AI Edit</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white">
             <X size={20} />
           </button>

@@ -10,16 +10,13 @@ import { StatusBar } from "../components/StatusBar";
 import { FileMenu } from "../components/FileMenu";
 import { EditMenu } from "../components/EditMenu";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { getModKey, modKeyFull } from "../utils/keyboard";
 
 const BACKEND_URL = "https://vctt-agi-phase3-complete.onrender.com";
 
 export default function DeepAgentMode() {
   // Terminal state
-  const [messages, setMessages] = useState<string[]>([
-    "✅ Backend online – using MIN autonomous engine (Grok 4.1 + Jazz self-analysis)",
-    "✨ Select code and press Cmd+K to edit with MIN's 5-model ensemble + Grok 4.1 verification",
-    "",
-  ]);
+  const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -65,7 +62,7 @@ export default function DeepAgentMode() {
   const [isTerminalCollapsed, setIsTerminalCollapsed] = useState(true);
   const [loadedFolderFiles, setLoadedFolderFiles] = useState<string[]>([]);
 
-  // Cmd+K state
+  // Cmd+K (Mac) / Ctrl+K (Windows) state
   const [isCmdKOpen, setIsCmdKOpen] = useState(false);
   const [selectedCode, setSelectedCode] = useState("");
 
@@ -107,6 +104,13 @@ export default function DeepAgentMode() {
   const [currentBranch] = useState("main");
 
   useEffect(() => {
+    // Set initial terminal messages with correct keyboard shortcuts
+    setMessages([
+      "✅ Backend online – using MIN autonomous engine (Grok 4.1 + Jazz self-analysis)",
+      `✨ Select code and press ${modKeyFull}+K to edit with MIN's 5-model ensemble + Grok 4.1 verification`,
+      "",
+    ]);
+    
     // Initial connection test
     testConnection();
     // Auto-open README.md on initial load
@@ -122,13 +126,13 @@ export default function DeepAgentMode() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd+Shift+P - Command Palette
-      if (e.metaKey && e.shiftKey && e.key === "P") {
+      // Cmd+Shift+P (Mac) or Ctrl+Shift+P (Windows) - Command Palette
+      if (getModKey(e) && e.shiftKey && e.key === "P") {
         e.preventDefault();
         setIsCommandPaletteOpen((prev) => !prev);
       }
-      // Cmd+P - Quick File Switcher
-      if (e.metaKey && !e.shiftKey && e.key === "p") {
+      // Cmd+P (Mac) or Ctrl+P (Windows) - Quick File Switcher
+      if (getModKey(e) && !e.shiftKey && e.key === "p") {
         e.preventDefault();
         setIsQuickFileSwitcherOpen((prev) => !prev);
       }
@@ -239,7 +243,7 @@ export default function DeepAgentMode() {
 The most advanced AI-powered coding environment.
 
 ## Features
-- 🎯 **Cmd+K AI Editing** - Select code, press Cmd+K, describe changes
+- 🎯 **${modKeyFull}+K AI Editing** - Select code, press ${modKeyFull}+K, describe changes
 - 🔍 **Real-time Trust Metrics** - Jazz self-analysis ensures quality
 - 🚀 **Instant Deployment** - One-click deploy with live preview
 - 🧪 **Integrated Testing** - Test explorer with run-all support
@@ -247,7 +251,7 @@ The most advanced AI-powered coding environment.
 ## Getting Started
 1. Select a file from the explorer (left sidebar)
 2. Select code you want to modify
-3. Press **Cmd+K** to open AI editing mode
+3. Press **${modKeyFull}+K** to open AI editing mode
 4. Describe your changes and watch MIN work its magic
 
 ## Trust Score (τ)
@@ -259,7 +263,7 @@ MIN uses a multi-agent verification system to ensure code quality:
 
 Start coding now! Select any file from the explorer.`;
     }
-    return `// File: ${path}\n// Backend integration active\n\nconsole.log('Hello from ${path}');\n\nexport default function example() {\n  return "Edit me with Cmd+K";\n}\n`;
+    return `// File: ${path}\n// Backend integration active\n\nconsole.log('Hello from ${path}');\n\nexport default function example() {\n  return "Edit me with ${modKeyFull}+K";\n}\n`;
   };
 
   const handleCloseFile = (path: string, e?: React.MouseEvent) => {
@@ -537,7 +541,7 @@ Start coding now! Select any file from the explorer.`;
     // Get selected text from editor (or entire file if no selection)
     setSelectedCode(fileContent);
     setIsCmdKOpen(true);
-    addMessage("✨ Cmd+K: AI editing mode activated");
+    addMessage(`✨ ${modKeyFull}+K: AI editing mode activated`);
   };
 
   const handleCmdKAccept = (editedCode: string, stats: EditStats) => {
@@ -733,7 +737,7 @@ Start coding now! Select any file from the explorer.`;
             <div className="text-2xl">🤖</div>
             <h1 className="text-xl font-bold text-white">MIN DeepAgent</h1>
             <span className="text-xs text-gray-500">Code Editor • Terminal • AI Co-Pilot</span>
-            <span className="text-xs text-blue-400 font-semibold">✨ Cmd+K to edit</span>
+            <span className="text-xs text-blue-400 font-semibold">✨ {modKeyFull}+K to edit</span>
           </div>
           <a
             href="/chat"
@@ -757,15 +761,22 @@ Start coding now! Select any file from the explorer.`;
             openFiles={openFiles}
             loadedFiles={loadedFolderFiles}
           />
-          {/* FINAL FIX #1: 8px visible drag handle with proper cursor */}
+        </div>
+
+        {/* Center Panel: Code Editor + Terminal with LEFT drag handle */}
+        <div className="flex-1 flex flex-col relative">
+          {/* Left drag handle - resizes Explorer */}
           <div
-            className="absolute top-0 right-0 w-2 h-full bg-gray-600/70 hover:bg-blue-500 hover:w-2 active:bg-blue-600 transition-all"
+            className="absolute top-0 left-0 h-full hover:bg-blue-500/50 active:bg-blue-500/70 transition-colors"
             style={{ 
+              width: '6px',
               cursor: 'col-resize',
-              zIndex: 10000,
-              userSelect: 'none'
+              zIndex: 10,
+              userSelect: 'none',
+              backgroundColor: 'rgba(75, 85, 99, 0.5)',
+              marginLeft: '-3px' // Extend into Explorer panel
             }}
-            title="◀▶ Drag to resize"
+            title="Drag to resize explorer"
             onMouseDown={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -791,10 +802,7 @@ Start coding now! Select any file from the explorer.`;
               document.addEventListener("mouseup", handleMouseUp);
             }}
           />
-        </div>
-
-        {/* Center Panel: Code Editor + Terminal */}
-        <div className="flex-1 flex flex-col">
+          
           {/* Git Panel */}
           <GitPanel onPush={handlePush} onBranchSwitch={handleBranchSwitch} />
 
@@ -866,16 +874,18 @@ Start coding now! Select any file from the explorer.`;
             }`}
             style={!isTerminalCollapsed ? { height: `${terminalHeight}px`, maxHeight: '400px' } : {}}
           >
-            {/* FINAL FIX #1: Terminal resize handle - visible and functional */}
+            {/* Terminal drag handle (top edge) */}
             {!isTerminalCollapsed && (
               <div
-                className="absolute top-0 left-0 right-0 h-1 bg-gray-600/70 hover:bg-blue-500 active:bg-blue-600 transition-all"
+                className="absolute top-0 left-0 right-0 hover:bg-blue-500/50 active:bg-blue-500/70 transition-colors"
                 style={{ 
+                  height: '6px',
                   cursor: 'row-resize',
-                  zIndex: 10000,
-                  userSelect: 'none'
+                  zIndex: 10,
+                  userSelect: 'none',
+                  backgroundColor: 'rgba(75, 85, 99, 0.5)'
                 }}
-                title="▲▼ Drag to resize"
+                title="Drag to resize terminal"
                 onMouseDown={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -952,17 +962,20 @@ Start coding now! Select any file from the explorer.`;
           </div>
         </div>
 
-        {/* Right Panel: AI Chat - FINAL FIX #1: Fully functional resize */}
+        {/* Right Panel: AI Chat with LEFT drag handle */}
         <div className="border-l border-gray-800 relative flex-shrink-0" style={{ width: `${aiChatWidth}px` }}>
-          {/* FINAL FIX #1: AI panel resize handle - visible and functional */}
+          {/* Drag handle on LEFT edge of AI panel - resizes AI Assistant */}
           <div
-            className="absolute top-0 left-0 w-2 h-full bg-gray-600/70 hover:bg-blue-500 hover:w-2 active:bg-blue-600 transition-all"
+            className="absolute top-0 left-0 h-full hover:bg-blue-500/50 active:bg-blue-500/70 transition-colors"
             style={{ 
+              width: '6px',
               cursor: 'col-resize',
-              zIndex: 10000,
-              userSelect: 'none'
+              zIndex: 100,
+              userSelect: 'none',
+              backgroundColor: 'rgba(75, 85, 99, 0.5)',
+              marginLeft: '-3px' // Extend into middle panel
             }}
-            title="◀▶ Drag to resize"
+            title="Drag to resize AI panel"
             onMouseDown={(e) => {
               e.preventDefault();
               e.stopPropagation();
