@@ -49,6 +49,19 @@ export default function DeepAgentMode() {
     return stored ? parseInt(stored) : 384;
   });
   
+  // FINAL FIX #1: Save panel sizes to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem("sidebarWidth", sidebarWidth.toString());
+  }, [sidebarWidth]);
+
+  useEffect(() => {
+    localStorage.setItem("terminalHeight", terminalHeight.toString());
+  }, [terminalHeight]);
+
+  useEffect(() => {
+    localStorage.setItem("aiChatWidth", aiChatWidth.toString());
+  }, [aiChatWidth]);
+  
   const [isTerminalCollapsed, setIsTerminalCollapsed] = useState(true);
   const [loadedFolderFiles, setLoadedFolderFiles] = useState<string[]>([]);
 
@@ -744,24 +757,36 @@ Start coding now! Select any file from the explorer.`;
             openFiles={openFiles}
             loadedFiles={loadedFolderFiles}
           />
-          {/* FIX: IMPROVED Resize Handle - moved outside FileTree component, fixed positioning */}
+          {/* FINAL FIX #1: 8px visible drag handle with proper cursor */}
           <div
-            className="absolute top-0 right-0 w-2 h-full cursor-col-resize bg-gray-700/50 hover:bg-blue-500 active:bg-blue-600 transition-colors"
-            style={{ cursor: 'col-resize', zIndex: 9999 }}
-            title="Drag to resize explorer panel"
+            className="absolute top-0 right-0 w-2 h-full bg-gray-600/70 hover:bg-blue-500 hover:w-2 active:bg-blue-600 transition-all"
+            style={{ 
+              cursor: 'col-resize',
+              zIndex: 10000,
+              userSelect: 'none'
+            }}
+            title="◀▶ Drag to resize"
             onMouseDown={(e) => {
               e.preventDefault();
               e.stopPropagation();
               const startX = e.clientX;
               const startWidth = sidebarWidth;
+              
               const handleMouseMove = (moveEvent: MouseEvent) => {
-                const newWidth = Math.max(200, Math.min(800, startWidth + (moveEvent.clientX - startX)));
+                const delta = moveEvent.clientX - startX;
+                const newWidth = Math.max(200, Math.min(800, startWidth + delta));
                 setSidebarWidth(newWidth);
               };
+              
               const handleMouseUp = () => {
                 document.removeEventListener("mousemove", handleMouseMove);
                 document.removeEventListener("mouseup", handleMouseUp);
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
               };
+              
+              document.body.style.cursor = 'col-resize';
+              document.body.style.userSelect = 'none';
               document.addEventListener("mousemove", handleMouseMove);
               document.addEventListener("mouseup", handleMouseUp);
             }}
@@ -841,23 +866,37 @@ Start coding now! Select any file from the explorer.`;
             }`}
             style={!isTerminalCollapsed ? { height: `${terminalHeight}px`, maxHeight: '400px' } : {}}
           >
-            {/* FIX #6-7: Resize Handle for Terminal */}
+            {/* FINAL FIX #1: Terminal resize handle - visible and functional */}
             {!isTerminalCollapsed && (
               <div
-                className="absolute top-0 left-0 right-0 h-1 cursor-row-resize hover:bg-blue-500 transition-colors z-10"
-                style={{ cursor: 'row-resize' }}
+                className="absolute top-0 left-0 right-0 h-1 bg-gray-600/70 hover:bg-blue-500 active:bg-blue-600 transition-all"
+                style={{ 
+                  cursor: 'row-resize',
+                  zIndex: 10000,
+                  userSelect: 'none'
+                }}
+                title="▲▼ Drag to resize"
                 onMouseDown={(e) => {
                   e.preventDefault();
+                  e.stopPropagation();
                   const startY = e.clientY;
                   const startHeight = terminalHeight;
+                  
                   const handleMouseMove = (moveEvent: MouseEvent) => {
-                    const newHeight = Math.max(100, Math.min(600, startHeight - (moveEvent.clientY - startY)));
+                    const delta = startY - moveEvent.clientY;
+                    const newHeight = Math.max(100, Math.min(600, startHeight + delta));
                     setTerminalHeight(newHeight);
                   };
+                  
                   const handleMouseUp = () => {
                     document.removeEventListener("mousemove", handleMouseMove);
                     document.removeEventListener("mouseup", handleMouseUp);
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
                   };
+                  
+                  document.body.style.cursor = 'row-resize';
+                  document.body.style.userSelect = 'none';
                   document.addEventListener("mousemove", handleMouseMove);
                   document.addEventListener("mouseup", handleMouseUp);
                 }}
@@ -913,32 +952,47 @@ Start coding now! Select any file from the explorer.`;
           </div>
         </div>
 
-        {/* Right Panel: AI Chat - FIX: Added relative positioning for resize handle */}
+        {/* Right Panel: AI Chat - FINAL FIX #1: Fully functional resize */}
         <div className="border-l border-gray-800 relative flex-shrink-0" style={{ width: `${aiChatWidth}px` }}>
-          {/* FIX: IMPROVED Resize Handle - fixed positioning and drag direction */}
+          {/* FINAL FIX #1: AI panel resize handle - visible and functional */}
           <div
-            className="absolute top-0 left-0 w-2 h-full cursor-col-resize bg-gray-700/50 hover:bg-blue-500 active:bg-blue-600 transition-colors"
-            style={{ cursor: 'col-resize', zIndex: 9999 }}
-            title="Drag to resize AI panel"
+            className="absolute top-0 left-0 w-2 h-full bg-gray-600/70 hover:bg-blue-500 hover:w-2 active:bg-blue-600 transition-all"
+            style={{ 
+              cursor: 'col-resize',
+              zIndex: 10000,
+              userSelect: 'none'
+            }}
+            title="◀▶ Drag to resize"
             onMouseDown={(e) => {
               e.preventDefault();
               e.stopPropagation();
               const startX = e.clientX;
               const startWidth = aiChatWidth;
+              
               const handleMouseMove = (moveEvent: MouseEvent) => {
-                const diff = startX - moveEvent.clientX; // Reversed: drag left = wider
-                const newWidth = Math.max(200, Math.min(800, startWidth + diff));
+                const delta = startX - moveEvent.clientX; // Drag left = wider
+                const newWidth = Math.max(200, Math.min(800, startWidth + delta));
                 setAiChatWidth(newWidth);
               };
+              
               const handleMouseUp = () => {
                 document.removeEventListener("mousemove", handleMouseMove);
                 document.removeEventListener("mouseup", handleMouseUp);
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
               };
+              
+              document.body.style.cursor = 'col-resize';
+              document.body.style.userSelect = 'none';
               document.addEventListener("mousemove", handleMouseMove);
               document.addEventListener("mouseup", handleMouseUp);
             }}
           />
-          <AIChat selectedFile={selectedFile} onCodeEdit={handleCodeEdit} />
+          <AIChat 
+            selectedFile={selectedFile} 
+            fileContent={fileContent}
+            onCodeEdit={handleCodeEdit} 
+          />
         </div>
       </div>
 

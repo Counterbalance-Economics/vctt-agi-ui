@@ -7,10 +7,11 @@ interface Message {
 
 interface AIChatProps {
   selectedFile: string | null;
+  fileContent?: string;
   onCodeEdit?: (filePath: string, newContent: string) => void;
 }
 
-export const AIChat: React.FC<AIChatProps> = ({ selectedFile }) => {
+export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -95,21 +96,35 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile }) => {
         return;
       }
 
-      // FIX #3: Connect to actual backend for AI chat
+      // FINAL FIX #2: Connect to backend /api/ide/code-edit with full context
       const BACKEND_URL = "https://vctt-agi-phase3-complete.onrender.com";
       
-      const response = await fetch(`${BACKEND_URL}/api/chat`, {
+      const response = await fetch(`${BACKEND_URL}/api/ide/code-edit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: userMessage,
-          context: selectedFile || undefined,
+          instruction: userMessage,
+          filePath: selectedFile || "untitled",
+          fileContent: fileContent || "",
+          language: selectedFile ? selectedFile.split('.').pop() : "text",
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        const aiResponse = data.response || data.message || "Got it! Working on it...";
+        
+        // Format response with code if available
+        let aiResponse = "";
+        if (data.edit && data.edit.newCode) {
+          aiResponse = `✅ Here's the fix:\n\n\`\`\`${data.edit.language || 'text'}\n${data.edit.newCode}\n\`\`\`\n\n${data.edit.explanation || 'Applied the requested changes.'}`;
+        } else if (data.response) {
+          aiResponse = data.response;
+        } else if (data.message) {
+          aiResponse = data.message;
+        } else {
+          aiResponse = "Got it! Working on it...";
+        }
+        
         setMessages((prev) => [...prev, { role: "assistant", content: aiResponse }]);
       } else {
         // Fallback to helpful local response if backend unavailable
