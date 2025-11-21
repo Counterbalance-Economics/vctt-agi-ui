@@ -497,7 +497,7 @@ Start coding now! Select any file from the explorer.`;
         });
         
         if (response.ok) {
-          const data = await response.json();
+          await response.json(); // Acknowledge response
           addMessage(`✅ Backend synced: ${paths.length} files registered`);
           setIsConnected(true);
         } else {
