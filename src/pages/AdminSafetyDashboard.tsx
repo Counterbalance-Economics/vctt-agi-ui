@@ -109,17 +109,20 @@ export default function AdminSafetyDashboard() {
         return;
       }
 
+      // Ensure mode is uppercase
+      const selectedMode = mode.toUpperCase() as "RESEARCH" | "DEVELOPMENT" | "PRODUCTION";
+
       const response = await fetch(`${apiUrl}/api/safety/mode`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode }),
+        body: JSON.stringify({ mode: selectedMode }),
       });
 
       if (!response.ok) throw new Error("Failed to update regulation mode");
 
       await fetchStatus();
       await fetchAuditLogs();
-      setToast({ message: `✅ Regulation mode changed to ${mode}`, type: "success" });
+      setToast({ message: `✅ Regulation mode changed to ${selectedMode}`, type: "success" });
     } catch (err) {
       console.error("Error updating regulation mode:", err);
       setToast({ 
