@@ -730,6 +730,16 @@ Start coding now! Select any file from the explorer.`;
         files={availableFiles}
       />
 
+      {/* FIXED ADMIN SAFETY DASHBOARD BUTTON - Always visible, high z-index */}
+      <a
+        href="/admin/safety"
+        className="fixed top-20 right-4 z-[9999] bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-lg shadow-2xl flex items-center gap-2 transition-all hover:scale-105 animate-pulse"
+        title="Admin Safety Dashboard - Control AGI System"
+      >
+        <span className="text-xl">🛡️</span>
+        <span>ADMIN SAFETY</span>
+      </a>
+
       {/* Save Toast */}
       {showSaveToast && (
         <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-2 animate-slide-in">
