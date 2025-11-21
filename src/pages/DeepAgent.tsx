@@ -12,7 +12,7 @@ import { EditMenu } from "../components/EditMenu";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { getModKey, modKeyFull } from "../utils/keyboard";
 
-const BACKEND_URL = "https://vctt-agi-phase3-complete.onrender.com";
+const BACKEND_URL = (import.meta as any).env?.VITE_BACKEND_URL || "https://vctt-agi-backend.onrender.com";
 
 export default function DeepAgentMode() {
   // Terminal state

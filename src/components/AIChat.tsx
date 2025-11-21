@@ -57,12 +57,12 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => 
     try {
       // FIX: Detect questions about symbols/corrupted text/binary files
       const isBinaryQuestion = 
-        userMessageLower.includes('symbol') ||
-        userMessageLower.includes('corrupted') ||
+        userMessageLower.includes('weird symbol') ||
+        userMessageLower.includes('corrupted text') ||
         userMessageLower.includes('weird characters') ||
-        userMessageLower.includes('appearing') ||
+        userMessageLower.includes('strange symbols') ||
         userMessageLower.includes('gibberish') ||
-        userMessageLower.includes('unreadable');
+        userMessageLower.includes('unreadable text');
 
       // FIX: If asking about binary file issues, provide helpful explanation
       if (isBinaryQuestion && selectedFile && isBinaryFile(selectedFile)) {
@@ -98,7 +98,7 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => 
       }
 
       // FINAL FIX #2: Connect to backend /api/ide/code-edit with full context
-      const BACKEND_URL = "https://vctt-agi-phase3-complete.onrender.com";
+      const BACKEND_URL = (import.meta as any).env?.VITE_BACKEND_URL || "https://vctt-agi-backend.onrender.com";
       
       const response = await fetch(`${BACKEND_URL}/api/ide/code-edit`, {
         method: "POST",
