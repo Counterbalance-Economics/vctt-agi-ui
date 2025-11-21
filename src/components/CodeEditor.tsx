@@ -25,6 +25,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const handleEditorDidMount: OnMount = (editor) => {
     editorRef.current = editor;
 
+    // FIX #2: Reset scroll to top when file opens
+    editor.setScrollTop(0);
+    editor.revealLine(1);
+
     // Listen to cursor position changes
     editor.onDidChangeCursorPosition((e: any) => {
       if (onCursorPositionChange) {

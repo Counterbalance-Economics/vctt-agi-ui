@@ -31,7 +31,29 @@ export default function DeepAgentMode() {
   const [fileContents, setFileContents] = useState<Record<string, string>>({});
   const [fileContent, setFileContent] = useState<string>("");
   const [, setIsDirty] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(384); // Increased from 256px (w-64)
+  
+  // FIX #6-7: Panel sizes with localStorage persistence
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    const stored = localStorage.getItem("sidebarWidth");
+    return stored ? parseInt(stored) : 384;
+  });
+  const [terminalHeight, setTerminalHeight] = useState(() => {
+    const stored = localStorage.getItem("terminalHeight");
+    return stored ? parseInt(stored) : 256;
+  });
+  const [testExplorerWidth, setTestExplorerWidth] = useState(() => {
+    const stored = localStorage.getItem("testExplorerWidth");
+    return stored ? parseInt(stored) : 320;
+  });
+  const [deploymentPanelWidth, setDeploymentPanelWidth] = useState(() => {
+    const stored = localStorage.getItem("deploymentPanelWidth");
+    return stored ? parseInt(stored) : 320;
+  });
+  const [aiChatWidth, setAiChatWidth] = useState(() => {
+    const stored = localStorage.getItem("aiChatWidth");
+    return stored ? parseInt(stored) : 384;
+  });
+  
   const [isTerminalCollapsed, setIsTerminalCollapsed] = useState(true);
   const [isTestExplorerCollapsed, setIsTestExplorerCollapsed] = useState(true);
   const [isDeploymentPanelCollapsed, setIsDeploymentPanelCollapsed] = useState(true);
@@ -584,6 +606,27 @@ Start coding now! Select any file from the explorer.`;
     return () => clearTimeout(autoSaveTimer);
   }, [fileContent, selectedFile]);
 
+  // FIX #6-7: Persist panel sizes to localStorage
+  useEffect(() => {
+    localStorage.setItem("sidebarWidth", sidebarWidth.toString());
+  }, [sidebarWidth]);
+
+  useEffect(() => {
+    localStorage.setItem("terminalHeight", terminalHeight.toString());
+  }, [terminalHeight]);
+
+  useEffect(() => {
+    localStorage.setItem("testExplorerWidth", testExplorerWidth.toString());
+  }, [testExplorerWidth]);
+
+  useEffect(() => {
+    localStorage.setItem("deploymentPanelWidth", deploymentPanelWidth.toString());
+  }, [deploymentPanelWidth]);
+
+  useEffect(() => {
+    localStorage.setItem("aiChatWidth", aiChatWidth.toString());
+  }, [aiChatWidth]);
+
   return (
     <div className="h-screen bg-gray-950 text-green-400 font-mono flex flex-col">
       {/* Cmd+K Modal */}
@@ -672,9 +715,9 @@ Start coding now! Select any file from the explorer.`;
             openFiles={openFiles}
             loadedFiles={loadedFolderFiles}
           />
-          {/* Resize Handle */}
+          {/* FIX #6-7: Resize Handle for File Explorer (with localStorage) */}
           <div
-            className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors"
+            className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors z-10"
             onMouseDown={(e) => {
               e.preventDefault();
               const startX = e.clientX;
@@ -758,12 +801,34 @@ Start coding now! Select any file from the explorer.`;
             />
           </div>
 
-          {/* Bottom Panel: Collapsible Terminal */}
+          {/* Bottom Panel: Collapsible Terminal with Resize Handle */}
           <div
-            className={`border-t border-gray-800 flex flex-col bg-gray-950 transition-all ${
-              isTerminalCollapsed ? "h-12" : "h-64"
+            className={`border-t border-gray-800 flex flex-col bg-gray-950 transition-all relative ${
+              isTerminalCollapsed ? "h-12" : ""
             }`}
+            style={!isTerminalCollapsed ? { height: `${terminalHeight}px` } : {}}
           >
+            {/* FIX #6-7: Resize Handle for Terminal */}
+            {!isTerminalCollapsed && (
+              <div
+                className="absolute top-0 left-0 right-0 h-1 cursor-row-resize hover:bg-blue-500 transition-colors z-10"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  const startY = e.clientY;
+                  const startHeight = terminalHeight;
+                  const handleMouseMove = (moveEvent: MouseEvent) => {
+                    const newHeight = Math.max(100, Math.min(600, startHeight - (moveEvent.clientY - startY)));
+                    setTerminalHeight(newHeight);
+                  };
+                  const handleMouseUp = () => {
+                    document.removeEventListener("mousemove", handleMouseMove);
+                    document.removeEventListener("mouseup", handleMouseUp);
+                  };
+                  document.addEventListener("mousemove", handleMouseMove);
+                  document.addEventListener("mouseup", handleMouseUp);
+                }}
+              />
+            )}
             <div
               className="px-4 py-2 bg-gray-900 border-b border-gray-800 cursor-pointer hover:bg-gray-800 transition-colors flex items-center justify-between"
               onClick={() => setIsTerminalCollapsed(!isTerminalCollapsed)}
@@ -831,7 +896,26 @@ Start coding now! Select any file from the explorer.`;
             </div>
           </button>
         ) : (
-          <div className="w-80 relative">
+          <div className="relative" style={{ width: `${testExplorerWidth}px` }}>
+            {/* FIX #6-7: Resize Handle for Test Explorer */}
+            <div
+              className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors z-10"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                const startX = e.clientX;
+                const startWidth = testExplorerWidth;
+                const handleMouseMove = (moveEvent: MouseEvent) => {
+                  const newWidth = Math.max(200, Math.min(600, startWidth + (moveEvent.clientX - startX)));
+                  setTestExplorerWidth(newWidth);
+                };
+                const handleMouseUp = () => {
+                  document.removeEventListener("mousemove", handleMouseMove);
+                  document.removeEventListener("mouseup", handleMouseUp);
+                };
+                document.addEventListener("mousemove", handleMouseMove);
+                document.addEventListener("mouseup", handleMouseUp);
+              }}
+            />
             <TestExplorer />
             <button
               onClick={() => setIsTestExplorerCollapsed(true)}
@@ -862,7 +946,26 @@ Start coding now! Select any file from the explorer.`;
             </div>
           </button>
         ) : (
-          <div className="w-80 relative">
+          <div className="relative" style={{ width: `${deploymentPanelWidth}px` }}>
+            {/* FIX #6-7: Resize Handle for Deployment Panel */}
+            <div
+              className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors z-10"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                const startX = e.clientX;
+                const startWidth = deploymentPanelWidth;
+                const handleMouseMove = (moveEvent: MouseEvent) => {
+                  const newWidth = Math.max(200, Math.min(600, startWidth + (moveEvent.clientX - startX)));
+                  setDeploymentPanelWidth(newWidth);
+                };
+                const handleMouseUp = () => {
+                  document.removeEventListener("mousemove", handleMouseMove);
+                  document.removeEventListener("mouseup", handleMouseUp);
+                };
+                document.addEventListener("mousemove", handleMouseMove);
+                document.addEventListener("mouseup", handleMouseUp);
+              }}
+            />
             <DeploymentPanel />
             <button
               onClick={() => setIsDeploymentPanelCollapsed(true)}
@@ -876,8 +979,27 @@ Start coding now! Select any file from the explorer.`;
           </div>
         )}
 
-        {/* Right Panel: AI Chat */}
-        <div className="w-96 border-l border-gray-800">
+        {/* Right Panel: AI Chat with Resize Handle */}
+        <div className="border-l border-gray-800 relative" style={{ width: `${aiChatWidth}px` }}>
+          {/* FIX #6-7: Resize Handle for AI Chat */}
+          <div
+            className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors z-10"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              const startX = e.clientX;
+              const startWidth = aiChatWidth;
+              const handleMouseMove = (moveEvent: MouseEvent) => {
+                const newWidth = Math.max(256, Math.min(600, startWidth + (moveEvent.clientX - startX)));
+                setAiChatWidth(newWidth);
+              };
+              const handleMouseUp = () => {
+                document.removeEventListener("mousemove", handleMouseMove);
+                document.removeEventListener("mouseup", handleMouseUp);
+              };
+              document.addEventListener("mousemove", handleMouseMove);
+              document.addEventListener("mouseup", handleMouseUp);
+            }}
+          />
           <AIChat selectedFile={selectedFile} onCodeEdit={handleCodeEdit} />
         </div>
       </div>
