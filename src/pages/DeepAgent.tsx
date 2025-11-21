@@ -6,10 +6,9 @@ import { GitPanel } from "../components/GitPanel";
 import CmdKModal, { EditStats } from "../components/CmdKModal";
 import CommandPalette from "../components/CommandPalette";
 import { QuickFileSwitcher } from "../components/QuickFileSwitcher";
-import TestExplorer from "../components/TestExplorer";
-import DeploymentPanel from "../components/DeploymentPanel";
 import { StatusBar } from "../components/StatusBar";
 import { FileMenu } from "../components/FileMenu";
+import { EditMenu } from "../components/EditMenu";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 const BACKEND_URL = "https://vctt-agi-phase3-complete.onrender.com";
@@ -41,22 +40,13 @@ export default function DeepAgentMode() {
     const stored = localStorage.getItem("terminalHeight");
     return stored ? parseInt(stored) : 256;
   });
-  const [testExplorerWidth, setTestExplorerWidth] = useState(() => {
-    const stored = localStorage.getItem("testExplorerWidth");
-    return stored ? parseInt(stored) : 320;
-  });
-  const [deploymentPanelWidth, setDeploymentPanelWidth] = useState(() => {
-    const stored = localStorage.getItem("deploymentPanelWidth");
-    return stored ? parseInt(stored) : 320;
-  });
+
   const [aiChatWidth, setAiChatWidth] = useState(() => {
     const stored = localStorage.getItem("aiChatWidth");
     return stored ? parseInt(stored) : 384;
   });
   
   const [isTerminalCollapsed, setIsTerminalCollapsed] = useState(true);
-  const [isTestExplorerCollapsed, setIsTestExplorerCollapsed] = useState(true);
-  const [isDeploymentPanelCollapsed, setIsDeploymentPanelCollapsed] = useState(true);
   const [loadedFolderFiles, setLoadedFolderFiles] = useState<string[]>([]);
 
   // Cmd+K state
@@ -616,14 +606,6 @@ Start coding now! Select any file from the explorer.`;
   }, [terminalHeight]);
 
   useEffect(() => {
-    localStorage.setItem("testExplorerWidth", testExplorerWidth.toString());
-  }, [testExplorerWidth]);
-
-  useEffect(() => {
-    localStorage.setItem("deploymentPanelWidth", deploymentPanelWidth.toString());
-  }, [deploymentPanelWidth]);
-
-  useEffect(() => {
     localStorage.setItem("aiChatWidth", aiChatWidth.toString());
   }, [aiChatWidth]);
 
@@ -687,6 +669,20 @@ Start coding now! Select any file from the explorer.`;
               onCloseTab={() => selectedFile && handleCloseFile(selectedFile)}
               onCloseAllTabs={handleCloseAllTabs}
             />
+            <EditMenu
+              onUndo={() => addMessage("⏪ Undo (not implemented)")}
+              onRedo={() => addMessage("⏩ Redo (not implemented)")}
+              onCut={() => addMessage("✂️ Cut (not implemented)")}
+              onCopy={() => addMessage("📋 Copy (not implemented)")}
+              onPaste={() => addMessage("📄 Paste (not implemented)")}
+              onFind={() => addMessage("🔍 Find (not implemented)")}
+              onReplace={() => addMessage("🔄 Replace (not implemented)")}
+              onFindInFiles={() => addMessage("🔍 Find in Files (not implemented)")}
+              onReplaceInFiles={() => addMessage("🔄 Replace in Files (not implemented)")}
+              onToggleLineComment={() => addMessage("💬 Toggle Line Comment (not implemented)")}
+              onToggleBlockComment={() => addMessage("💬 Toggle Block Comment (not implemented)")}
+              onExpandAbbreviation={() => addMessage("✨ Expand Abbreviation (not implemented)")}
+            />
             <div className="h-6 w-px bg-gray-700" />
             <div className="text-2xl">🤖</div>
             <h1 className="text-xl font-bold text-white">MIN DeepAgent</h1>
@@ -718,6 +714,7 @@ Start coding now! Select any file from the explorer.`;
           {/* FIX #6-7: Resize Handle for File Explorer (with localStorage) */}
           <div
             className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors z-10"
+            style={{ cursor: 'col-resize' }}
             onMouseDown={(e) => {
               e.preventDefault();
               const startX = e.clientX;
@@ -812,6 +809,7 @@ Start coding now! Select any file from the explorer.`;
             {!isTerminalCollapsed && (
               <div
                 className="absolute top-0 left-0 right-0 h-1 cursor-row-resize hover:bg-blue-500 transition-colors z-10"
+                style={{ cursor: 'row-resize' }}
                 onMouseDown={(e) => {
                   e.preventDefault();
                   const startY = e.clientY;
@@ -879,111 +877,12 @@ Start coding now! Select any file from the explorer.`;
           </div>
         </div>
 
-        {/* Test Explorer Panel - Collapsible */}
-        {isTestExplorerCollapsed ? (
-          <button
-            onClick={() => setIsTestExplorerCollapsed(false)}
-            className="w-12 border-l border-gray-800 bg-gray-900 hover:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white transition-colors group relative"
-            title="Show Test Explorer"
-          >
-            <div className="absolute inset-0 flex items-center justify-center">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <div className="rotate-90 text-xs font-semibold tracking-wider whitespace-nowrap mt-20">
-              TEST EXPLORER
-            </div>
-          </button>
-        ) : (
-          <div className="relative" style={{ width: `${testExplorerWidth}px` }}>
-            {/* FIX #6-7: Resize Handle for Test Explorer */}
-            <div
-              className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors z-10"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                const startX = e.clientX;
-                const startWidth = testExplorerWidth;
-                const handleMouseMove = (moveEvent: MouseEvent) => {
-                  const newWidth = Math.max(200, Math.min(600, startWidth + (moveEvent.clientX - startX)));
-                  setTestExplorerWidth(newWidth);
-                };
-                const handleMouseUp = () => {
-                  document.removeEventListener("mousemove", handleMouseMove);
-                  document.removeEventListener("mouseup", handleMouseUp);
-                };
-                document.addEventListener("mousemove", handleMouseMove);
-                document.addEventListener("mouseup", handleMouseUp);
-              }}
-            />
-            <TestExplorer />
-            <button
-              onClick={() => setIsTestExplorerCollapsed(true)}
-              className="absolute top-2 right-2 p-1 bg-gray-800 hover:bg-gray-700 rounded text-gray-400 hover:text-white transition-colors z-10"
-              title="Hide Test Explorer"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        )}
-
-        {/* Deployment Panel - Collapsible */}
-        {isDeploymentPanelCollapsed ? (
-          <button
-            onClick={() => setIsDeploymentPanelCollapsed(false)}
-            className="w-12 border-l border-gray-800 bg-gray-900 hover:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white transition-colors group relative"
-            title="Show Deployments"
-          >
-            <div className="absolute inset-0 flex items-center justify-center">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-            </div>
-            <div className="rotate-90 text-xs font-semibold tracking-wider whitespace-nowrap mt-24">
-              DEPLOYMENTS
-            </div>
-          </button>
-        ) : (
-          <div className="relative" style={{ width: `${deploymentPanelWidth}px` }}>
-            {/* FIX #6-7: Resize Handle for Deployment Panel */}
-            <div
-              className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors z-10"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                const startX = e.clientX;
-                const startWidth = deploymentPanelWidth;
-                const handleMouseMove = (moveEvent: MouseEvent) => {
-                  const newWidth = Math.max(200, Math.min(600, startWidth + (moveEvent.clientX - startX)));
-                  setDeploymentPanelWidth(newWidth);
-                };
-                const handleMouseUp = () => {
-                  document.removeEventListener("mousemove", handleMouseMove);
-                  document.removeEventListener("mouseup", handleMouseUp);
-                };
-                document.addEventListener("mousemove", handleMouseMove);
-                document.addEventListener("mouseup", handleMouseUp);
-              }}
-            />
-            <DeploymentPanel />
-            <button
-              onClick={() => setIsDeploymentPanelCollapsed(true)}
-              className="absolute top-2 right-2 p-1 bg-gray-800 hover:bg-gray-700 rounded text-gray-400 hover:text-white transition-colors z-10"
-              title="Hide Deployments"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        )}
-
         {/* Right Panel: AI Chat with Resize Handle */}
         <div className="border-l border-gray-800 relative" style={{ width: `${aiChatWidth}px` }}>
           {/* FIX #6-7: Resize Handle for AI Chat */}
           <div
             className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors z-10"
+            style={{ cursor: 'col-resize' }}
             onMouseDown={(e) => {
               e.preventDefault();
               const startX = e.clientX;

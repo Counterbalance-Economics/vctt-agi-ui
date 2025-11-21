@@ -6,6 +6,7 @@ import {
   FolderIcon,
   FolderOpenIcon,
   DocumentIcon,
+  ClockIcon,
 } from "@heroicons/react/24/outline";
 import {
   DocumentTextIcon,
@@ -403,6 +404,7 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
               <ChevronRightIcon className="w-3 h-3" />
             )}
           </span>
+          <ClockIcon className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
           <span className="text-xs font-semibold text-gray-400 uppercase">Recent</span>
           <span className="text-xs text-gray-500">({recentFiles.length})</span>
         </div>

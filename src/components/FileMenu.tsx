@@ -15,14 +15,14 @@ interface FileMenuProps {
 
 export const FileMenu: React.FC<FileMenuProps> = ({
   onNewFile,
-  onNewFolder,
+  onNewFolder: _onNewFolder, // Keep for future use
   onOpenFile,
   onOpenFolder,
   onSave,
   onSaveAs,
-  onFormatDocument,
+  onFormatDocument: _onFormatDocument, // Keep for future use
   onCloseTab,
-  onCloseAllTabs,
+  onCloseAllTabs: _onCloseAllTabs, // Keep for future use
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -53,20 +53,33 @@ export const FileMenu: React.FC<FileMenuProps> = ({
 
   const menuItems = [
     { label: "New File", action: onNewFile, shortcut: "⌘N" },
-    { label: "New Folder", action: onNewFolder, shortcut: "⌘⇧N" },
+    { label: "New Window", action: () => {}, shortcut: "⌘⇧N", disabled: true },
+    { label: "New Window with Profile", action: () => {}, disabled: true, hasSubmenu: true },
     { type: "separator" },
     { label: "Open File…", action: onOpenFile, shortcut: "⌘O" },
     { label: "Open Folder…", action: onOpenFolder, shortcut: "⌘⇧O" },
+    { label: "Open Workspace from File…", action: () => {}, disabled: true },
+    { label: "Open Recent", action: () => {}, disabled: true, hasSubmenu: true },
+    { type: "separator" },
+    { label: "Add Folder to Workspace…", action: () => {}, disabled: true },
+    { label: "Save Workspace As…", action: () => {}, disabled: true },
+    { label: "Duplicate Workspace", action: () => {}, disabled: true },
     { type: "separator" },
     { label: "Save", action: onSave, shortcut: "⌘S" },
     { label: "Save As…", action: onSaveAs, shortcut: "⌘⇧S" },
+    { label: "Save All", action: () => {}, shortcut: "⌘K S", disabled: true },
     { type: "separator" },
-    { label: "Format Document", action: onFormatDocument, shortcut: "⌘⇧F" },
+    { label: "Share", action: () => {}, disabled: true, hasSubmenu: true },
+    { label: "Auto Save", action: () => {}, disabled: true },
+    { label: "Preferences", action: () => {}, disabled: true, hasSubmenu: true },
     { type: "separator" },
-    { label: "Close Tab", action: onCloseTab, shortcut: "⌘W" },
-    { label: "Close All Tabs", action: onCloseAllTabs, shortcut: "⌘K ⌘W" },
+    { label: "Revert File", action: () => {}, disabled: true },
     { type: "separator" },
-    { label: "Exit", action: () => {}, shortcut: "⌘Q", disabled: true },
+    { label: "Close Editor", action: onCloseTab, shortcut: "⌘W" },
+    { label: "Close Folder", action: () => {}, shortcut: "⌘K F", disabled: true },
+    { label: "Close Window", action: () => {}, shortcut: "Alt+F4", disabled: true },
+    { type: "separator" },
+    { label: "Exit", action: () => {}, disabled: true },
   ];
 
   const handleItemClick = (item: any) => {
@@ -106,9 +119,14 @@ export const FileMenu: React.FC<FileMenuProps> = ({
                 }`}
               >
                 <span>{item.label}</span>
-                {item.shortcut && (
-                  <span className="text-xs text-gray-500 font-mono">{item.shortcut}</span>
-                )}
+                <div className="flex items-center gap-2">
+                  {item.shortcut && (
+                    <span className="text-xs text-gray-500 font-mono">{item.shortcut}</span>
+                  )}
+                  {item.hasSubmenu && (
+                    <span className="text-gray-500">›</span>
+                  )}
+                </div>
               </button>
             );
           })}
