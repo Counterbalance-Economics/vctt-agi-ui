@@ -96,6 +96,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
               folding: true,
               wordWrap: "on",
               tabSize: 2,
+              unicodeHighlight: {
+                ambiguousCharacters: false,
+                invisibleCharacters: false,
+              },
             }}
           />
         ) : (

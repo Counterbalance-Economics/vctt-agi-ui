@@ -71,6 +71,7 @@ export default function DeepAgentMode() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [lastSaveTime, setLastSaveTime] = useState<number | null>(null);
   const [showSaveToast, setShowSaveToast] = useState(false);
+  const [showBinaryFileToast, setShowBinaryFileToast] = useState(false);
   const [grokConfidence, setGrokConfidence] = useState<number | null>(null);
   const [currentBranch] = useState("main");
 
@@ -139,6 +140,25 @@ export default function DeepAgentMode() {
   };
 
   const handleFileSelect = async (path: string) => {
+    // Check if file is binary (images, videos, archives, etc.)
+    const binaryExtensions = [
+      '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.svg',
+      '.pdf', '.zip', '.tar', '.gz', '.rar', '.7z',
+      '.mp4', '.mov', '.avi', '.mp3', '.wav',
+      '.exe', '.dll', '.so', '.dylib',
+      '.woff', '.woff2', '.ttf', '.eot'
+    ];
+    
+    const isBinary = binaryExtensions.some(ext => path.toLowerCase().endsWith(ext));
+    
+    if (isBinary) {
+      // Show toast notification
+      setShowBinaryFileToast(true);
+      setTimeout(() => setShowBinaryFileToast(false), 3000);
+      // Don't open the file
+      return;
+    }
+
     setSelectedFile(path);
     setIsDirty(false);
 
@@ -330,6 +350,12 @@ Start coding now! Select any file from the explorer.`;
         const paths: string[] = [];
 
         for await (const entry of dirHandle.values()) {
+          // Skip node_modules, .git, dist, build, and other common large directories
+          if (entry.kind === "directory" && 
+              ['node_modules', '.git', 'dist', 'build', '.next', 'out', 'coverage'].includes(entry.name)) {
+            continue;
+          }
+
           const entryPath = `${path}/${entry.name}`;
 
           if (entry.kind === "file") {
@@ -366,6 +392,9 @@ Start coding now! Select any file from the explorer.`;
       }
 
       addMessage(`✅ Loaded ${paths.length} files from: ${directoryHandle.name}`);
+      
+      // Update connection status after folder load
+      testConnection(false);
     } catch (error: any) {
       if (error.name === "AbortError") {
         addMessage("📁 Folder selection cancelled");
@@ -578,6 +607,16 @@ Start coding now! Select any file from the explorer.`;
         </div>
       )}
 
+      {/* Binary File Toast */}
+      {showBinaryFileToast && (
+        <div className="fixed top-4 right-4 z-50 bg-yellow-600 text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-2 animate-slide-in">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span className="font-medium">Image files cannot be edited in the editor</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-gray-900 border-b border-gray-700 px-4 py-3">
         <div className="flex items-center justify-between">
@@ -728,7 +767,7 @@ Start coding now! Select any file from the explorer.`;
               <>
                 <div className="flex-1 overflow-y-auto p-4 space-y-1 text-sm">
                   {messages.map((msg, i) => (
-                    <div key={i} className="text-green-400 whitespace-pre-wrap break-words">
+                    <div key={i} className="text-green-400 whitespace-pre-wrap break-words" style={{ lineHeight: '1.4', wordBreak: 'break-word' }}>
                       {msg}
                     </div>
                   ))}
