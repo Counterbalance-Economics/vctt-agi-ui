@@ -26,7 +26,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     editorRef.current = editor;
 
     // Listen to cursor position changes
-    editor.onDidChangeCursorPosition((e) => {
+    editor.onDidChangeCursorPosition((e: any) => {
       if (onCursorPositionChange) {
         onCursorPositionChange(e.position.lineNumber, e.position.column);
       }
