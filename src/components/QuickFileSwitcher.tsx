@@ -19,10 +19,46 @@ export const QuickFileSwitcher: React.FC<QuickFileSwitcherProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Fuzzy search - simple substring match for now
-  const filteredFiles = files.filter((file) =>
-    file.toLowerCase().includes(search.toLowerCase())
-  );
+  const getFileName = (path: string) => {
+    const parts = path.split("/");
+    return parts[parts.length - 1] || path;
+  };
+
+  // Fuzzy search - enhanced with scoring
+  const fuzzyMatch = (str: string, pattern: string) => {
+    const lowerStr = str.toLowerCase();
+    const lowerPattern = pattern.toLowerCase();
+    
+    // Quick substring check first
+    if (lowerStr.includes(lowerPattern)) return true;
+    
+    // Fuzzy match: check if all pattern chars appear in order
+    let patternIdx = 0;
+    for (let i = 0; i < lowerStr.length && patternIdx < lowerPattern.length; i++) {
+      if (lowerStr[i] === lowerPattern[patternIdx]) {
+        patternIdx++;
+      }
+    }
+    return patternIdx === lowerPattern.length;
+  };
+
+  const filteredFiles = files
+    .filter((file) => fuzzyMatch(file, search))
+    .sort((a, b) => {
+      // Prioritize files with search term in filename (not just path)
+      const aName = getFileName(a).toLowerCase();
+      const bName = getFileName(b).toLowerCase();
+      const searchLower = search.toLowerCase();
+      
+      const aInName = aName.includes(searchLower);
+      const bInName = bName.includes(searchLower);
+      
+      if (aInName && !bInName) return -1;
+      if (!aInName && bInName) return 1;
+      
+      // Then by path length (shorter = more relevant)
+      return a.length - b.length;
+    });
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -60,11 +96,6 @@ export const QuickFileSwitcher: React.FC<QuickFileSwitcherProps> = ({
   const getFileIcon = (path: string) => {
     const isFolder = !path.includes(".");
     return isFolder ? <FolderIcon className="w-4 h-4" /> : <DocumentIcon className="w-4 h-4" />;
-  };
-
-  const getFileName = (path: string) => {
-    const parts = path.split("/");
-    return parts[parts.length - 1] || path;
   };
 
   return (
