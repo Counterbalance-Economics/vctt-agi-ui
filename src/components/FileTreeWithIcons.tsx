@@ -199,7 +199,7 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
   };
 
   const getFileIcon = (filename: string) => {
-    const iconColor = "w-4 h-4 flex-shrink-0";
+    const iconColor = "w-3.5 h-3.5 flex-shrink-0"; // Smaller icons (16px equivalent)
 
     if ([".md", ".txt"].some((e) => filename.endsWith(e))) {
       return <DocumentTextIcon className={`${iconColor} text-blue-300`} />;
@@ -214,7 +214,7 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
   };
 
   const getFolderIcon = (isOpen: boolean) => {
-    const iconColor = "w-4 h-4 flex-shrink-0";
+    const iconColor = "w-3.5 h-3.5 flex-shrink-0"; // Smaller icons (16px equivalent)
     return isOpen ? (
       <FolderOpenIcon className={`${iconColor} text-yellow-500`} />
     ) : (
@@ -256,12 +256,12 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
           onDragEnd={handleDragEnd}
           onMouseEnter={() => setHoveredPath(node.path)}
           onMouseLeave={() => setHoveredPath(null)}
-          className={`flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-800 transition-colors relative ${
+          className={`flex items-center gap-1.5 px-2 py-0.5 cursor-pointer hover:bg-gray-800 transition-colors relative border-b border-gray-800/30 ${
             isSelected ? "bg-blue-900/30 border-l-2 border-cyan-400" : ""
           } ${isDraggedOver ? "bg-blue-900/50 border-l-2 border-blue-500" : ""} ${
             isBeingDragged ? "opacity-50" : ""
           } ${isOpen && !isSelected ? "bg-gray-800/50" : ""}`}
-          style={{ paddingLeft: `${depth * 16 + 8}px` }}
+          style={{ paddingLeft: `${depth * 12 + 6}px`, minHeight: "24px" }}
           onClick={() => {
             if (node.type === "directory") {
               toggleExpanded(node.path);
@@ -272,11 +272,11 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
           title={node.path}
         >
           {node.type === "directory" && (
-            <span className="text-gray-400 w-4 h-4 flex-shrink-0">
+            <span className="text-gray-400 w-3 h-3 flex-shrink-0">
               {isExpanded ? (
-                <ChevronDownIcon className="w-4 h-4" />
+                <ChevronDownIcon className="w-3 h-3" />
               ) : (
-                <ChevronRightIcon className="w-4 h-4" />
+                <ChevronRightIcon className="w-3 h-3" />
               )}
             </span>
           )}
@@ -319,14 +319,14 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
     return (
       <div className="border-b border-gray-800">
         <div
-          className="flex items-center gap-2 px-2 py-1.5 cursor-pointer hover:bg-gray-800 transition-colors"
+          className="flex items-center gap-1.5 px-2 py-1 cursor-pointer hover:bg-gray-800 transition-colors"
           onClick={() => setIsRecentExpanded(!isRecentExpanded)}
         >
-          <span className="text-gray-400 w-4 h-4 flex-shrink-0">
+          <span className="text-gray-400 w-3 h-3 flex-shrink-0">
             {isRecentExpanded ? (
-              <ChevronDownIcon className="w-4 h-4" />
+              <ChevronDownIcon className="w-3 h-3" />
             ) : (
-              <ChevronRightIcon className="w-4 h-4" />
+              <ChevronRightIcon className="w-3 h-3" />
             )}
           </span>
           <span className="text-xs font-semibold text-gray-400 uppercase">Recent</span>
@@ -342,10 +342,10 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
               return (
                 <div
                   key={`recent-${filePath}`}
-                  className={`flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-800 transition-colors relative ${
+                  className={`flex items-center gap-1.5 px-2 py-0.5 cursor-pointer hover:bg-gray-800 transition-colors relative border-b border-gray-800/30 ${
                     isSelected ? "bg-blue-900/30 border-l-2 border-cyan-400" : ""
                   } ${isOpen && !isSelected ? "bg-gray-800/50" : ""}`}
-                  style={{ paddingLeft: "32px" }}
+                  style={{ paddingLeft: "24px", minHeight: "24px" }}
                   onClick={() => onFileSelect(filePath)}
                   title={filePath}
                 >
