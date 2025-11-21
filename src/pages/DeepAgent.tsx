@@ -75,9 +75,17 @@ export default function DeepAgentMode() {
   const [currentBranch] = useState("main");
 
   useEffect(() => {
+    // Initial connection test
     testConnection();
     // Auto-open README.md on initial load
     handleFileSelect("/README.md");
+
+    // Poll /health every 5 seconds to maintain connection status
+    const healthCheckInterval = setInterval(() => {
+      testConnection(false); // Don't show messages on polling
+    }, 5000);
+
+    return () => clearInterval(healthCheckInterval);
   }, []);
 
   useEffect(() => {
@@ -97,18 +105,27 @@ export default function DeepAgentMode() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const testConnection = async () => {
+  const testConnection = async (showMessages = true) => {
     try {
-      const res = await fetch(`${BACKEND_URL}/health`);
+      const res = await fetch(`${BACKEND_URL}/health`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
       if (res.ok) {
+        const wasDisconnected = !isConnected;
         setIsConnected(true);
-        addMessage("✅ Connected to backend");
+        if (showMessages && wasDisconnected) {
+          addMessage("✅ Connected to backend");
+        }
       } else {
         setIsConnected(false);
       }
     } catch (err) {
       setIsConnected(false);
-      addMessage("⚠️ Backend offline - using mock data");
+      // Only show offline message on initial connection attempt
+      if (showMessages) {
+        console.error("Backend connection failed:", err);
+      }
     }
   };
 
