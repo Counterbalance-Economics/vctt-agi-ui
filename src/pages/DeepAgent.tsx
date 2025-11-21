@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { FileTree } from "../components/FileTree";
+import { FileTreeWithIcons } from "../components/FileTreeWithIcons";
 import { CodeEditor } from "../components/CodeEditor";
 import { AIChat } from "../components/AIChat";
 import { GitPanel } from "../components/GitPanel";
@@ -8,6 +8,7 @@ import CommandPalette from "../components/CommandPalette";
 import TestExplorer from "../components/TestExplorer";
 import DeploymentPanel from "../components/DeploymentPanel";
 import { StatusBar } from "../components/StatusBar";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 const BACKEND_URL = "https://vctt-agi-phase3-complete.onrender.com";
 
@@ -23,9 +24,13 @@ export default function DeepAgentMode() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Editor state
-  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<string | null>("/README.md");
+  const [openFiles, setOpenFiles] = useState<string[]>(["/README.md"]);
+  const [fileContents, setFileContents] = useState<Record<string, string>>({});
   const [fileContent, setFileContent] = useState<string>("");
   const [, setIsDirty] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(384); // Increased from 256px (w-64)
+  const [isTerminalCollapsed, setIsTerminalCollapsed] = useState(true);
 
   // Cmd+K state
   const [isCmdKOpen, setIsCmdKOpen] = useState(false);
@@ -46,6 +51,8 @@ export default function DeepAgentMode() {
 
   useEffect(() => {
     testConnection();
+    // Auto-open README.md on initial load
+    handleFileSelect("/README.md");
   }, []);
 
   useEffect(() => {
@@ -86,10 +93,70 @@ export default function DeepAgentMode() {
   const handleFileSelect = async (path: string) => {
     setSelectedFile(path);
     setIsDirty(false);
-    // Mock file content for now - backend integration coming next
-    const mockContent = `// File: ${path}\n// Backend integration coming in Phase 2\n\nconsole.log('Hello from ${path}');\n`;
-    setFileContent(mockContent);
-    addMessage(`📂 Opened: ${path}`);
+
+    // Add to open files if not already open
+    if (!openFiles.includes(path)) {
+      setOpenFiles((prev) => [...prev, path]);
+    }
+
+    // Load file content (use cached if available)
+    if (fileContents[path]) {
+      setFileContent(fileContents[path]);
+    } else {
+      // Mock file content for now - backend integration coming next
+      const mockContent = getMockContentForFile(path);
+      setFileContent(mockContent);
+      setFileContents((prev) => ({ ...prev, [path]: mockContent }));
+    }
+  };
+
+  const getMockContentForFile = (path: string): string => {
+    if (path === "/README.md") {
+      return `# MIN DeepAgent - The Self-Improving IDE
+
+## Welcome to MIN
+The most advanced AI-powered coding environment.
+
+## Features
+- 🎯 **Cmd+K AI Editing** - Select code, press Cmd+K, describe changes
+- 🔍 **Real-time Trust Metrics** - Jazz self-analysis ensures quality
+- 🚀 **Instant Deployment** - One-click deploy with live preview
+- 🧪 **Integrated Testing** - Test explorer with run-all support
+
+## Getting Started
+1. Select a file from the explorer (left sidebar)
+2. Select code you want to modify
+3. Press **Cmd+K** to open AI editing mode
+4. Describe your changes and watch MIN work its magic
+
+## Trust Score (τ)
+MIN uses a multi-agent verification system to ensure code quality:
+- Voice: Does the code match the intent?
+- Choice: Is this the best approach?
+- Transparency: Is the code clear and maintainable?
+- Trust (τ): Overall confidence score
+
+Start coding now! Select any file from the explorer.`;
+    }
+    return `// File: ${path}\n// Backend integration active\n\nconsole.log('Hello from ${path}');\n\nexport default function example() {\n  return "Edit me with Cmd+K";\n}\n`;
+  };
+
+  const handleCloseFile = (path: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    const newOpenFiles = openFiles.filter((f) => f !== path);
+    setOpenFiles(newOpenFiles);
+
+    // If closing the selected file, switch to another open file
+    if (path === selectedFile) {
+      if (newOpenFiles.length > 0) {
+        const newSelected = newOpenFiles[newOpenFiles.length - 1];
+        setSelectedFile(newSelected);
+        setFileContent(fileContents[newSelected] || "");
+      } else {
+        setSelectedFile(null);
+        setFileContent("");
+      }
+    }
   };
 
   const handleEditorChange = (value: string | undefined) => {
@@ -251,15 +318,82 @@ export default function DeepAgentMode() {
 
       {/* Main Layout: 4 panels */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Panel: File Tree */}
-        <div className="w-64 border-r border-gray-800">
-          <FileTree onFileSelect={handleFileSelect} selectedFile={selectedFile} />
+        {/* Left Panel: Resizable File Tree */}
+        <div
+          className="border-r border-gray-800 flex-shrink-0"
+          style={{ width: `${sidebarWidth}px` }}
+        >
+          <FileTreeWithIcons
+            onFileSelect={handleFileSelect}
+            selectedFile={selectedFile}
+            openFiles={openFiles}
+          />
+          {/* Resize Handle */}
+          <div
+            className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              const startX = e.clientX;
+              const startWidth = sidebarWidth;
+              const handleMouseMove = (moveEvent: MouseEvent) => {
+                const newWidth = Math.max(256, Math.min(600, startWidth + moveEvent.clientX - startX));
+                setSidebarWidth(newWidth);
+              };
+              const handleMouseUp = () => {
+                document.removeEventListener("mousemove", handleMouseMove);
+                document.removeEventListener("mouseup", handleMouseUp);
+              };
+              document.addEventListener("mousemove", handleMouseMove);
+              document.addEventListener("mouseup", handleMouseUp);
+            }}
+          />
         </div>
 
         {/* Center Panel: Code Editor + Terminal */}
         <div className="flex-1 flex flex-col">
           {/* Git Panel */}
           <GitPanel onPush={handlePush} onBranchSwitch={handleBranchSwitch} />
+
+          {/* File Tabs Bar */}
+          {openFiles.length > 0 && (
+            <div className="flex items-center gap-1 px-2 py-1 bg-gray-900 border-b border-gray-800 overflow-x-auto">
+              {openFiles.map((path) => {
+                const fileName = path.split("/").pop() || path;
+                const isActive = path === selectedFile;
+                return (
+                  <button
+                    key={path}
+                    onClick={() => handleFileSelect(path)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-t transition-colors text-sm ${
+                      isActive
+                        ? "bg-gray-800 text-white border-t-2 border-blue-500"
+                        : "bg-gray-900/50 text-gray-400 hover:bg-gray-800/50 hover:text-gray-300"
+                    }`}
+                  >
+                    <span className="truncate max-w-[150px]">{fileName}</span>
+                    <button
+                      onClick={(e) => handleCloseFile(path, e)}
+                      className="hover:bg-gray-700 rounded p-0.5 transition-colors"
+                    >
+                      <XMarkIcon className="w-3 h-3" />
+                    </button>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Breadcrumb Navigation */}
+          {selectedFile && (
+            <div className="flex items-center gap-1 px-4 py-1 bg-gray-800/50 border-b border-gray-800 text-xs text-gray-400">
+              {selectedFile.split("/").filter(Boolean).map((part, idx, arr) => (
+                <span key={idx} className="flex items-center gap-1">
+                  <span className="hover:text-gray-200 cursor-pointer">{part}</span>
+                  {idx < arr.length - 1 && <span>/</span>}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Code Editor */}
           <div className="flex-1">
@@ -273,36 +407,59 @@ export default function DeepAgentMode() {
             />
           </div>
 
-          {/* Bottom Panel: Terminal */}
-          <div className="h-64 border-t border-gray-800 flex flex-col bg-gray-950">
-            <div className="px-4 py-2 bg-gray-900 border-b border-gray-800">
-              <span className="text-xs text-gray-400 uppercase font-semibold">Terminal</span>
+          {/* Bottom Panel: Collapsible Terminal */}
+          <div
+            className={`border-t border-gray-800 flex flex-col bg-gray-950 transition-all ${
+              isTerminalCollapsed ? "h-12" : "h-64"
+            }`}
+          >
+            <div
+              className="px-4 py-2 bg-gray-900 border-b border-gray-800 cursor-pointer hover:bg-gray-800 transition-colors flex items-center justify-between"
+              onClick={() => setIsTerminalCollapsed(!isTerminalCollapsed)}
+            >
+              <span className="text-xs text-gray-400 uppercase font-semibold">
+                Terminal {isTerminalCollapsed && `(${messages.length} messages)`}
+              </span>
+              <button className="text-gray-400 hover:text-white text-xs">
+                {isTerminalCollapsed ? "▲ Expand" : "▼ Collapse"}
+              </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-1 text-sm">
-              {messages.map((msg, i) => (
-                <div key={i} className="text-green-400 whitespace-pre-wrap break-words">
-                  {msg}
+            {!isTerminalCollapsed && (
+              <>
+                <div className="flex-1 overflow-y-auto p-4 space-y-1 text-sm">
+                  {messages.map((msg, i) => (
+                    <div key={i} className="text-green-400 whitespace-pre-wrap break-words">
+                      {msg}
+                    </div>
+                  ))}
+                  {isProcessing && <div className="text-green-600 animate-pulse">⏳ Processing...</div>}
+                  <div ref={messagesEndRef} />
                 </div>
-              ))}
-              {isProcessing && <div className="text-green-600 animate-pulse">⏳ Processing...</div>}
-              <div ref={messagesEndRef} />
-            </div>
 
-            <div className="border-t border-gray-800 bg-gray-900 p-3">
-              <div className="flex items-center gap-3">
-                <span className="text-green-500 font-bold">MIN &gt;</span>
-                <input
-                  disabled={isProcessing}
-                  className="flex-1 bg-transparent outline-none text-white placeholder-gray-600 disabled:opacity-50 text-sm"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && send()}
-                  placeholder="Enter command..."
-                />
-                {isProcessing && <span className="text-green-600 animate-pulse">●</span>}
+                <div className="border-t border-gray-800 bg-gray-900 p-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-green-500 font-bold">MIN &gt;</span>
+                    <input
+                      disabled={isProcessing}
+                      className="flex-1 bg-transparent outline-none text-white placeholder-gray-600 disabled:opacity-50 text-sm"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && send()}
+                      placeholder="Enter command..."
+                    />
+                    {isProcessing && <span className="text-green-600 animate-pulse">●</span>}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Collapsed view: Show last 3 messages */}
+            {isTerminalCollapsed && (
+              <div className="px-4 py-1 text-xs text-gray-500 truncate">
+                {messages.slice(-1)[0] || "No messages"}
               </div>
-            </div>
+            )}
           </div>
         </div>
 
