@@ -26,16 +26,75 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // FIX #3: Integrate AI Chat with Backend
+  // Helper: Check if file is binary
+  const isBinaryFile = (filename: string): boolean => {
+    if (!filename) return false;
+    const binaryExtensions = [
+      '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.svg', '.webp',
+      '.pdf', '.zip', '.tar', '.gz', '.rar', '.7z',
+      '.mp4', '.mov', '.avi', '.mp3', '.wav', '.flv', '.wmv',
+      '.exe', '.dll', '.so', '.dylib',
+      '.woff', '.woff2', '.ttf', '.eot',
+      '.docx', '.doc', '.xlsx', '.xls', '.pptx', '.ppt',
+      '.odt', '.ods', '.odp',
+      '.db', '.sqlite', '.bin',
+    ];
+    return binaryExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+  };
+
+  // FIX #3: Integrate AI Chat with Backend + Binary file detection
   const sendMessage = async () => {
     if (!input.trim() || isProcessing) return;
 
     const userMessage = input;
+    const userMessageLower = userMessage.toLowerCase();
     setInput("");
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setIsProcessing(true);
 
     try {
+      // FIX: Detect questions about symbols/corrupted text/binary files
+      const isBinaryQuestion = 
+        userMessageLower.includes('symbol') ||
+        userMessageLower.includes('corrupted') ||
+        userMessageLower.includes('weird characters') ||
+        userMessageLower.includes('appearing') ||
+        userMessageLower.includes('gibberish') ||
+        userMessageLower.includes('unreadable');
+
+      // FIX: If asking about binary file issues, provide helpful explanation
+      if (isBinaryQuestion && selectedFile && isBinaryFile(selectedFile)) {
+        const fileName = selectedFile.split('/').pop() || selectedFile;
+        const fileType = selectedFile.toLowerCase().endsWith('.docx') || selectedFile.toLowerCase().endsWith('.doc') 
+          ? 'Microsoft Word document (.docx)' 
+          : selectedFile.toLowerCase().endsWith('.xlsx') || selectedFile.toLowerCase().endsWith('.xls')
+          ? 'Microsoft Excel spreadsheet (.xlsx)'
+          : selectedFile.toLowerCase().endsWith('.pptx') || selectedFile.toLowerCase().endsWith('.ppt')
+          ? 'Microsoft PowerPoint presentation (.pptx)'
+          : selectedFile.toLowerCase().endsWith('.pdf')
+          ? 'PDF document'
+          : 'binary file';
+
+        const aiResponse = `❌ Those symbols appear because you're trying to view a **${fileType}** as text.
+
+**Why this happens:**
+• ${fileName} is a binary file (not plain text)
+• Binary files contain encoded data that can't be displayed as readable text
+• When the editor tries to show binary data as text, you see corrupted symbols
+
+**How to fix:**
+• **Word documents (.docx)** → Open in Microsoft Word or Google Docs
+• **Excel files (.xlsx)** → Open in Microsoft Excel or Google Sheets  
+• **PowerPoint (.pptx)** → Open in PowerPoint or Google Slides
+• **PDF files** → Open in a PDF viewer (Adobe, Preview, etc.)
+
+**Pro tip:** MIN DeepAgent automatically blocks binary files from displaying. If you're seeing symbols, try refreshing the page or re-opening the folder.`;
+
+        setMessages((prev) => [...prev, { role: "assistant", content: aiResponse }]);
+        setIsProcessing(false);
+        return;
+      }
+
       // FIX #3: Connect to actual backend for AI chat
       const BACKEND_URL = "https://vctt-agi-phase3-complete.onrender.com";
       

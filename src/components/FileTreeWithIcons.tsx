@@ -69,14 +69,16 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
     }
   }, [loadedFiles]);
 
-  // FIX #6: Binary file detection helper
+  // FIX #6: Binary file detection helper - EXPANDED with Office formats
   const isBinaryFile = (filename: string): boolean => {
     const binaryExtensions = [
       '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.svg', '.webp',
       '.pdf', '.zip', '.tar', '.gz', '.rar', '.7z',
       '.exe', '.dll', '.so', '.dylib',
-      '.mp3', '.mp4', '.avi', '.mov', '.wav',
+      '.mp3', '.mp4', '.avi', '.mov', '.wav', '.flv', '.wmv',
       '.ttf', '.woff', '.woff2', '.eot',
+      '.docx', '.doc', '.xlsx', '.xls', '.pptx', '.ppt', // Office
+      '.odt', '.ods', '.odp', // OpenOffice
       '.db', '.sqlite', '.bin',
     ];
     const ext = filename.substring(filename.lastIndexOf('.')).toLowerCase();

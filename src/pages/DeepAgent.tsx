@@ -160,13 +160,16 @@ export default function DeepAgentMode() {
   const handleFileSelect = async (path: string) => {
     console.log('🔍 handleFileSelect called with:', path);
     
-    // CRITICAL: Check if file is binary (images, videos, archives, etc.)
+    // FIX: EXPANDED binary detection - includes Office formats
     const binaryExtensions = [
-      '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.svg',
-      '.pdf', '.zip', '.tar', '.gz', '.rar', '.7z',
-      '.mp4', '.mov', '.avi', '.mp3', '.wav',
-      '.exe', '.dll', '.so', '.dylib',
-      '.woff', '.woff2', '.ttf', '.eot'
+      '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.svg', '.webp', // Images
+      '.pdf', '.zip', '.tar', '.gz', '.rar', '.7z', // Archives
+      '.mp4', '.mov', '.avi', '.mp3', '.wav', '.flv', '.wmv', // Media
+      '.exe', '.dll', '.so', '.dylib', // Executables
+      '.woff', '.woff2', '.ttf', '.eot', // Fonts
+      '.docx', '.doc', '.xlsx', '.xls', '.pptx', '.ppt', // Office
+      '.odt', '.ods', '.odp', // OpenOffice
+      '.db', '.sqlite', '.bin', // Databases
     ];
     
     const isBinary = binaryExtensions.some(ext => path.toLowerCase().endsWith(ext));
@@ -175,11 +178,23 @@ export default function DeepAgentMode() {
     
     if (isBinary) {
       console.log('❌ BLOCKING binary file from opening');
+      const fileName = path.split('/').pop() || path;
+      const fileType = path.toLowerCase().endsWith('.docx') || path.toLowerCase().endsWith('.doc') 
+        ? 'Word document' 
+        : path.toLowerCase().endsWith('.xlsx') || path.toLowerCase().endsWith('.xls')
+        ? 'Excel spreadsheet'
+        : path.toLowerCase().endsWith('.pptx') || path.toLowerCase().endsWith('.ppt')
+        ? 'PowerPoint presentation'
+        : path.toLowerCase().endsWith('.pdf')
+        ? 'PDF document'
+        : 'binary file';
+      
       // Show toast notification
       setShowBinaryFileToast(true);
       setTimeout(() => setShowBinaryFileToast(false), 3000);
-      // Add message to terminal
-      addMessage(`❌ Cannot open binary file: ${path} (images must be handled by external tools)`);
+      // Add helpful message to terminal
+      addMessage(`❌ Cannot open ${fileType}: ${fileName}`);
+      addMessage(`💡 Tip: ${fileType}s must be opened in their respective applications (Word, Excel, etc.)`);
       // Don't open the file - EXIT IMMEDIATELY
       return;
     }
@@ -356,14 +371,16 @@ Start coding now! Select any file from the explorer.`;
     input.click();
   };
 
-  // FIX #1: Binary file detection helper
+  // FIX #1: Binary file detection helper - EXPANDED with Office formats
   const isBinaryFile = (filename: string): boolean => {
     const binaryExtensions = [
       '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.svg', '.webp', // Images
       '.pdf', '.zip', '.tar', '.gz', '.rar', '.7z', // Archives
       '.exe', '.dll', '.so', '.dylib', // Executables
-      '.mp3', '.mp4', '.avi', '.mov', '.wav', // Media
+      '.mp3', '.mp4', '.avi', '.mov', '.wav', '.flv', '.wmv', // Media
       '.ttf', '.woff', '.woff2', '.eot', // Fonts
+      '.docx', '.doc', '.xlsx', '.xls', '.pptx', '.ppt', // Office
+      '.odt', '.ods', '.odp', // OpenOffice
       '.db', '.sqlite', '.bin', // Databases/Binary
     ];
     const ext = filename.substring(filename.lastIndexOf('.')).toLowerCase();
@@ -727,10 +744,11 @@ Start coding now! Select any file from the explorer.`;
             openFiles={openFiles}
             loadedFiles={loadedFolderFiles}
           />
-          {/* FIX #6-7: Resize Handle for File Explorer (with localStorage) */}
+          {/* FIX: IMPROVED Resize Handle for File Explorer - more visible and grabbable */}
           <div
-            className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors z-10"
+            className="absolute top-0 right-0 w-2 h-full cursor-col-resize bg-gray-800/30 hover:bg-blue-500 transition-colors z-50"
             style={{ cursor: 'col-resize' }}
+            title="Drag to resize explorer panel"
             onMouseDown={(e) => {
               e.preventDefault();
               const startX = e.clientX;
@@ -896,16 +914,17 @@ Start coding now! Select any file from the explorer.`;
 
         {/* Right Panel: AI Chat with Resize Handle */}
         <div className="border-l border-gray-800 relative" style={{ width: `${aiChatWidth}px` }}>
-          {/* FIX #6-7: Resize Handle for AI Chat */}
+          {/* FIX: IMPROVED Resize Handle for AI Chat - more visible and grabbable */}
           <div
-            className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors z-10"
+            className="absolute top-0 left-0 w-2 h-full cursor-col-resize bg-gray-800/30 hover:bg-blue-500 transition-colors z-50"
             style={{ cursor: 'col-resize' }}
+            title="Drag to resize AI panel"
             onMouseDown={(e) => {
               e.preventDefault();
               const startX = e.clientX;
               const startWidth = aiChatWidth;
               const handleMouseMove = (moveEvent: MouseEvent) => {
-                const newWidth = Math.max(256, Math.min(600, startWidth + (moveEvent.clientX - startX)));
+                const newWidth = Math.max(256, Math.min(600, startWidth - (moveEvent.clientX - startX)));
                 setAiChatWidth(newWidth);
               };
               const handleMouseUp = () => {
