@@ -8,6 +8,7 @@ import CommandPalette from "../components/CommandPalette";
 import TestExplorer from "../components/TestExplorer";
 import DeploymentPanel from "../components/DeploymentPanel";
 import { StatusBar } from "../components/StatusBar";
+import { FileMenu } from "../components/FileMenu";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 const BACKEND_URL = "https://vctt-agi-phase3-complete.onrender.com";
@@ -57,6 +58,7 @@ export default function DeepAgentMode() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd+Shift+P - Command Palette
       if (e.metaKey && e.shiftKey && e.key === "P") {
         e.preventDefault();
         setIsCommandPaletteOpen((prev) => !prev);
@@ -192,6 +194,56 @@ Start coding now! Select any file from the explorer.`;
     return messages[Math.floor(Math.random() * messages.length)];
   };
 
+  // File Menu Handlers
+  const handleNewFile = () => {
+    const fileName = prompt("Enter file name:");
+    if (fileName) {
+      const fullPath = `/src/${fileName}`;
+      setOpenFiles((prev) => [...prev, fullPath]);
+      setSelectedFile(fullPath);
+      setFileContent("// New file\n\n");
+      setFileContents((prev) => ({ ...prev, [fullPath]: "// New file\n\n" }));
+      addMessage(`✨ Created new file: ${fullPath}`);
+    }
+  };
+
+  const handleNewFolder = () => {
+    const folderName = prompt("Enter folder name:");
+    if (folderName) {
+      addMessage(`📁 Created new folder: /src/${folderName}`);
+    }
+  };
+
+  const handleOpenFile = () => {
+    // Trigger file input - in production this would open file picker
+    addMessage("📂 Use file tree to select files (file picker integration coming)");
+  };
+
+  const handleSaveAs = () => {
+    if (!selectedFile) return;
+    const newName = prompt("Save as:", selectedFile);
+    if (newName) {
+      setFileContents((prev) => ({ ...prev, [newName]: fileContent }));
+      setOpenFiles((prev) => [...prev.filter((f) => f !== selectedFile), newName]);
+      setSelectedFile(newName);
+      addMessage(`💾 Saved as: ${newName}`);
+    }
+  };
+
+  const handleFormatDocument = () => {
+    if (!selectedFile) return;
+    addMessage(`✨ Formatting document: ${selectedFile}`);
+    // In production, this would call Prettier or similar
+    setTimeout(() => addMessage(`✅ Document formatted`), 500);
+  };
+
+  const handleCloseAllTabs = () => {
+    setOpenFiles([]);
+    setSelectedFile(null);
+    setFileContent("");
+    addMessage("🗑️ Closed all tabs");
+  };
+
   const handlePush = () => {
     addMessage(`🚀 Pushing to remote...`);
     setTimeout(() => addMessage(`✅ Pushed to origin/main`), 1000);
@@ -281,6 +333,49 @@ Start coding now! Select any file from the explorer.`;
     }
   };
 
+  // Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd+N - New File
+      if (e.metaKey && !e.shiftKey && e.key === "n") {
+        e.preventDefault();
+        handleNewFile();
+      }
+      // Cmd+Shift+N - New Folder
+      if (e.metaKey && e.shiftKey && e.key === "N") {
+        e.preventDefault();
+        handleNewFolder();
+      }
+      // Cmd+O - Open File
+      if (e.metaKey && !e.shiftKey && e.key === "o") {
+        e.preventDefault();
+        handleOpenFile();
+      }
+      // Cmd+S - Save
+      if (e.metaKey && !e.shiftKey && e.key === "s") {
+        e.preventDefault();
+        handleSave();
+      }
+      // Cmd+Shift+S - Save As
+      if (e.metaKey && e.shiftKey && e.key === "S") {
+        e.preventDefault();
+        handleSaveAs();
+      }
+      // Cmd+Shift+F - Format Document
+      if (e.metaKey && e.shiftKey && e.key === "F") {
+        e.preventDefault();
+        handleFormatDocument();
+      }
+      // Cmd+W - Close Tab
+      if (e.metaKey && !e.shiftKey && e.key === "w") {
+        e.preventDefault();
+        if (selectedFile) handleCloseFile(selectedFile);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedFile]);
+
   return (
     <div className="h-screen bg-gray-950 text-green-400 font-mono flex flex-col">
       {/* Cmd+K Modal */}
@@ -302,6 +397,17 @@ Start coding now! Select any file from the explorer.`;
       <div className="bg-gray-900 border-b border-gray-700 px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <FileMenu
+              onNewFile={handleNewFile}
+              onNewFolder={handleNewFolder}
+              onOpenFile={handleOpenFile}
+              onSave={handleSave}
+              onSaveAs={handleSaveAs}
+              onFormatDocument={handleFormatDocument}
+              onCloseTab={() => selectedFile && handleCloseFile(selectedFile)}
+              onCloseAllTabs={handleCloseAllTabs}
+            />
+            <div className="h-6 w-px bg-gray-700" />
             <div className="text-2xl">🤖</div>
             <h1 className="text-xl font-bold text-white">MIN DeepAgent</h1>
             <span className="text-xs text-gray-500">Code Editor • Terminal • AI Co-Pilot</span>
