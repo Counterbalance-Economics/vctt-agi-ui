@@ -40,10 +40,35 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
   const [draggedNode, setDraggedNode] = useState<FileNode | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   const [hoveredPath, setHoveredPath] = useState<string | null>(null);
+  const [recentFiles, setRecentFiles] = useState<string[]>([]);
+  const [isRecentExpanded, setIsRecentExpanded] = useState(true);
 
   useEffect(() => {
     fetchFileTree();
+    // Load recent files from localStorage
+    const stored = localStorage.getItem("recentFiles");
+    if (stored) {
+      try {
+        setRecentFiles(JSON.parse(stored));
+      } catch (e) {
+        console.error("Failed to parse recent files:", e);
+      }
+    }
   }, []);
+
+  // Update recent files when a file is selected
+  useEffect(() => {
+    if (selectedFile) {
+      setRecentFiles((prev) => {
+        // Remove if already exists, then add to front
+        const filtered = prev.filter((f) => f !== selectedFile);
+        const updated = [selectedFile, ...filtered].slice(0, 8); // Keep only last 8
+        // Save to localStorage
+        localStorage.setItem("recentFiles", JSON.stringify(updated));
+        return updated;
+      });
+    }
+  }, [selectedFile]);
 
   const fetchFileTree = async () => {
     try {
@@ -232,7 +257,7 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
           onMouseEnter={() => setHoveredPath(node.path)}
           onMouseLeave={() => setHoveredPath(null)}
           className={`flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-800 transition-colors relative ${
-            isSelected ? "bg-blue-900/30 border-l-2 border-blue-500" : ""
+            isSelected ? "bg-blue-900/30 border-l-2 border-cyan-400" : ""
           } ${isDraggedOver ? "bg-blue-900/50 border-l-2 border-blue-500" : ""} ${
             isBeingDragged ? "opacity-50" : ""
           } ${isOpen && !isSelected ? "bg-gray-800/50" : ""}`}
@@ -261,7 +286,7 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
           {getGitStatusIcon(node.gitStatus)}
 
           <span
-            className={`text-sm truncate ${isSelected ? "text-white font-medium" : "text-gray-300"}`}
+            className={`text-sm truncate ${isSelected ? "text-white font-semibold" : "text-gray-300"}`}
           >
             {node.name}
           </span>
@@ -288,6 +313,62 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
     );
   }
 
+  const renderRecentFiles = () => {
+    if (recentFiles.length === 0) return null;
+
+    return (
+      <div className="border-b border-gray-800">
+        <div
+          className="flex items-center gap-2 px-2 py-1.5 cursor-pointer hover:bg-gray-800 transition-colors"
+          onClick={() => setIsRecentExpanded(!isRecentExpanded)}
+        >
+          <span className="text-gray-400 w-4 h-4 flex-shrink-0">
+            {isRecentExpanded ? (
+              <ChevronDownIcon className="w-4 h-4" />
+            ) : (
+              <ChevronRightIcon className="w-4 h-4" />
+            )}
+          </span>
+          <span className="text-xs font-semibold text-gray-400 uppercase">Recent</span>
+          <span className="text-xs text-gray-500">({recentFiles.length})</span>
+        </div>
+        {isRecentExpanded && (
+          <div className="pb-2">
+            {recentFiles.map((filePath) => {
+              const fileName = filePath.split("/").pop() || filePath;
+              const isSelected = selectedFile === filePath;
+              const isOpen = openFiles.includes(filePath);
+
+              return (
+                <div
+                  key={`recent-${filePath}`}
+                  className={`flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-800 transition-colors relative ${
+                    isSelected ? "bg-blue-900/30 border-l-2 border-cyan-400" : ""
+                  } ${isOpen && !isSelected ? "bg-gray-800/50" : ""}`}
+                  style={{ paddingLeft: "32px" }}
+                  onClick={() => onFileSelect(filePath)}
+                  title={filePath}
+                >
+                  {getFileIcon(fileName)}
+                  <span
+                    className={`text-sm truncate ${
+                      isSelected ? "text-white font-semibold" : "text-gray-300"
+                    }`}
+                  >
+                    {fileName}
+                  </span>
+                  <span className="text-xs text-gray-500 ml-auto flex-shrink-0">
+                    {filePath.split("/").slice(0, -1).join("/") || "/"}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="h-full overflow-y-auto bg-gray-900 text-gray-100">
       <div className="p-2 border-b border-gray-800 flex items-center justify-between">
@@ -300,6 +381,7 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
           ↻
         </button>
       </div>
+      {renderRecentFiles()}
       <div className="py-2">{tree.map((node) => renderNode(node, 0))}</div>
     </div>
   );
