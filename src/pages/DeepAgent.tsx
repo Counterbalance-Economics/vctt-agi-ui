@@ -733,9 +733,9 @@ Start coding now! Select any file from the explorer.`;
 
       {/* Main Layout: 4 panels */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Panel: Resizable File Tree */}
+        {/* Left Panel: Resizable File Tree - FIX: Added relative positioning for resize handle */}
         <div
-          className="border-r border-gray-800 flex-shrink-0"
+          className="border-r border-gray-800 flex-shrink-0 relative"
           style={{ width: `${sidebarWidth}px` }}
         >
           <FileTreeWithIcons
@@ -744,17 +744,18 @@ Start coding now! Select any file from the explorer.`;
             openFiles={openFiles}
             loadedFiles={loadedFolderFiles}
           />
-          {/* FIX: IMPROVED Resize Handle for File Explorer - more visible and grabbable */}
+          {/* FIX: IMPROVED Resize Handle - moved outside FileTree component, fixed positioning */}
           <div
-            className="absolute top-0 right-0 w-2 h-full cursor-col-resize bg-gray-800/30 hover:bg-blue-500 transition-colors z-50"
-            style={{ cursor: 'col-resize' }}
+            className="absolute top-0 right-0 w-2 h-full cursor-col-resize bg-gray-700/50 hover:bg-blue-500 active:bg-blue-600 transition-colors"
+            style={{ cursor: 'col-resize', zIndex: 9999 }}
             title="Drag to resize explorer panel"
             onMouseDown={(e) => {
               e.preventDefault();
+              e.stopPropagation();
               const startX = e.clientX;
               const startWidth = sidebarWidth;
               const handleMouseMove = (moveEvent: MouseEvent) => {
-                const newWidth = Math.max(256, Math.min(600, startWidth + moveEvent.clientX - startX));
+                const newWidth = Math.max(200, Math.min(800, startWidth + (moveEvent.clientX - startX)));
                 setSidebarWidth(newWidth);
               };
               const handleMouseUp = () => {
@@ -820,8 +821,8 @@ Start coding now! Select any file from the explorer.`;
             </div>
           )}
 
-          {/* Code Editor */}
-          <div className="flex-1">
+          {/* Code Editor - FIX: Added min-height to prevent terminal from pushing it out */}
+          <div className="flex-1 overflow-hidden" style={{ minHeight: '300px' }}>
             <CodeEditor
               ref={editorRef}
               filePath={selectedFile}
@@ -833,12 +834,12 @@ Start coding now! Select any file from the explorer.`;
             />
           </div>
 
-          {/* Bottom Panel: Collapsible Terminal with Resize Handle */}
+          {/* Bottom Panel: Collapsible Terminal - FIX: Added max-height constraint */}
           <div
-            className={`border-t border-gray-800 flex flex-col bg-gray-950 transition-all relative ${
+            className={`border-t border-gray-800 flex flex-col bg-gray-950 transition-all relative flex-shrink-0 ${
               isTerminalCollapsed ? "h-12" : ""
             }`}
-            style={!isTerminalCollapsed ? { height: `${terminalHeight}px` } : {}}
+            style={!isTerminalCollapsed ? { height: `${terminalHeight}px`, maxHeight: '400px' } : {}}
           >
             {/* FIX #6-7: Resize Handle for Terminal */}
             {!isTerminalCollapsed && (
@@ -912,19 +913,21 @@ Start coding now! Select any file from the explorer.`;
           </div>
         </div>
 
-        {/* Right Panel: AI Chat with Resize Handle */}
-        <div className="border-l border-gray-800 relative" style={{ width: `${aiChatWidth}px` }}>
-          {/* FIX: IMPROVED Resize Handle for AI Chat - more visible and grabbable */}
+        {/* Right Panel: AI Chat - FIX: Added relative positioning for resize handle */}
+        <div className="border-l border-gray-800 relative flex-shrink-0" style={{ width: `${aiChatWidth}px` }}>
+          {/* FIX: IMPROVED Resize Handle - fixed positioning and drag direction */}
           <div
-            className="absolute top-0 left-0 w-2 h-full cursor-col-resize bg-gray-800/30 hover:bg-blue-500 transition-colors z-50"
-            style={{ cursor: 'col-resize' }}
+            className="absolute top-0 left-0 w-2 h-full cursor-col-resize bg-gray-700/50 hover:bg-blue-500 active:bg-blue-600 transition-colors"
+            style={{ cursor: 'col-resize', zIndex: 9999 }}
             title="Drag to resize AI panel"
             onMouseDown={(e) => {
               e.preventDefault();
+              e.stopPropagation();
               const startX = e.clientX;
               const startWidth = aiChatWidth;
               const handleMouseMove = (moveEvent: MouseEvent) => {
-                const newWidth = Math.max(256, Math.min(600, startWidth - (moveEvent.clientX - startX)));
+                const diff = startX - moveEvent.clientX; // Reversed: drag left = wider
+                const newWidth = Math.max(200, Math.min(800, startWidth + diff));
                 setAiChatWidth(newWidth);
               };
               const handleMouseUp = () => {

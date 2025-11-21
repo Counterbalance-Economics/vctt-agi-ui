@@ -58,6 +58,73 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK, () => {
       onCmdK();
     });
+
+    // FIX: Add Quick Fix UI (like Cursor) - shows "Fix in Chat" on errors
+    const model = editor.getModel();
+    if (model) {
+      // Register Code Action Provider for all languages
+      monaco.languages.registerCodeActionProvider('*', {
+        provideCodeActions: (model, _range, context) => {
+          // Only show actions if there are diagnostics (errors/warnings)
+          if (!context.markers || context.markers.length === 0) {
+            return { actions: [], dispose: () => {} };
+          }
+
+          const actions: monaco.languages.CodeAction[] = [];
+          
+          // Get the error text
+          const errorMarker = context.markers[0];
+          const errorMessage = errorMarker.message;
+          const errorCode = model.getValueInRange({
+            startLineNumber: errorMarker.startLineNumber,
+            startColumn: errorMarker.startColumn,
+            endLineNumber: errorMarker.endLineNumber,
+            endColumn: errorMarker.endColumn
+          });
+
+          // "Fix in Chat" action (Cmd+Shift+I)
+          actions.push({
+            title: '💬 Fix in Chat (Cmd+Shift+I)',
+            kind: 'quickfix',
+            diagnostics: context.markers,
+            isPreferred: true,
+            command: {
+              id: 'fix-in-chat',
+              title: 'Fix in Chat',
+              arguments: [errorMessage, errorCode, errorMarker.startLineNumber]
+            }
+          });
+
+          // "View Problem" action - simpler approach without edit
+          actions.push({
+            title: '🔍 View Problem (Cmd+K to fix)',
+            kind: 'quickfix',
+            diagnostics: context.markers,
+            command: {
+              id: 'fix-in-chat',
+              title: 'Fix in Chat',
+              arguments: [errorMessage, errorCode, errorMarker.startLineNumber]
+            }
+          });
+
+          return {
+            actions: actions,
+            dispose: () => {}
+          };
+        }
+      });
+
+      // Register command handler for "Fix in Chat"
+      editor.addAction({
+        id: 'fix-in-chat',
+        label: 'Fix in Chat',
+        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyI],
+        run: () => {
+          // Trigger Cmd+K modal with error context
+          onCmdK();
+        }
+      });
+    }
   };
 
   const getLanguage = (path: string): string => {
