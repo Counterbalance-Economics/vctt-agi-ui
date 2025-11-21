@@ -12,6 +12,15 @@ interface AIChatProps {
   onCodeEdit?: (filePath: string, newContent: string) => void;
 }
 
+interface Goal {
+  id: number;
+  title: string;
+  description: string;
+  priority: number;
+  status: string;
+  progress: number;
+}
+
 export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -23,10 +32,61 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => 
   const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Goals state
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [showGoalModal, setShowGoalModal] = useState(false);
+  const [newGoal, setNewGoal] = useState({ title: '', description: '', priority: 3 });
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Fetch goals
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
+        const response = await fetch('https://vctt-agi-phase3-complete.abacusai.app/goals?status=active');
+        if (response.ok) {
+          const data = await response.json();
+          setGoals(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch goals:', error);
+      }
+    };
+    fetchGoals();
+    const interval = setInterval(fetchGoals, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Create goal handler
+  const handleCreateGoal = async () => {
+    if (!newGoal.title.trim()) return;
+    try {
+      const response = await fetch('https://vctt-agi-phase3-complete.abacusai.app/goals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newGoal.title,
+          description: newGoal.description,
+          priority: newGoal.priority,
+          status: 'active',
+          target_criteria: {},
+          metadata: {},
+        }),
+      });
+      if (response.ok) {
+        setShowGoalModal(false);
+        setNewGoal({ title: '', description: '', priority: 3 });
+        // Refresh goals
+        const goalsRes = await fetch('https://vctt-agi-phase3-complete.abacusai.app/goals?status=active');
+        if (goalsRes.ok) setGoals(await goalsRes.json());
+      }
+    } catch (error) {
+      console.error('Failed to create goal:', error);
+    }
+  };
 
   // Helper: Check if file is binary
   const isBinaryFile = (filename: string): boolean => {
@@ -395,7 +455,137 @@ Respond with helpful code fixes in markdown blocks. Be concise and practical.`
             </button>
           ))}
         </div>
+
+        {/* Goals Section */}
+        <div className="mt-4 pt-4 border-t border-gray-800">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🎯</span>
+              <h3 className="text-sm font-semibold text-white">Active Goals</h3>
+              <span className="text-xs text-gray-500">({goals.length})</span>
+            </div>
+            <button
+              onClick={() => setShowGoalModal(true)}
+              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded text-xs font-medium text-white transition-colors"
+            >
+              + New Goal
+            </button>
+          </div>
+
+          {goals.length === 0 ? (
+            <p className="text-xs text-gray-500 text-center py-3">
+              No active goals yet. Click "+ New Goal" to create one.
+            </p>
+          ) : (
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {goals.map((goal) => (
+                <div
+                  key={goal.id}
+                  className="bg-gray-800 border border-gray-700 rounded p-2 hover:border-blue-500 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <h4 className="text-sm font-medium text-white flex-1">{goal.title}</h4>
+                    <span className={`text-xs px-1.5 py-0.5 rounded ${
+                      goal.priority >= 5 ? 'bg-red-900 text-red-300' :
+                      goal.priority >= 3 ? 'bg-yellow-900 text-yellow-300' :
+                      'bg-green-900 text-green-300'
+                    }`}>
+                      P{goal.priority}
+                    </span>
+                  </div>
+                  {goal.description && (
+                    <p className="text-xs text-gray-400 mb-1 line-clamp-1">{goal.description}</p>
+                  )}
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="flex-1">
+                      <div className="w-full bg-gray-700 rounded-full h-1">
+                        <div
+                          className="bg-blue-500 h-1 rounded-full transition-all"
+                          style={{ width: `${goal.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-gray-500">{goal.progress}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Goal Creation Modal */}
+      {showGoalModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-2xl w-full max-w-md mx-4">
+            <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-white">Create New Goal</h3>
+              <button
+                onClick={() => setShowGoalModal(false)}
+                className="text-gray-500 hover:text-white transition-colors text-xl"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="p-4 space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Title</label>
+                <input
+                  type="text"
+                  value={newGoal.title}
+                  onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
+                  className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+                  placeholder="e.g., Launch Tier-4 AGI"
+                  autoFocus
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Description (Optional)</label>
+                <textarea
+                  value={newGoal.description}
+                  onChange={(e) => setNewGoal({ ...newGoal, description: e.target.value })}
+                  className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 resize-none"
+                  rows={2}
+                  placeholder="What's this goal about?"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Priority</label>
+                <select
+                  value={newGoal.priority}
+                  onChange={(e) => setNewGoal({ ...newGoal, priority: parseInt(e.target.value) })}
+                  className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+                >
+                  <option value={1}>1 - Low</option>
+                  <option value={2}>2 - Normal</option>
+                  <option value={3}>3 - High</option>
+                  <option value={4}>4 - Urgent</option>
+                  <option value={5}>5 - Critical</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="p-4 border-t border-gray-800 flex justify-end gap-2">
+              <button
+                onClick={() => setShowGoalModal(false)}
+                className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-sm text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateGoal}
+                disabled={!newGoal.title.trim()}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Create Goal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
