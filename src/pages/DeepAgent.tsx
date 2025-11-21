@@ -68,6 +68,9 @@ export default function DeepAgentMode() {
   const [lastEditCost, setLastEditCost] = useState<number | null>(null);
   const [lastEditTokens, setLastEditTokens] = useState<number | null>(null);
   const [trustTau, setTrustTau] = useState<number | null>(null);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [lastSaveTime, setLastSaveTime] = useState<number | null>(null);
+  const [showSaveToast, setShowSaveToast] = useState(false);
   const [grokConfidence, setGrokConfidence] = useState<number | null>(null);
   const [currentBranch] = useState("main");
 
@@ -194,18 +197,32 @@ Start coding now! Select any file from the explorer.`;
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (isAutoSave = false) => {
     if (!selectedFile) return;
-    addMessage(`💾 Saving: ${selectedFile}`);
+    
+    setSaveStatus("saving");
+    if (!isAutoSave) {
+      addMessage(`💾 Saving: ${selectedFile}`);
+    }
+
+    // Simulate save delay
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     // Save the file
     setIsDirty(false);
-    addMessage(`✅ Saved: ${selectedFile}`);
+    setSaveStatus("saved");
+    setLastSaveTime(Date.now());
+    
+    if (!isAutoSave) {
+      addMessage(`✅ Saved: ${selectedFile}`);
+      setShowSaveToast(true);
+      setTimeout(() => setShowSaveToast(false), 2000);
 
-    // Auto-commit with AI-generated message
-    const commitMsg = generateCommitMessage(selectedFile);
-    addMessage(`📝 Auto-committing: "${commitMsg}"`);
-    addMessage(`✅ Committed to git`);
+      // Auto-commit with AI-generated message
+      const commitMsg = generateCommitMessage(selectedFile);
+      addMessage(`📝 Auto-committing: "${commitMsg}"`);
+      addMessage(`✅ Committed to git`);
+    }
   };
 
   const generateCommitMessage = (filePath: string): string => {
@@ -380,7 +397,7 @@ Start coding now! Select any file from the explorer.`;
       // Cmd+S - Save
       if (e.metaKey && !e.shiftKey && e.key === "s") {
         e.preventDefault();
-        handleSave();
+        handleSave(false);
       }
       // Cmd+Shift+S - Save As
       if (e.metaKey && e.shiftKey && e.key === "S") {
@@ -401,6 +418,17 @@ Start coding now! Select any file from the explorer.`;
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedFile]);
+
+  // Auto-save every 3 seconds when content changes
+  useEffect(() => {
+    if (!selectedFile || !fileContent) return;
+    
+    const autoSaveTimer = setTimeout(() => {
+      handleSave(true); // Auto-save silently
+    }, 3000);
+
+    return () => clearTimeout(autoSaveTimer);
+  }, [fileContent, selectedFile]);
 
   return (
     <div className="h-screen bg-gray-950 text-green-400 font-mono flex flex-col">
@@ -426,6 +454,16 @@ Start coding now! Select any file from the explorer.`;
         onFileSelect={handleFileSelect}
         files={availableFiles}
       />
+
+      {/* Save Toast */}
+      {showSaveToast && (
+        <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-2 animate-slide-in">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <span className="font-medium">File saved</span>
+        </div>
+      )}
 
       {/* Header */}
       <div className="bg-gray-900 border-b border-gray-700 px-4 py-3">
@@ -625,6 +663,8 @@ Start coding now! Select any file from the explorer.`;
         lastEditTokens={lastEditTokens}
         trustTau={trustTau}
         grokConfidence={grokConfidence}
+        saveStatus={saveStatus}
+        lastSaveTime={lastSaveTime}
       />
     </div>
   );

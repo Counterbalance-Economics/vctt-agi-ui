@@ -9,6 +9,8 @@ interface StatusBarProps {
   lastEditTokens: number | null;
   trustTau?: number | null; // MIN's trust metric (0-1)
   grokConfidence?: number | null; // Grok-4.1 confidence (0-1)
+  saveStatus?: "idle" | "saving" | "saved"; // Save status
+  lastSaveTime?: number | null; // Timestamp of last save
 }
 
 export const StatusBar: React.FC<StatusBarProps> = ({
@@ -20,7 +22,16 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   lastEditTokens,
   trustTau,
   grokConfidence,
+  saveStatus = "idle",
+  lastSaveTime,
 }) => {
+  const getTimeSinceLastSave = () => {
+    if (!lastSaveTime) return "";
+    const seconds = Math.floor((Date.now() - lastSaveTime) / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes}m ago`;
+  };
   return (
     <div className="h-6 bg-blue-600 text-white flex items-center justify-between px-4 text-xs font-medium">
       <div className="flex items-center gap-4">
@@ -43,6 +54,22 @@ export const StatusBar: React.FC<StatusBarProps> = ({
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Save Status */}
+        {saveStatus === "saving" && (
+          <div className="flex items-center gap-1 text-yellow-300">
+            <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+            <span>Saving...</span>
+          </div>
+        )}
+        {saveStatus === "saved" && lastSaveTime && (
+          <div className="text-green-300">
+            Saved {getTimeSinceLastSave()}
+          </div>
+        )}
+
         {/* Trust & Confidence Metrics (NEW!) */}
         {trustTau !== null && trustTau !== undefined && (
           <div className="flex items-center gap-1 px-2 py-0.5 bg-indigo-700 rounded">
