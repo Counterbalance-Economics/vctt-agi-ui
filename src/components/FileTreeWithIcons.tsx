@@ -371,6 +371,13 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
 
   return (
     <div className="h-full overflow-y-auto bg-gray-900 text-gray-100">
+      {/* Force all SVGs and icons to be small */}
+      <style>{`
+        .h-full svg, .h-full img {
+          max-width: 24px !important;
+          max-height: 24px !important;
+        }
+      `}</style>
       <div className="p-2 border-b border-gray-800 flex items-center justify-between">
         <h3 className="text-xs font-semibold text-gray-400 uppercase">Explorer</h3>
         <button
