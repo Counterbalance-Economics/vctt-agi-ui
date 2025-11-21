@@ -311,6 +311,70 @@ Start coding now! Select any file from the explorer.`;
     input.click();
   };
 
+  const handleOpenFolder = async () => {
+    try {
+      // Use the File System Access API to open a directory
+      // @ts-ignore - showDirectoryPicker is not yet in all TypeScript types
+      if (!window.showDirectoryPicker) {
+        addMessage("❌ Folder picker not supported in this browser");
+        return;
+      }
+
+      // @ts-ignore
+      const directoryHandle = await window.showDirectoryPicker();
+      addMessage(`📁 Loading folder: ${directoryHandle.name}...`);
+
+      // Recursively read the directory
+      const loadDirectory = async (dirHandle: any, path: string = "") => {
+        const files: Record<string, string> = {};
+        const paths: string[] = [];
+
+        for await (const entry of dirHandle.values()) {
+          const entryPath = `${path}/${entry.name}`;
+
+          if (entry.kind === "file") {
+            try {
+              const file = await entry.getFile();
+              const content = await file.text();
+              files[entryPath] = content;
+              paths.push(entryPath);
+            } catch (error) {
+              console.error(`Failed to read file: ${entryPath}`, error);
+            }
+          } else if (entry.kind === "directory") {
+            // Recursively load subdirectories
+            const subFiles = await loadDirectory(entry, entryPath);
+            Object.assign(files, subFiles.files);
+            paths.push(...subFiles.paths);
+          }
+        }
+
+        return { files, paths };
+      };
+
+      const { files, paths } = await loadDirectory(directoryHandle);
+
+      // Update state with loaded files
+      setFileContents((prev) => ({ ...prev, ...files }));
+
+      // Open the first file if any
+      if (paths.length > 0) {
+        const firstFile = paths[0];
+        setSelectedFile(firstFile);
+        setFileContent(files[firstFile]);
+        setOpenFiles([firstFile]);
+      }
+
+      addMessage(`✅ Loaded ${paths.length} files from: ${directoryHandle.name}`);
+    } catch (error: any) {
+      if (error.name === "AbortError") {
+        addMessage("📁 Folder selection cancelled");
+      } else {
+        addMessage(`❌ Failed to open folder: ${error.message}`);
+      }
+    }
+  };
+
   const handleSaveAs = () => {
     if (!selectedFile) return;
     const newName = prompt("Save as:", selectedFile);
@@ -522,6 +586,7 @@ Start coding now! Select any file from the explorer.`;
               onNewFile={handleNewFile}
               onNewFolder={handleNewFolder}
               onOpenFile={handleOpenFile}
+              onOpenFolder={handleOpenFolder}
               onSave={handleSave}
               onSaveAs={handleSaveAs}
               onFormatDocument={handleFormatDocument}

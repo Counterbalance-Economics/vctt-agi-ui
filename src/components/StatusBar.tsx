@@ -34,7 +34,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   };
   return (
     <div className="h-6 bg-blue-600 text-white flex items-center justify-between px-4 text-xs font-medium">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         {/* Git Branch */}
         <div className="flex items-center gap-1">
           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 16 16">
@@ -44,12 +44,15 @@ export const StatusBar: React.FC<StatusBarProps> = ({
           <span>{branch}</span>
         </div>
 
+        {/* Separator */}
+        <span className="text-white/50">•</span>
+
         {/* Connection Status */}
         <div className="flex items-center gap-1">
           <div
             className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-300" : "bg-red-400"}`}
           ></div>
-          <span>{isConnected ? "Connected" : "Offline"}</span>
+          <span>{isConnected ? "Online" : "Offline"}</span>
         </div>
       </div>
 

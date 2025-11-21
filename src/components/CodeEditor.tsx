@@ -1,17 +1,15 @@
+
 import React, { useRef, useEffect } from "react";
-import Editor from "@monaco-editor/react";
+import Editor, { OnMount } from "@monaco-editor/react";
+import * as monaco from "monaco-editor";
 
 interface CodeEditorProps {
   filePath: string | null;
   content: string;
-  onChange: (value: string | undefined) => void;
+  onChange: (value: string) => void;
   onSave: () => void;
-  onCmdK?: () => void;
+  onCmdK: () => void;
   onCursorPositionChange?: (line: number, column: number) => void;
-  gitDecorations?: Array<{
-    range: [number, number, number, number];
-    type: "added" | "modified" | "deleted";
-  }>;
 }
 
 export const CodeEditor: React.FC<CodeEditorProps> = ({
@@ -21,71 +19,32 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   onSave,
   onCmdK,
   onCursorPositionChange,
-  gitDecorations = [],
 }) => {
-  const editorRef = useRef<any>(null);
-  const monacoRef = useRef<any>(null);
-  const decorationsRef = useRef<string[]>([]);
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
-  useEffect(() => {
-    if (editorRef.current && monacoRef.current && gitDecorations.length > 0) {
-      const newDecorations = gitDecorations.map((d) => {
-        const colorMap = {
-          added: { bg: "rgba(16, 185, 129, 0.2)", border: "#10b981", glyph: "✓" },
-          modified: { bg: "rgba(59, 130, 246, 0.2)", border: "#3b82f6", glyph: "●" },
-          deleted: { bg: "rgba(239, 68, 68, 0.2)", border: "#ef4444", glyph: "✗" },
-        };
-        const colors = colorMap[d.type];
-
-        return {
-          range: new monacoRef.current.Range(...d.range),
-          options: {
-            isWholeLine: true,
-            className: `git-${d.type}-line`,
-            glyphMarginClassName: `git-${d.type}-glyph`,
-            overviewRuler: {
-              color: colors.border,
-              position: monacoRef.current.editor.OverviewRulerLane.Right,
-            },
-          },
-        };
-      });
-
-      decorationsRef.current = editorRef.current.deltaDecorations(
-        decorationsRef.current,
-        newDecorations
-      );
-    }
-  }, [gitDecorations, content]);
-
-  const handleEditorDidMount = (editor: any, monaco: any) => {
+  const handleEditorDidMount: OnMount = (editor) => {
     editorRef.current = editor;
-    monacoRef.current = monaco;
 
-    // Add save keyboard shortcut (Cmd+S / Ctrl+S)
+    // Listen to cursor position changes
+    editor.onDidChangeCursorPosition((e) => {
+      if (onCursorPositionChange) {
+        onCursorPositionChange(e.position.lineNumber, e.position.column);
+      }
+    });
+
+    // Keyboard shortcuts
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
       onSave();
     });
 
-    // Add Cmd+K keyboard shortcut for AI editing
-    if (onCmdK) {
-      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK, () => {
-        onCmdK();
-      });
-    }
-
-    // Track cursor position
-    if (onCursorPositionChange) {
-      editor.onDidChangeCursorPosition((e: any) => {
-        onCursorPositionChange(e.position.lineNumber, e.position.column);
-      });
-    }
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK, () => {
+      onCmdK();
+    });
   };
 
-  const getLanguage = (path: string | null): string => {
-    if (!path) return "plaintext";
+  const getLanguage = (path: string): string => {
     const ext = path.split(".").pop()?.toLowerCase();
-    const languageMap: Record<string, string> = {
+    const langMap: Record<string, string> = {
       ts: "typescript",
       tsx: "typescript",
       js: "javascript",
@@ -94,12 +53,12 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       md: "markdown",
       py: "python",
       css: "css",
+      scss: "scss",
       html: "html",
       yml: "yaml",
       yaml: "yaml",
-      sh: "shell",
     };
-    return languageMap[ext || ""] || "plaintext";
+    return langMap[ext || ""] || "plaintext";
   };
 
   return (
@@ -128,38 +87,23 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             onMount={handleEditorDidMount}
             theme="vs-dark"
             options={{
-              fontSize: 14,
               minimap: { enabled: true },
-              folding: true,
-              foldingHighlight: true,
-              foldingStrategy: "indentation",
-              showFoldingControls: "always",
-              glyphMargin: true,
-              renderLineHighlight: "all",
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
-              tabSize: 2,
-              insertSpaces: true,
-              wordWrap: "on",
+              fontSize: 14,
               lineNumbers: "on",
               renderWhitespace: "selection",
-              cursorBlinking: "smooth",
-              cursorSmoothCaretAnimation: "on",
-              smoothScrolling: true,
-              bracketPairColorization: { enabled: true },
-              guides: { indentation: true },
-              contextmenu: true,
-              columnSelection: true,
-              formatOnPaste: true,
-              formatOnType: true,
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+              folding: true,
+              wordWrap: "on",
+              tabSize: 2,
             }}
           />
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500">
             <div className="text-center">
               <DocumentIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
-              <p className="text-lg">No file selected</p>
-              <p className="text-sm mt-2">Select a file from the explorer to start editing</p>
+              <p className="text-sm">No file selected</p>
+              <p className="text-xs mt-2 text-gray-600">Select a file from the explorer to start editing</p>
             </div>
           </div>
         )}

@@ -5,6 +5,7 @@ interface FileMenuProps {
   onNewFile: () => void;
   onNewFolder: () => void;
   onOpenFile: () => void;
+  onOpenFolder: () => void;
   onSave: () => void;
   onSaveAs: () => void;
   onFormatDocument: () => void;
@@ -16,6 +17,7 @@ export const FileMenu: React.FC<FileMenuProps> = ({
   onNewFile,
   onNewFolder,
   onOpenFile,
+  onOpenFolder,
   onSave,
   onSaveAs,
   onFormatDocument,
@@ -54,7 +56,7 @@ export const FileMenu: React.FC<FileMenuProps> = ({
     { label: "New Folder", action: onNewFolder, shortcut: "⌘⇧N" },
     { type: "separator" },
     { label: "Open File…", action: onOpenFile, shortcut: "⌘O" },
-    { label: "Open Folder…", action: () => {}, shortcut: "", disabled: true },
+    { label: "Open Folder…", action: onOpenFolder, shortcut: "⌘⇧O" },
     { type: "separator" },
     { label: "Save", action: onSave, shortcut: "⌘S" },
     { label: "Save As…", action: onSaveAs, shortcut: "⌘⇧S" },
