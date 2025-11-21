@@ -258,8 +258,40 @@ Start coding now! Select any file from the explorer.`;
   };
 
   const handleOpenFile = () => {
-    // Trigger file input - in production this would open file picker
-    addMessage("📂 Use file tree to select files (file picker integration coming)");
+    // Create a file input element dynamically
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".ts,.tsx,.js,.jsx,.json,.md,.txt,.css,.html,.py,.java,.cpp,.c,.h,.yaml,.yml";
+    
+    input.onchange = async (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (!file) return;
+
+      try {
+        const content = await file.text();
+        const filePath = `/${file.name}`;
+        
+        // Add to file contents
+        setFileContents((prev) => ({ ...prev, [filePath]: content }));
+        
+        // Open in new tab
+        if (!openFiles.includes(filePath)) {
+          setOpenFiles((prev) => [...prev, filePath]);
+        }
+        
+        // Select the file
+        setSelectedFile(filePath);
+        setFileContent(content);
+        
+        addMessage(`📂 Opened: ${file.name}`);
+      } catch (error) {
+        addMessage(`❌ Failed to open file: ${error}`);
+      }
+    };
+    
+    // Trigger the file picker
+    input.click();
   };
 
   const handleSaveAs = () => {
