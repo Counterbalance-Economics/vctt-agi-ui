@@ -9,6 +9,7 @@ import { QuickFileSwitcher } from "../components/QuickFileSwitcher";
 import { StatusBar } from "../components/StatusBar";
 import { FileMenu } from "../components/FileMenu";
 import { EditMenu } from "../components/EditMenu";
+import { GoalsPanel } from "../components/GoalsPanel";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { getModKey, modKeyFull } from "../utils/keyboard";
 
@@ -802,17 +803,25 @@ Start coding now! Select any file from the explorer.`;
 
       {/* Main Layout: 4 panels */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Panel: Resizable File Tree - FIX: Added relative positioning for resize handle */}
+        {/* Left Panel: File Tree + Goals Panel */}
         <div
-          className="border-r border-gray-800 flex-shrink-0 relative"
+          className="border-r border-gray-800 flex-shrink-0 relative flex flex-col"
           style={{ width: `${sidebarWidth}px` }}
         >
-          <FileTreeWithIcons
-            onFileSelect={handleFileSelect}
-            selectedFile={selectedFile}
-            openFiles={openFiles}
-            loadedFiles={loadedFolderFiles}
-          />
+          {/* File Explorer - Top Section */}
+          <div className="flex-1 overflow-hidden min-h-0">
+            <FileTreeWithIcons
+              onFileSelect={handleFileSelect}
+              selectedFile={selectedFile}
+              openFiles={openFiles}
+              loadedFiles={loadedFolderFiles}
+            />
+          </div>
+          
+          {/* Goals Panel - Bottom Section */}
+          <div className="h-80 border-t border-gray-800 flex-shrink-0">
+            <GoalsPanel />
+          </div>
         </div>
 
         {/* Center Panel: Code Editor + Terminal with LEFT drag handle */}
