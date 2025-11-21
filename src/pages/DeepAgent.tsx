@@ -482,9 +482,37 @@ Start coding now! Select any file from the explorer.`;
         addMessage(`⚠️ Skipped ${skippedBinaryCount} binary files (images, archives, etc.)`);
       }
       
-      // FIX #5: Force connection status to Online after successful folder load + test backend
-      await testConnection(true);
-      addMessage(`✅ Status: main • Online`);
+      // CRITICAL FIX: Send folder context to backend so AI has access to real files
+      try {
+        addMessage(`📡 Syncing folder to backend...`);
+        const response = await fetch(`${BACKEND_URL}/api/ide/workspace/load`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            folderName: directoryHandle.name,
+            filePaths: paths,
+            fileCount: paths.length,
+            timestamp: new Date().toISOString()
+          }),
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          addMessage(`✅ Backend synced: ${paths.length} files registered`);
+          setIsConnected(true);
+        } else {
+          addMessage(`⚠️ Backend sync failed (${response.status}), but files loaded locally`);
+          // Still set connected since health endpoint might be working
+          await testConnection(true);
+        }
+      } catch (backendError) {
+        addMessage(`⚠️ Backend unreachable, working in offline mode`);
+        console.error("Backend sync error:", backendError);
+        // Set connected to false in offline mode
+        setIsConnected(false);
+      }
+      
+      addMessage(`✅ Status: main • ${isConnected ? 'Online' : 'Offline'}`);
     } catch (error: any) {
       if (error.name === "AbortError") {
         addMessage("📁 Folder selection cancelled");
