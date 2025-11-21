@@ -233,6 +233,9 @@ export default function DeepAgentMode() {
       setFileContent(mockContent);
       setFileContents((prev) => ({ ...prev, [path]: mockContent }));
     }
+    
+    // FIX #5: Update connection status on file load to ensure status bar shows Online
+    testConnection(false);
   };
 
   const getMockContentForFile = (path: string): string => {
@@ -479,8 +482,8 @@ Start coding now! Select any file from the explorer.`;
         addMessage(`⚠️ Skipped ${skippedBinaryCount} binary files (images, archives, etc.)`);
       }
       
-      // CRITICAL FIX: Force connection status to Online after successful folder load
-      setIsConnected(true);
+      // FIX #5: Force connection status to Online after successful folder load + test backend
+      await testConnection(true);
       addMessage(`✅ Status: main • Online`);
     } catch (error: any) {
       if (error.name === "AbortError") {
@@ -740,10 +743,10 @@ Start coding now! Select any file from the explorer.`;
             <span className="text-xs text-blue-400 font-semibold">✨ {modKeyFull}+K to edit</span>
           </div>
           <a
-            href="/chat"
+            href="/deep"
             className="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-gray-300 text-sm transition-all"
           >
-            ← Back
+            ← Back to VCTT
           </a>
         </div>
       </div>
@@ -767,14 +770,14 @@ Start coding now! Select any file from the explorer.`;
         <div className="flex-1 flex flex-col relative">
           {/* Left drag handle - resizes Explorer */}
           <div
-            className="absolute top-0 left-0 h-full hover:bg-blue-500/50 active:bg-blue-500/70 transition-colors"
+            className="absolute top-0 left-0 h-full hover:bg-blue-500 active:bg-blue-600 transition-colors"
             style={{ 
-              width: '6px',
+              width: '8px',
               cursor: 'col-resize',
               zIndex: 10,
               userSelect: 'none',
-              backgroundColor: 'rgba(75, 85, 99, 0.5)',
-              marginLeft: '-3px' // Extend into Explorer panel
+              backgroundColor: 'rgba(59, 130, 246, 0.6)', // Blue visible handle
+              marginLeft: '-4px' // Extend into Explorer panel
             }}
             title="Drag to resize explorer"
             onMouseDown={(e) => {
@@ -877,13 +880,13 @@ Start coding now! Select any file from the explorer.`;
             {/* Terminal drag handle (top edge) */}
             {!isTerminalCollapsed && (
               <div
-                className="absolute top-0 left-0 right-0 hover:bg-blue-500/50 active:bg-blue-500/70 transition-colors"
+                className="absolute top-0 left-0 right-0 hover:bg-blue-500 active:bg-blue-600 transition-colors"
                 style={{ 
-                  height: '6px',
+                  height: '8px',
                   cursor: 'row-resize',
                   zIndex: 10,
                   userSelect: 'none',
-                  backgroundColor: 'rgba(75, 85, 99, 0.5)'
+                  backgroundColor: 'rgba(59, 130, 246, 0.6)' // Blue visible handle
                 }}
                 title="Drag to resize terminal"
                 onMouseDown={(e) => {
@@ -966,14 +969,14 @@ Start coding now! Select any file from the explorer.`;
         <div className="border-l border-gray-800 relative flex-shrink-0" style={{ width: `${aiChatWidth}px` }}>
           {/* Drag handle on LEFT edge of AI panel - resizes AI Assistant */}
           <div
-            className="absolute top-0 left-0 h-full hover:bg-blue-500/50 active:bg-blue-500/70 transition-colors"
+            className="absolute top-0 left-0 h-full hover:bg-blue-500 active:bg-blue-600 transition-colors"
             style={{ 
-              width: '6px',
+              width: '8px',
               cursor: 'col-resize',
               zIndex: 100,
               userSelect: 'none',
-              backgroundColor: 'rgba(75, 85, 99, 0.5)',
-              marginLeft: '-3px' // Extend into middle panel
+              backgroundColor: 'rgba(59, 130, 246, 0.6)', // Blue visible handle
+              marginLeft: '-4px' // Extend into middle panel
             }}
             title="Drag to resize AI panel"
             onMouseDown={(e) => {

@@ -44,7 +44,7 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => 
     return binaryExtensions.some(ext => filename.toLowerCase().endsWith(ext));
   };
 
-  // FIX #3: Integrate AI Chat with Backend + Binary file detection
+  // FIX #3: Integrate AI Chat with Backend + Intent Detection
   const sendMessage = async () => {
     if (!input.trim() || isProcessing) return;
 
@@ -55,6 +55,34 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => 
     setIsProcessing(true);
 
     try {
+      // INTENT DETECTION: Determine if this is a conversational query or code request
+      const isConversationalQuery = 
+        userMessageLower.includes('can you see') ||
+        userMessageLower.includes('do you see') ||
+        userMessageLower.includes('what do you think') ||
+        userMessageLower.includes('how are you') ||
+        userMessageLower.includes('who are you') ||
+        userMessageLower.includes('what are you') ||
+        userMessageLower.includes('tell me about') ||
+        userMessageLower.includes('explain yourself') ||
+        (userMessageLower.includes('?') && userMessageLower.split(' ').length < 8); // Short questions
+
+      // Handle conversational queries locally
+      if (isConversationalQuery) {
+        let response = '';
+        if (userMessageLower.includes('can you see') || userMessageLower.includes('do you see')) {
+          response = `✅ Yes! I can see the current file: **${selectedFile || 'No file selected'}**\n\nI have full context of the code in the editor. You can:\n• Ask me to fix bugs or errors\n• Request refactoring or improvements\n• Generate new code or features\n• Explain complex code sections\n\nJust describe what you need, and I'll use MIN's 5-model ensemble + Grok 4.1 verification to help! 🚀`;
+        } else if (userMessageLower.includes('who are you') || userMessageLower.includes('what are you')) {
+          response = `👋 I'm **MIN** (Multi-agent Intelligence Network), your autonomous AI coding assistant.\n\n**What makes me different:**\n• **5-model committee** reasoning (not just one LLM)\n• **Grok 4.1** real-time verification\n• **Jazz team** self-analysis for quality\n• **Truth Mycelium** best practices database\n\nI'm not just a chatbot - I'm an autonomous reasoning engine that improves itself with every interaction. 🧠✨`;
+        } else {
+          response = `💬 I'm here to help with your code! Try:\n• "Fix the error in line 42"\n• "Add error handling to this function"\n• "Refactor this code to be more efficient"\n• "Write tests for this component"\n\nOr select code and press ${modKeyFull}+K for inline AI editing!`;
+        }
+        
+        setMessages((prev) => [...prev, { role: "assistant", content: response }]);
+        setIsProcessing(false);
+        return;
+      }
+
       // FIX: Detect questions about symbols/corrupted text/binary files
       const isBinaryQuestion = 
         userMessageLower.includes('weird symbol') ||
