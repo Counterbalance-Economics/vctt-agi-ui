@@ -542,11 +542,18 @@ Start coding now! Select any file from the explorer.`;
                   <button
                     key={path}
                     onClick={() => handleFileSelect(path)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-t transition-colors text-sm ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-t transition-colors text-sm relative ${
                       isActive
-                        ? "bg-gray-800 text-white border-t-2 border-blue-500"
+                        ? "bg-gray-800 text-white"
                         : "bg-gray-900/50 text-gray-400 hover:bg-gray-800/50 hover:text-gray-300"
                     }`}
+                    style={
+                      isActive
+                        ? {
+                            boxShadow: "0 2px 8px rgba(6, 182, 212, 0.4), inset 0 -2px 0 #06b6d4",
+                          }
+                        : {}
+                    }
                   >
                     <span className="truncate max-w-[150px]">{fileName}</span>
                     <button
