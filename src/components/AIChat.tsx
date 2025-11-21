@@ -55,7 +55,7 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile }) => {
           <span className="text-2xl">🧠</span>
           <div>
             <h3 className="text-sm font-semibold text-white">AI Assistant</h3>
-            <p className="text-xs text-gray-500">Powered by MIN's 5-model ensemble</p>
+            <p className="text-xs text-gray-500">Powered by MIN's 5-model ensemble + Grok 4.1 verification</p>
           </div>
         </div>
       </div>

@@ -15,8 +15,8 @@ const BACKEND_URL = "https://vctt-agi-phase3-complete.onrender.com";
 export default function DeepAgentMode() {
   // Terminal state
   const [messages, setMessages] = useState<string[]>([
-    "✅ Phase 4: Cmd+K AI Editing Ready",
-    "✨ Select code and press Cmd+K to edit with Claude 3.5 Sonnet",
+    "✅ Backend online – using MIN autonomous engine (Grok 4.1 + Jazz self-analysis)",
+    "✨ Select code and press Cmd+K to edit with MIN's 5-model ensemble + Grok 4.1 verification",
     "",
   ]);
   const [input, setInput] = useState("");

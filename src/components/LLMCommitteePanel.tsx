@@ -130,8 +130,8 @@ export default function LLMCommitteePanel({ sessionId, backendUrl }: LLMCommitte
     const names: Record<string, string> = {
       "grok-3": "Grok-3",
       "grok-3-direct": "Grok-3",
-      "claude-3.5": "Claude 3.5",
-      claude: "Claude 3.5",
+      "claude-3.5": "MIN Ensemble",
+      claude: "MIN Ensemble",
       "gpt-5": "GPT-5",
       "gpt-4o": "GPT-4o",
     };
