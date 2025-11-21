@@ -33,6 +33,9 @@ export default function DeepAgentMode() {
   const [, setIsDirty] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(384); // Increased from 256px (w-64)
   const [isTerminalCollapsed, setIsTerminalCollapsed] = useState(true);
+  const [isTestExplorerCollapsed, setIsTestExplorerCollapsed] = useState(true);
+  const [isDeploymentPanelCollapsed, setIsDeploymentPanelCollapsed] = useState(true);
+  const [loadedFolderFiles, setLoadedFolderFiles] = useState<string[]>([]);
 
   // Cmd+K state
   const [isCmdKOpen, setIsCmdKOpen] = useState(false);
@@ -140,7 +143,9 @@ export default function DeepAgentMode() {
   };
 
   const handleFileSelect = async (path: string) => {
-    // Check if file is binary (images, videos, archives, etc.)
+    console.log('🔍 handleFileSelect called with:', path);
+    
+    // CRITICAL: Check if file is binary (images, videos, archives, etc.)
     const binaryExtensions = [
       '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.svg',
       '.pdf', '.zip', '.tar', '.gz', '.rar', '.7z',
@@ -151,11 +156,16 @@ export default function DeepAgentMode() {
     
     const isBinary = binaryExtensions.some(ext => path.toLowerCase().endsWith(ext));
     
+    console.log('🔍 Is binary?', isBinary, 'Path:', path);
+    
     if (isBinary) {
+      console.log('❌ BLOCKING binary file from opening');
       // Show toast notification
       setShowBinaryFileToast(true);
       setTimeout(() => setShowBinaryFileToast(false), 3000);
-      // Don't open the file
+      // Add message to terminal
+      addMessage(`❌ Cannot open binary file: ${path} (images must be handled by external tools)`);
+      // Don't open the file - EXIT IMMEDIATELY
       return;
     }
 
@@ -382,6 +392,7 @@ Start coding now! Select any file from the explorer.`;
 
       // Update state with loaded files
       setFileContents((prev) => ({ ...prev, ...files }));
+      setLoadedFolderFiles(paths); // Store paths for FileTreeWithIcons
 
       // Open the first file if any
       if (paths.length > 0) {
@@ -393,8 +404,9 @@ Start coding now! Select any file from the explorer.`;
 
       addMessage(`✅ Loaded ${paths.length} files from: ${directoryHandle.name}`);
       
-      // Update connection status after folder load
-      testConnection(false);
+      // CRITICAL FIX: Force connection status to Online after successful folder load
+      setIsConnected(true);
+      addMessage(`✅ Status: main • Online`);
     } catch (error: any) {
       if (error.name === "AbortError") {
         addMessage("📁 Folder selection cancelled");
@@ -658,6 +670,7 @@ Start coding now! Select any file from the explorer.`;
             onFileSelect={handleFileSelect}
             selectedFile={selectedFile}
             openFiles={openFiles}
+            loadedFiles={loadedFolderFiles}
           />
           {/* Resize Handle */}
           <div
@@ -801,11 +814,67 @@ Start coding now! Select any file from the explorer.`;
           </div>
         </div>
 
-        {/* Test Explorer Panel */}
-        <TestExplorer />
+        {/* Test Explorer Panel - Collapsible */}
+        {isTestExplorerCollapsed ? (
+          <button
+            onClick={() => setIsTestExplorerCollapsed(false)}
+            className="w-12 border-l border-gray-800 bg-gray-900 hover:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white transition-colors group relative"
+            title="Show Test Explorer"
+          >
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <div className="rotate-90 text-xs font-semibold tracking-wider whitespace-nowrap mt-20">
+              TEST EXPLORER
+            </div>
+          </button>
+        ) : (
+          <div className="w-80 relative">
+            <TestExplorer />
+            <button
+              onClick={() => setIsTestExplorerCollapsed(true)}
+              className="absolute top-2 right-2 p-1 bg-gray-800 hover:bg-gray-700 rounded text-gray-400 hover:text-white transition-colors z-10"
+              title="Hide Test Explorer"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
 
-        {/* Deployment Panel */}
-        <DeploymentPanel />
+        {/* Deployment Panel - Collapsible */}
+        {isDeploymentPanelCollapsed ? (
+          <button
+            onClick={() => setIsDeploymentPanelCollapsed(false)}
+            className="w-12 border-l border-gray-800 bg-gray-900 hover:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white transition-colors group relative"
+            title="Show Deployments"
+          >
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+            </div>
+            <div className="rotate-90 text-xs font-semibold tracking-wider whitespace-nowrap mt-24">
+              DEPLOYMENTS
+            </div>
+          </button>
+        ) : (
+          <div className="w-80 relative">
+            <DeploymentPanel />
+            <button
+              onClick={() => setIsDeploymentPanelCollapsed(true)}
+              className="absolute top-2 right-2 p-1 bg-gray-800 hover:bg-gray-700 rounded text-gray-400 hover:text-white transition-colors z-10"
+              title="Hide Deployments"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
 
         {/* Right Panel: AI Chat */}
         <div className="w-96 border-l border-gray-800">

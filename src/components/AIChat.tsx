@@ -94,33 +94,40 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile }) => {
 
       {/* Input */}
       <div className="p-4 border-t border-gray-800">
-        <div className="flex gap-2">
-          <input
-            type="text"
+        <div className="flex flex-col gap-2">
+          <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            placeholder="Ask MIN anything..."
+            onKeyDown={(e) => {
+              // Submit on Enter without Shift
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
+            placeholder="Ask MIN anything... (Shift+Enter for new line)"
             disabled={isProcessing}
-            className="flex-1 bg-gray-800 text-white rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            rows={4}
+            className="w-full bg-gray-800 text-white rounded px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 resize-none"
+            style={{ minHeight: '100px', maxHeight: '200px' }}
           />
           <button
             onClick={sendMessage}
             disabled={isProcessing || !input.trim()}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Send
+            {isProcessing ? 'Sending...' : 'Send Message'}
           </button>
         </div>
 
         {/* Quick prompts */}
-        <div className="mt-2 flex flex-wrap gap-2">
-          {["Fix bugs", "Add comments", "Refactor", "Add tests"].map((prompt) => (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {["Fix bugs", "Add comments", "Refactor code", "Write tests"].map((prompt) => (
             <button
               key={prompt}
               onClick={() => setInput(prompt)}
               disabled={isProcessing}
-              className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs transition-colors disabled:opacity-50"
             >
               {prompt}
             </button>

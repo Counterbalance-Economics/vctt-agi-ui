@@ -25,6 +25,7 @@ interface FileTreeProps {
   onFileSelect: (path: string) => void;
   selectedFile: string | null;
   openFiles?: string[];
+  loadedFiles?: string[]; // NEW: Files loaded from folder picker
 }
 
 const BACKEND_URL = "https://vctt-agi-backend.onrender.com";
@@ -33,6 +34,7 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
   onFileSelect,
   selectedFile,
   openFiles = [],
+  loadedFiles = [],
 }) => {
   const [tree, setTree] = useState<FileNode[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set(["/", "/src", "/src/config"]));
@@ -56,6 +58,16 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
     }
   }, []);
 
+  // Rebuild tree when loadedFiles changes
+  useEffect(() => {
+    if (loadedFiles.length > 0) {
+      console.log('🗂️ Building tree from loaded files:', loadedFiles.length);
+      const newTree = buildTreeFromPaths(loadedFiles);
+      setTree(newTree);
+      setLoading(false);
+    }
+  }, [loadedFiles]);
+
   // Update recent files when a file is selected
   useEffect(() => {
     if (selectedFile) {
@@ -69,6 +81,68 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
       });
     }
   }, [selectedFile]);
+
+  const buildTreeFromPaths = (paths: string[]): FileNode[] => {
+    // Build a tree structure from flat file paths
+    const root: Record<string, any> = {};
+
+    paths.forEach((path) => {
+      const parts = path.split('/').filter(Boolean);
+      let current = root;
+
+      parts.forEach((part, index) => {
+        if (!current[part]) {
+          current[part] = { _files: [], _dirs: {} };
+        }
+        
+        if (index === parts.length - 1) {
+          // It's a file
+          current[part]._isFile = true;
+          current[part]._path = path;
+        } else {
+          // It's a directory
+          current = current[part]._dirs || current[part];
+        }
+      });
+    });
+
+    const convertToFileNodes = (obj: Record<string, any>, parentPath: string = ''): FileNode[] => {
+      const nodes: FileNode[] = [];
+
+      Object.keys(obj).forEach((key) => {
+        if (key.startsWith('_')) return; // Skip metadata keys
+
+        const item = obj[key];
+        const path = parentPath ? `${parentPath}/${key}` : `/${key}`;
+
+        if (item._isFile) {
+          nodes.push({
+            name: key,
+            path: path,
+            type: 'file',
+          });
+        } else {
+          const children = convertToFileNodes(item._dirs || item, path);
+          nodes.push({
+            name: key,
+            path: path,
+            type: 'directory',
+            children: children.length > 0 ? children : undefined,
+          });
+        }
+      });
+
+      return nodes.sort((a, b) => {
+        // Directories first, then files
+        if (a.type !== b.type) {
+          return a.type === 'directory' ? -1 : 1;
+        }
+        return a.name.localeCompare(b.name);
+      });
+    };
+
+    return convertToFileNodes(root);
+  };
 
   const fetchFileTree = async () => {
     try {
