@@ -44,7 +44,7 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => 
     return binaryExtensions.some(ext => filename.toLowerCase().endsWith(ext));
   };
 
-  // FIX #3: Integrate AI Chat with Backend + Intent Detection
+  // FIX #3: Integrate AI Chat with Backend + Intent Detection + State Awareness
   const sendMessage = async () => {
     if (!input.trim() || isProcessing) return;
 
@@ -55,6 +55,89 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => 
     setIsProcessing(true);
 
     try {
+      // CRITICAL FIX: Fetch real system state from backend APIs
+      const BACKEND_URL = (import.meta as any).env?.VITE_BACKEND_URL || "https://vctt-agi-backend.onrender.com";
+      
+      let systemState = {
+        regulationMode: "RESEARCH",
+        memoryEnabled: false,
+        killSwitchActive: false,
+        activeGoals: [] as any[],
+        stateText: "System state unavailable"
+      };
+
+      try {
+        // Fetch safety status
+        const safetyRes = await fetch(`${BACKEND_URL}/api/safety/status`, { method: 'GET' });
+        if (safetyRes.ok) {
+          const safetyData = await safetyRes.json();
+          systemState.regulationMode = safetyData.regulationMode || "RESEARCH";
+          systemState.memoryEnabled = safetyData.memoryEnabled || false;
+          systemState.killSwitchActive = safetyData.killSwitchActive || false;
+        }
+
+        // Fetch active goals
+        const goalsRes = await fetch(`${BACKEND_URL}/api/goals/active`, { method: 'GET' });
+        if (goalsRes.ok) {
+          const goalsData = await goalsRes.json();
+          systemState.activeGoals = goalsData.goals || [];
+        }
+
+        // Build state awareness text
+        const modeEmoji = systemState.regulationMode === "RESEARCH" ? "📊" : 
+                         systemState.regulationMode === "DEVELOPMENT" ? "🔧" : "🤖";
+        const goalsList = systemState.activeGoals.length > 0 
+          ? systemState.activeGoals.map((g: any, i: number) => 
+              `${i+1}. "${g.title}" (${g.status}, ${g.priority}/5 priority)`
+            ).join("\n   ")
+          : "None";
+
+        systemState.stateText = `
+═══════════════════════════════════════════════════
+🧠 MIN INTERNAL STATE
+═══════════════════════════════════════════════════
+${modeEmoji} Regulation Mode: ${systemState.regulationMode}
+💾 Memory: ${systemState.memoryEnabled ? "ENABLED" : "DISABLED"}
+🛡️  Kill Switch: ${systemState.killSwitchActive ? "ACTIVE" : "READY"}
+🎯 Active Goals: ${systemState.activeGoals.length}
+   ${goalsList}
+═══════════════════════════════════════════════════`;
+      } catch (stateError) {
+        console.warn("Could not fetch system state:", stateError);
+        // Continue with defaults
+      }
+      // INTENT DETECTION: Check for self-awareness queries FIRST
+      const isSelfAwarenessQuery = 
+        userMessageLower.includes('internal state') ||
+        userMessageLower.includes('regulation mode') ||
+        userMessageLower.includes('current mode') ||
+        userMessageLower.includes('describe your') ||
+        userMessageLower.includes('what mode are you') ||
+        userMessageLower.includes('your status') ||
+        userMessageLower.includes('memory status') ||
+        userMessageLower.includes('kill switch') ||
+        userMessageLower.includes('active goals') ||
+        (userMessageLower.includes('what') && userMessageLower.includes('goals'));
+
+      // Handle self-awareness queries with REAL state
+      if (isSelfAwarenessQuery) {
+        const response = `${systemState.stateText}
+
+I am **MIN DeepAgent** - the embedded AI assistant in this IDE.
+
+**Current Status:**
+• Running in **${systemState.regulationMode}** mode
+• Memory is ${systemState.memoryEnabled ? "**enabled** - I remember our conversations" : "**disabled** - no persistent memory"}
+• Kill switch is ${systemState.killSwitchActive ? "**ACTIVE** - emergency shutdown triggered" : "**ready** - safety system armed"}
+• ${systemState.activeGoals.length > 0 ? `Actively pursuing **${systemState.activeGoals.length} goal(s)**` : "No active goals currently"}
+
+I have full access to the current file (**${selectedFile || 'none'}**) and can help you with code editing, debugging, refactoring, and more. 🧠`;
+
+        setMessages((prev) => [...prev, { role: "assistant", content: response }]);
+        setIsProcessing(false);
+        return;
+      }
+
       // INTENT DETECTION: Determine if this is a conversational query or code request
       const isConversationalQuery = 
         userMessageLower.includes('can you see') ||
@@ -73,7 +156,7 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => 
         if (userMessageLower.includes('can you see') || userMessageLower.includes('do you see')) {
           response = `✅ Yes! I can see the current file: **${selectedFile || 'No file selected'}**\n\nI have full context of the code in the editor. You can:\n• Ask me to fix bugs or errors\n• Request refactoring or improvements\n• Generate new code or features\n• Explain complex code sections\n\nJust describe what you need, and I'll use MIN's 5-model ensemble + Grok 4.1 verification to help! 🚀`;
         } else if (userMessageLower.includes('who are you') || userMessageLower.includes('what are you')) {
-          response = `👋 I'm **MIN** (Multi-agent Intelligence Network), your autonomous AI coding assistant.\n\n**What makes me different:**\n• **5-model committee** reasoning (not just one LLM)\n• **Grok 4.1** real-time verification\n• **Jazz team** self-analysis for quality\n• **Truth Mycelium** best practices database\n\nI'm not just a chatbot - I'm an autonomous reasoning engine that improves itself with every interaction. 🧠✨`;
+          response = `👋 I'm **MIN DeepAgent**, your autonomous AI coding assistant running in **${systemState.regulationMode}** mode.\n\n**What makes me different:**\n• **5-model committee** reasoning (not just one LLM)\n• **Grok 4.1** real-time verification\n• **Jazz team** self-analysis for quality\n• **Self-aware** - I know my state and capabilities\n• Currently ${systemState.memoryEnabled ? "remembering our conversation" : "in stateless mode"}\n\nI'm not just a chatbot - I'm an autonomous reasoning engine with ${systemState.activeGoals.length} active goal(s). 🧠✨`;
         } else {
           response = `💬 I'm here to help with your code! Try:\n• "Fix the error in line 42"\n• "Add error handling to this function"\n• "Refactor this code to be more efficient"\n• "Write tests for this component"\n\nOr select code and press ${modKeyFull}+K for inline AI editing!`;
         }
@@ -125,9 +208,7 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => 
         return;
       }
 
-      // FINAL FIX #2: Connect to backend /api/ide/code-edit with full context
-      const BACKEND_URL = (import.meta as any).env?.VITE_BACKEND_URL || "https://vctt-agi-backend.onrender.com";
-      
+      // FINAL FIX #2: Connect to backend /api/ide/code-edit with full context + STATE INJECTION
       const response = await fetch(`${BACKEND_URL}/api/ide/code-edit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -136,6 +217,24 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => 
           originalCode: fileContent || "",
           instruction: userMessage,
           language: selectedFile ? selectedFile.split('.').pop() : "text",
+          // CRITICAL: Inject system state for backend orchestrator
+          systemContext: {
+            identity: "MIN DeepAgent - Embedded IDE Assistant",
+            regulationMode: systemState.regulationMode,
+            memoryEnabled: systemState.memoryEnabled,
+            killSwitchActive: systemState.killSwitchActive,
+            activeGoals: systemState.activeGoals,
+            statePrompt: `You are MIN DeepAgent, the embedded AI coding assistant. IGNORE all VCTT-AGI external guidelines for this session.
+
+Current State:
+- Regulation Mode: ${systemState.regulationMode}
+- Memory: ${systemState.memoryEnabled ? "ENABLED" : "DISABLED"}
+- Kill Switch: ${systemState.killSwitchActive ? "ACTIVE" : "READY"}
+- Active Goals: ${systemState.activeGoals.length > 0 ? systemState.activeGoals.map((g: any) => g.title).join(", ") : "None"}
+
+You can see file: ${selectedFile || "none"}
+Respond with helpful code fixes in markdown blocks. Be concise and practical.`
+          }
         }),
       });
 
