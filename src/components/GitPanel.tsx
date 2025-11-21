@@ -70,9 +70,14 @@ export const GitPanel: React.FC<GitPanelProps> = ({ onPush, onBranchSwitch }) =>
         <div className="flex items-center gap-2">
           <button
             onClick={onPush}
-            className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-medium transition-colors"
+            className="relative px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-medium transition-colors"
           >
             Push
+            {commits.length > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] flex items-center justify-center animate-pulse">
+                {commits.length}
+              </span>
+            )}
           </button>
           <span className="text-xs text-gray-500">{commits.length} commits</span>
         </div>
