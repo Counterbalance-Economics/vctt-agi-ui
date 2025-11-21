@@ -33,8 +33,19 @@ export default function AdminSafetyDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isActivatingKillSwitch, setIsActivatingKillSwitch] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [isUpdatingMode, setIsUpdatingMode] = useState(false);
+  const [isTogglingMemory, setIsTogglingMemory] = useState(false);
 
   const apiUrl = getApiUrl();
+
+  // Show toast for 3 seconds
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   // Fetch initial status
   useEffect(() => {
@@ -91,8 +102,12 @@ export default function AdminSafetyDashboard() {
   };
 
   const updateRegulationMode = async (mode: "RESEARCH" | "DEVELOPMENT" | "PRODUCTION") => {
+    setIsUpdatingMode(true);
     try {
-      if (!apiUrl) return;
+      if (!apiUrl) {
+        setToast({ message: "Backend URL not configured", type: "error" });
+        return;
+      }
 
       const response = await fetch(`${apiUrl}/api/safety/mode`, {
         method: "POST",
@@ -104,15 +119,25 @@ export default function AdminSafetyDashboard() {
 
       await fetchStatus();
       await fetchAuditLogs();
+      setToast({ message: `✅ Regulation mode changed to ${mode}`, type: "success" });
     } catch (err) {
       console.error("Error updating regulation mode:", err);
-      alert(`Error: ${err instanceof Error ? err.message : "Unknown error"}`);
+      setToast({ 
+        message: `❌ Error: ${err instanceof Error ? err.message : "Unknown error"}`, 
+        type: "error" 
+      });
+    } finally {
+      setIsUpdatingMode(false);
     }
   };
 
   const toggleMemory = async () => {
+    setIsTogglingMemory(true);
     try {
-      if (!apiUrl) return;
+      if (!apiUrl) {
+        setToast({ message: "Backend URL not configured", type: "error" });
+        return;
+      }
 
       const newState = !status.memoryEnabled;
       const response = await fetch(`${apiUrl}/api/safety/memory/${newState ? "enable" : "disable"}`, {
@@ -125,9 +150,18 @@ export default function AdminSafetyDashboard() {
 
       await fetchStatus();
       await fetchAuditLogs();
+      setToast({ 
+        message: `✅ Memory ${newState ? "ENABLED" : "DISABLED"}`, 
+        type: "success" 
+      });
     } catch (err) {
       console.error("Error toggling memory:", err);
-      alert(`Error: ${err instanceof Error ? err.message : "Unknown error"}`);
+      setToast({ 
+        message: `❌ Error: ${err instanceof Error ? err.message : "Unknown error"}`, 
+        type: "error" 
+      });
+    } finally {
+      setIsTogglingMemory(false);
     }
   };
 
@@ -140,7 +174,10 @@ export default function AdminSafetyDashboard() {
 
     setIsActivatingKillSwitch(true);
     try {
-      if (!apiUrl) return;
+      if (!apiUrl) {
+        setToast({ message: "Backend URL not configured", type: "error" });
+        return;
+      }
 
       const response = await fetch(`${apiUrl}/api/safety/kill-switch`, {
         method: "POST",
@@ -150,12 +187,18 @@ export default function AdminSafetyDashboard() {
 
       if (!response.ok) throw new Error("Failed to activate kill switch");
 
-      alert("🛑 KILL SWITCH ACTIVATED\n\nAll AGI operations have been halted.");
       await fetchStatus();
       await fetchAuditLogs();
+      setToast({ 
+        message: "🛑 KILL SWITCH ACTIVATED - All AGI operations halted", 
+        type: "success" 
+      });
     } catch (err) {
       console.error("Error activating kill switch:", err);
-      alert(`Error: ${err instanceof Error ? err.message : "Unknown error"}`);
+      setToast({ 
+        message: `❌ Error: ${err instanceof Error ? err.message : "Unknown error"}`, 
+        type: "error" 
+      });
     } finally {
       setIsActivatingKillSwitch(false);
     }
@@ -168,8 +211,12 @@ export default function AdminSafetyDashboard() {
 
     if (!confirmed) return;
 
+    setIsActivatingKillSwitch(true);
     try {
-      if (!apiUrl) return;
+      if (!apiUrl) {
+        setToast({ message: "Backend URL not configured", type: "error" });
+        return;
+      }
 
       const response = await fetch(`${apiUrl}/api/safety/kill-switch/deactivate`, {
         method: "POST",
@@ -179,12 +226,20 @@ export default function AdminSafetyDashboard() {
 
       if (!response.ok) throw new Error("Failed to deactivate kill switch");
 
-      alert("✅ Kill switch deactivated. System restored.");
       await fetchStatus();
       await fetchAuditLogs();
+      setToast({ 
+        message: "✅ Kill switch deactivated - System restored", 
+        type: "success" 
+      });
     } catch (err) {
       console.error("Error deactivating kill switch:", err);
-      alert(`Error: ${err instanceof Error ? err.message : "Unknown error"}`);
+      setToast({ 
+        message: `❌ Error: ${err instanceof Error ? err.message : "Unknown error"}`, 
+        type: "error" 
+      });
+    } finally {
+      setIsActivatingKillSwitch(false);
     }
   };
 
@@ -212,6 +267,24 @@ export default function AdminSafetyDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3 animate-slide-in ${
+          toast.type === "success" ? "bg-green-600" : "bg-red-600"
+        } text-white font-medium`}>
+          {toast.type === "success" ? (
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          ) : (
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          )}
+          <span>{toast.message}</span>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-gray-900 border-b border-gray-800 px-6 py-4">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -260,8 +333,8 @@ export default function AdminSafetyDashboard() {
               onChange={(e) =>
                 updateRegulationMode(e.target.value as "RESEARCH" | "DEVELOPMENT" | "PRODUCTION")
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={status.killSwitchActive}
+              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={status.killSwitchActive || isUpdatingMode}
             >
               <option value="RESEARCH">RESEARCH</option>
               <option value="DEVELOPMENT">DEVELOPMENT</option>
@@ -305,14 +378,21 @@ export default function AdminSafetyDashboard() {
             </div>
             <button
               onClick={toggleMemory}
-              disabled={status.killSwitchActive}
-              className={`w-full px-4 py-2 rounded font-medium transition-colors ${
+              disabled={status.killSwitchActive || isTogglingMemory}
+              className={`w-full px-4 py-2 rounded font-medium transition-colors flex items-center justify-center gap-2 ${
                 status.memoryEnabled
                   ? "bg-green-600 hover:bg-green-700 text-white"
                   : "bg-gray-700 hover:bg-gray-600 text-gray-300"
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              {status.memoryEnabled ? "ENABLED" : "DISABLED"}
+              {isTogglingMemory ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <span>{status.memoryEnabled ? "ENABLED" : "DISABLED"}</span>
+              )}
             </button>
             <p className="text-xs text-gray-500 mt-2">
               {status.memoryEnabled ? "Persistent memory active" : "Memory writes blocked"}
@@ -328,17 +408,32 @@ export default function AdminSafetyDashboard() {
             {status.killSwitchActive ? (
               <button
                 onClick={deactivateKillSwitch}
-                className="w-full px-4 py-2 rounded font-medium bg-orange-600 hover:bg-orange-700 text-white transition-colors"
+                disabled={isActivatingKillSwitch}
+                className="w-full px-4 py-2 rounded font-medium bg-orange-600 hover:bg-orange-700 text-white transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                RESUME
+                {isActivatingKillSwitch ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Resuming...</span>
+                  </>
+                ) : (
+                  <span>RESUME</span>
+                )}
               </button>
             ) : (
               <button
                 onClick={activateKillSwitch}
                 disabled={isActivatingKillSwitch}
-                className="w-full px-4 py-2 rounded font-medium bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2 rounded font-medium bg-red-600 hover:bg-red-700 text-white transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isActivatingKillSwitch ? "ACTIVATING..." : "ACTIVATE"}
+                {isActivatingKillSwitch ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Activating...</span>
+                  </>
+                ) : (
+                  <span>ACTIVATE</span>
+                )}
               </button>
             )}
             <p className="text-xs text-gray-500 mt-2">
