@@ -69,9 +69,28 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
     }
   }, [loadedFiles]);
 
+  // FIX #6: Binary file detection helper
+  const isBinaryFile = (filename: string): boolean => {
+    const binaryExtensions = [
+      '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.svg', '.webp',
+      '.pdf', '.zip', '.tar', '.gz', '.rar', '.7z',
+      '.exe', '.dll', '.so', '.dylib',
+      '.mp3', '.mp4', '.avi', '.mov', '.wav',
+      '.ttf', '.woff', '.woff2', '.eot',
+      '.db', '.sqlite', '.bin',
+    ];
+    const ext = filename.substring(filename.lastIndexOf('.')).toLowerCase();
+    return binaryExtensions.includes(ext);
+  };
+
   // Update recent files when a file is selected
   useEffect(() => {
     if (selectedFile) {
+      // FIX #6: Don't add binary files to recent list
+      if (isBinaryFile(selectedFile)) {
+        return;
+      }
+
       setRecentFiles((prev) => {
         // Remove if already exists, then add to front
         const filtered = prev.filter((f) => f !== selectedFile);
@@ -414,6 +433,11 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
               const fileName = filePath.split("/").pop() || filePath;
               const isSelected = selectedFile === filePath;
               const isOpen = openFiles.includes(filePath);
+              
+              // FIX #4: Elegant path display - show just the parent directory name
+              const pathParts = filePath.split("/").filter(Boolean);
+              const parentDir = pathParts.length > 1 ? pathParts[pathParts.length - 2] : "";
+              const elegantPath = parentDir ? `${parentDir}/` : "/";
 
               return (
                 <div
@@ -434,7 +458,7 @@ export const FileTreeWithIcons: React.FC<FileTreeProps> = ({
                     {fileName}
                   </span>
                   <span className="text-xs text-gray-500 ml-auto flex-shrink-0">
-                    {filePath.split("/").slice(0, -1).join("/") || "/"}
+                    {elegantPath}
                   </span>
                 </div>
               );

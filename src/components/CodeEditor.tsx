@@ -1,5 +1,5 @@
 
-import React, { useRef } from "react";
+import { useRef, useImperativeHandle, forwardRef } from "react";
 import Editor, { OnMount } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
 
@@ -12,18 +12,32 @@ interface CodeEditorProps {
   onCursorPositionChange?: (line: number, column: number) => void;
 }
 
-export const CodeEditor: React.FC<CodeEditorProps> = ({
-  filePath,
-  content,
-  onChange,
-  onSave,
-  onCmdK,
-  onCursorPositionChange,
-}) => {
-  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+// FIX #2: Export editor instance type
+export interface CodeEditorHandle {
+  getEditor: () => monaco.editor.IStandaloneCodeEditor | null;
+}
 
-  const handleEditorDidMount: OnMount = (editor) => {
-    editorRef.current = editor;
+export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(
+  (
+    {
+      filePath,
+      content,
+      onChange,
+      onSave,
+      onCmdK,
+      onCursorPositionChange,
+    },
+    ref
+  ) => {
+    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+
+    // FIX #2: Expose editor instance to parent
+    useImperativeHandle(ref, () => ({
+      getEditor: () => editorRef.current,
+    }));
+
+    const handleEditorDidMount: OnMount = (editor) => {
+      editorRef.current = editor;
 
     // FIX #2: Reset scroll to top when file opens
     editor.setScrollTop(0);
@@ -118,7 +132,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       </div>
     </div>
   );
-};
+});
 
 const DocumentIcon = ({ className }: { className: string }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">

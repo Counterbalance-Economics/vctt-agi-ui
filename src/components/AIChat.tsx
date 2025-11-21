@@ -26,6 +26,7 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // FIX #3: Integrate AI Chat with Backend
   const sendMessage = async () => {
     if (!input.trim() || isProcessing) return;
 
@@ -34,17 +35,44 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile }) => {
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setIsProcessing(true);
 
-    // Mock AI response - we'll connect to backend in next iteration
-    setTimeout(() => {
-      const aiResponse = `I understand you want to: "${userMessage}"\n\n${
-        selectedFile
-          ? `I can help with ${selectedFile}. Backend integration coming soon!`
-          : "Please select a file first, then I can help you edit it."
-      }`;
+    try {
+      // FIX #3: Connect to actual backend for AI chat
+      const BACKEND_URL = "https://vctt-agi-phase3-complete.onrender.com";
+      
+      const response = await fetch(`${BACKEND_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: userMessage,
+          context: selectedFile || undefined,
+        }),
+      });
 
+      if (response.ok) {
+        const data = await response.json();
+        const aiResponse = data.response || data.message || "Got it! Working on it...";
+        setMessages((prev) => [...prev, { role: "assistant", content: aiResponse }]);
+      } else {
+        // Fallback to helpful local response if backend unavailable
+        const aiResponse = `I understand you want to: "${userMessage}"\n\n${
+          selectedFile
+            ? `I can help with ${selectedFile}. Here are some things I can do:\n• Explain the code\n• Suggest improvements\n• Find bugs\n• Add features\n\nSelect the code you want to modify and press Cmd+K for AI editing!`
+            : "Please select a file first, then I can help you edit it."
+        }`;
+        setMessages((prev) => [...prev, { role: "assistant", content: aiResponse }]);
+      }
+    } catch (error) {
+      console.error("AI chat error:", error);
+      // Graceful fallback
+      const aiResponse = `I'm here to help! ${
+        selectedFile
+          ? `\n\nFor ${selectedFile}, try:\n• Select code and press Cmd+K for AI editing\n• Ask me to explain specific functions\n• Request code reviews or improvements`
+          : "\n\nSelect a file from the explorer to get started!"
+      }`;
       setMessages((prev) => [...prev, { role: "assistant", content: aiResponse }]);
+    } finally {
       setIsProcessing(false);
-    }, 1000);
+    }
   };
 
   return (

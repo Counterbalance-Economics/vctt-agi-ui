@@ -1,35 +1,37 @@
 
 import React, { useState, useRef, useEffect } from "react";
+import * as monaco from "monaco-editor";
 
-interface EditMenuProps {
-  onUndo?: () => void;
-  onRedo?: () => void;
-  onCut?: () => void;
-  onCopy?: () => void;
-  onPaste?: () => void;
-  onFind?: () => void;
-  onReplace?: () => void;
-  onFindInFiles?: () => void;
-  onReplaceInFiles?: () => void;
-  onToggleLineComment?: () => void;
-  onToggleBlockComment?: () => void;
-  onExpandAbbreviation?: () => void;
+interface CodeEditorHandle {
+  getEditor: () => monaco.editor.IStandaloneCodeEditor | null;
 }
 
-export const EditMenu: React.FC<EditMenuProps> = ({
-  onUndo,
-  onRedo,
-  onCut,
-  onCopy,
-  onPaste,
-  onFind,
-  onReplace,
-  onFindInFiles,
-  onReplaceInFiles,
-  onToggleLineComment,
-  onToggleBlockComment,
-  onExpandAbbreviation,
-}) => {
+interface EditMenuProps {
+  editorRef?: React.RefObject<CodeEditorHandle | null>;
+}
+
+// FIX #2: Wire Edit Menu to Monaco Editor
+export const EditMenu: React.FC<EditMenuProps> = ({ editorRef }) => {
+  // FIX #2: All edit actions now use Monaco editor directly
+  const executeEditorAction = (actionId: string) => {
+    const editor = editorRef?.current?.getEditor();
+    if (editor) {
+      editor.trigger("menu", actionId, null);
+    }
+  };
+
+  const onUndo = () => executeEditorAction("undo");
+  const onRedo = () => executeEditorAction("redo");
+  const onCut = () => executeEditorAction("editor.action.clipboardCutAction");
+  const onCopy = () => executeEditorAction("editor.action.clipboardCopyAction");
+  const onPaste = () => executeEditorAction("editor.action.clipboardPasteAction");
+  const onFind = () => executeEditorAction("actions.find");
+  const onReplace = () => executeEditorAction("editor.action.startFindReplaceAction");
+  const onToggleLineComment = () => executeEditorAction("editor.action.commentLine");
+  const onToggleBlockComment = () => executeEditorAction("editor.action.blockComment");
+  const onFindInFiles = () => console.log("Find in files - workspace feature");
+  const onReplaceInFiles = () => console.log("Replace in files - workspace feature");
+  const onExpandAbbreviation = () => console.log("Emmet expand - feature coming soon");
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 

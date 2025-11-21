@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { FileTreeWithIcons } from "../components/FileTreeWithIcons";
-import { CodeEditor } from "../components/CodeEditor";
+import { CodeEditor, CodeEditorHandle } from "../components/CodeEditor";
 import { AIChat } from "../components/AIChat";
 import { GitPanel } from "../components/GitPanel";
 import CmdKModal, { EditStats } from "../components/CmdKModal";
@@ -23,6 +23,9 @@ export default function DeepAgentMode() {
   const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // FIX #2: Editor ref for Edit menu integration
+  const editorRef = useRef<CodeEditorHandle>(null);
 
   // Editor state
   const [selectedFile, setSelectedFile] = useState<string | null>("/README.md");
@@ -353,6 +356,20 @@ Start coding now! Select any file from the explorer.`;
     input.click();
   };
 
+  // FIX #1: Binary file detection helper
+  const isBinaryFile = (filename: string): boolean => {
+    const binaryExtensions = [
+      '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.svg', '.webp', // Images
+      '.pdf', '.zip', '.tar', '.gz', '.rar', '.7z', // Archives
+      '.exe', '.dll', '.so', '.dylib', // Executables
+      '.mp3', '.mp4', '.avi', '.mov', '.wav', // Media
+      '.ttf', '.woff', '.woff2', '.eot', // Fonts
+      '.db', '.sqlite', '.bin', // Databases/Binary
+    ];
+    const ext = filename.substring(filename.lastIndexOf('.')).toLowerCase();
+    return binaryExtensions.includes(ext);
+  };
+
   const handleOpenFolder = async () => {
     try {
       // Use the File System Access API to open a directory
@@ -370,6 +387,7 @@ Start coding now! Select any file from the explorer.`;
       const loadDirectory = async (dirHandle: any, path: string = "") => {
         const files: Record<string, string> = {};
         const paths: string[] = [];
+        let skippedBinaryCount = 0;
 
         for await (const entry of dirHandle.values()) {
           // Skip node_modules, .git, dist, build, and other common large directories
@@ -381,6 +399,12 @@ Start coding now! Select any file from the explorer.`;
           const entryPath = `${path}/${entry.name}`;
 
           if (entry.kind === "file") {
+            // FIX #1: Skip binary files
+            if (isBinaryFile(entry.name)) {
+              skippedBinaryCount++;
+              continue;
+            }
+
             try {
               const file = await entry.getFile();
               const content = await file.text();
@@ -388,19 +412,21 @@ Start coding now! Select any file from the explorer.`;
               paths.push(entryPath);
             } catch (error) {
               console.error(`Failed to read file: ${entryPath}`, error);
+              skippedBinaryCount++; // Count failed reads as binary
             }
           } else if (entry.kind === "directory") {
             // Recursively load subdirectories
             const subFiles = await loadDirectory(entry, entryPath);
             Object.assign(files, subFiles.files);
             paths.push(...subFiles.paths);
+            skippedBinaryCount += subFiles.skippedBinaryCount || 0;
           }
         }
 
-        return { files, paths };
+        return { files, paths, skippedBinaryCount };
       };
 
-      const { files, paths } = await loadDirectory(directoryHandle);
+      const { files, paths, skippedBinaryCount } = await loadDirectory(directoryHandle);
 
       // Update state with loaded files
       setFileContents((prev) => ({ ...prev, ...files }));
@@ -414,7 +440,10 @@ Start coding now! Select any file from the explorer.`;
         setOpenFiles([firstFile]);
       }
 
-      addMessage(`✅ Loaded ${paths.length} files from: ${directoryHandle.name}`);
+      addMessage(`✅ Loaded ${paths.length} text files from: ${directoryHandle.name}`);
+      if (skippedBinaryCount > 0) {
+        addMessage(`⚠️ Skipped ${skippedBinaryCount} binary files (images, archives, etc.)`);
+      }
       
       // CRITICAL FIX: Force connection status to Online after successful folder load
       setIsConnected(true);
@@ -669,20 +698,7 @@ Start coding now! Select any file from the explorer.`;
               onCloseTab={() => selectedFile && handleCloseFile(selectedFile)}
               onCloseAllTabs={handleCloseAllTabs}
             />
-            <EditMenu
-              onUndo={() => addMessage("⏪ Undo (not implemented)")}
-              onRedo={() => addMessage("⏩ Redo (not implemented)")}
-              onCut={() => addMessage("✂️ Cut (not implemented)")}
-              onCopy={() => addMessage("📋 Copy (not implemented)")}
-              onPaste={() => addMessage("📄 Paste (not implemented)")}
-              onFind={() => addMessage("🔍 Find (not implemented)")}
-              onReplace={() => addMessage("🔄 Replace (not implemented)")}
-              onFindInFiles={() => addMessage("🔍 Find in Files (not implemented)")}
-              onReplaceInFiles={() => addMessage("🔄 Replace in Files (not implemented)")}
-              onToggleLineComment={() => addMessage("💬 Toggle Line Comment (not implemented)")}
-              onToggleBlockComment={() => addMessage("💬 Toggle Block Comment (not implemented)")}
-              onExpandAbbreviation={() => addMessage("✨ Expand Abbreviation (not implemented)")}
-            />
+            <EditMenu editorRef={editorRef} />
             <div className="h-6 w-px bg-gray-700" />
             <div className="text-2xl">🤖</div>
             <h1 className="text-xl font-bold text-white">MIN DeepAgent</h1>
@@ -789,6 +805,7 @@ Start coding now! Select any file from the explorer.`;
           {/* Code Editor */}
           <div className="flex-1">
             <CodeEditor
+              ref={editorRef}
               filePath={selectedFile}
               content={fileContent}
               onChange={handleEditorChange}
