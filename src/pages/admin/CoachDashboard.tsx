@@ -28,7 +28,7 @@ interface SkillCandidate {
   sampleInstructions: string[];
 }
 
-const BACKEND_URL = 'https://caf4d63cd.preview.abacusai.app';
+const BACKEND_URL = (import.meta as any).env?.VITE_BACKEND_URL || 'https://vctt-agi-backend.onrender.com';
 
 export default function CoachDashboard() {
   const [proposals, setProposals] = useState<CoachProposal[]>([]);

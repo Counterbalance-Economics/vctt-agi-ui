@@ -44,7 +44,8 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => 
   useEffect(() => {
     const fetchGoals = async () => {
       try {
-        const response = await fetch('https://vctt-agi-phase3-complete.abacusai.app/goals?status=active');
+        const backendUrl = (import.meta as any).env?.VITE_BACKEND_URL || 'https://vctt-agi-backend.onrender.com';
+        const response = await fetch(`${backendUrl}/goals?status=active`);
         if (response.ok) {
           const data = await response.json();
           setGoals(data);
