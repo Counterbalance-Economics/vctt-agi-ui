@@ -218,6 +218,30 @@ class ApiService {
       return null;
     }
   }
+
+  /**
+   * Get memories from backend (for API reference loading)
+   */
+  async getMemories(userId: string, type: string, limit: number = 1): Promise<any[]> {
+    if (!this.baseUrl) return [];
+
+    try {
+      const params = new URLSearchParams();
+      params.append('userId', userId);
+      params.append('type', type);
+      params.append('limit', limit.toString());
+
+      const response = await fetch(`${this.baseUrl}/api/memory/retrieve?${params}`);
+      
+      if (!response.ok) return [];
+
+      const data = await response.json();
+      return data.memories || [];
+    } catch (error) {
+      console.error('Error fetching memories:', error);
+      return [];
+    }
+  }
 }
 
 export const api = new ApiService();

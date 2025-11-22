@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import LeftSidebar from "../components/LeftSidebar";
 import ChatPanel from "../components/ChatPanel";
 import RightSidebar from "../components/RightSidebar";
+import ApiReferenceStatus from "../components/ApiReferenceStatus";
 import type { Session, VCTTState, Message } from "../types";
 import { getApiUrl } from "../config/api";
 import { PhaseEvent } from "../services/websocket";
@@ -343,6 +344,9 @@ export default function ChatbotLanding() {
           sessionId={currentSession?.id}
         />
       </div>
+
+      {/* API Reference Status Indicator */}
+      <ApiReferenceStatus />
     </div>
   );
 }
