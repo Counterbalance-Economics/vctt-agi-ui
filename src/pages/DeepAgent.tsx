@@ -791,8 +791,16 @@ Start coding now! Select any file from the explorer.`;
               🛡️ Safety Dashboard
             </a>
             <a
-              href="/deep"
+              href="/admin/coach"
+              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm transition-all font-medium flex items-center gap-2"
+              title="Coach Dashboard - Review MIN's self-improvement proposals"
+            >
+              🧠 Coach Dashboard
+            </a>
+            <a
+              href="https://vcttagi-itng8m9rj-peters-projects-3a28ae0e.vercel.app/?session=864a6026-97ff-492d-bc61-585bd313d999"
               className="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-gray-300 text-sm transition-all"
+              title="Back to VCTT main page"
             >
               ← Back to VCTT
             </a>
