@@ -46,7 +46,7 @@ export default function CoachDashboard() {
 
   const fetchProposals = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/coach/proposals?status=pending`);
+      const response = await fetch(`${BACKEND_URL}/api/coach/proposals?status=pending`);
       const data = await response.json();
       setProposals(data);
     } catch (error) {
@@ -58,7 +58,7 @@ export default function CoachDashboard() {
 
   const fetchSkillCandidates = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/skills/candidates?minTau=0.85&minCount=3`);
+      const response = await fetch(`${BACKEND_URL}/api/skills/candidates?minTau=0.85&minCount=3`);
       const data = await response.json();
       setSkillCandidates(data);
     } catch (error) {
@@ -69,7 +69,7 @@ export default function CoachDashboard() {
   const handleApprove = async (proposalId: number) => {
     setSubmitting(true);
     try {
-      await fetch(`${BACKEND_URL}/coach/proposals/${proposalId}/approve`, {
+      await fetch(`${BACKEND_URL}/api/coach/proposals/${proposalId}/approve`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -93,7 +93,7 @@ export default function CoachDashboard() {
   const handleReject = async (proposalId: number) => {
     setSubmitting(true);
     try {
-      await fetch(`${BACKEND_URL}/coach/proposals/${proposalId}/reject`, {
+      await fetch(`${BACKEND_URL}/api/coach/proposals/${proposalId}/reject`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
