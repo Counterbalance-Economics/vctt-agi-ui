@@ -24,39 +24,36 @@ export default function ChatbotLanding() {
   const [currentPhase, setCurrentPhase] = useState<PhaseEvent | null>(null);
   
   const [vcttState, setVcttState] = useState<VCTTState>({
-    currentPhase: "Voice",
-    phaseProgress: 0,
-    trustScore: 75,
-    voice: 0.8,
-    choice: 0.75,
-    transparency: 0.7,
-    regulation: "normal",
-    committee: [
-      { name: "GPT-4", vote: "approved", confidence: 0.85 },
-      { name: "Claude", vote: "approved", confidence: 0.9 },
-      { name: "Gemini", vote: "reviewing", confidence: 0.7 },
-    ],
+    Voice: 0.8,
+    Choice: 0.75,
+    Transparency: 0.7,
+    "Trust (τ)": 0.75,
+    Regulation: "normal",
   });
 
   // Resume session from URL param
   useEffect(() => {
-    if (sessionParam) {
-      setIsResuming(true);
-      fetch(`${BACKEND_URL}/api/sessions/${sessionParam}`)
-        .then((res) => res.json())
-        .then((session) => {
+    const initSession = async () => {
+      if (sessionParam) {
+        setIsResuming(true);
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/sessions/${sessionParam}`);
+          const session = await res.json();
           setCurrentSession(session);
           setSessions([session]);
+        } catch (error) {
+          console.error("Failed to resume session", error);
+          await handleNewSession();
+        } finally {
           setIsResuming(false);
-        })
-        .catch(() => {
-          console.error("Failed to resume session");
-          handleNewSession();
-          setIsResuming(false);
-        });
-    } else {
-      handleNewSession();
-    }
+        }
+      } else {
+        await handleNewSession();
+      }
+    };
+    
+    initSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionParam]);
 
   const handleNewSession = async () => {
@@ -73,9 +70,9 @@ export default function ChatbotLanding() {
       // Fallback: create client-side session
       const fallbackSession: Session = {
         id: Date.now().toString(),
+        title: "New Chat",
         messages: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        created_at: new Date(),
       };
       setSessions([fallbackSession]);
       setCurrentSession(fallbackSession);
@@ -101,10 +98,10 @@ export default function ChatbotLanding() {
 
     // Simulate phase updates
     const phases: PhaseEvent[] = [
-      { phase: "Voice", description: "Understanding intent...", progress: 25, emoji: "🎯", status: "active" },
-      { phase: "Choice", description: "Evaluating options...", progress: 50, emoji: "🤔", status: "active" },
-      { phase: "Transparency", description: "Generating response...", progress: 75, emoji: "✨", status: "active" },
-      { phase: "Trust", description: "Verifying quality...", progress: 100, emoji: "✅", status: "complete" },
+      { phase: "Voice", description: "Understanding intent...", progress: 25, emoji: "🎯", status: "in_progress", timestamp: new Date().toISOString() },
+      { phase: "Choice", description: "Evaluating options...", progress: 50, emoji: "🤔", status: "in_progress", timestamp: new Date().toISOString() },
+      { phase: "Transparency", description: "Generating response...", progress: 75, emoji: "✨", status: "in_progress", timestamp: new Date().toISOString() },
+      { phase: "Trust", description: "Verifying quality...", progress: 100, emoji: "✅", status: "complete", timestamp: new Date().toISOString() },
     ];
 
     for (const phase of phases) {
@@ -216,7 +213,7 @@ export default function ChatbotLanding() {
             session={currentSession}
             isLoading={isLoading}
             onSendMessage={handleSendMessage}
-            trustScore={vcttState.trustScore}
+            trustScore={Math.round(vcttState["Trust (τ)"] * 100)}
             currentPhase={currentPhase}
             isResuming={isResuming}
           />
