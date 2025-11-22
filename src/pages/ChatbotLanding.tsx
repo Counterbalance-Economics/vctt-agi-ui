@@ -9,6 +9,7 @@ import RightSidebar from "../components/RightSidebar";
 import type { Session, VCTTState, Message } from "../types";
 import { getApiUrl } from "../config/api";
 import { PhaseEvent } from "../services/websocket";
+import { api } from "../services/api";
 
 const BACKEND_URL = getApiUrl();
 const ADMIN_PASSWORD = "vctt-admin-2024";
@@ -21,6 +22,7 @@ export default function ChatbotLanding() {
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isResuming, setIsResuming] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [currentPhase, setCurrentPhase] = useState<PhaseEvent | null>(null);
   
@@ -32,41 +34,118 @@ export default function ChatbotLanding() {
     Regulation: "normal",
   });
 
-  // Resume session from URL param
+  // Load conversation history on mount
+  useEffect(() => {
+    const loadConversationHistory = async () => {
+      try {
+        console.log("🔄 Loading conversation history...");
+        const sessionSummaries = await api.getAllSessions(undefined, 50);
+        console.log(`📚 Loaded ${sessionSummaries.length} conversations`);
+        
+        // Convert session summaries to Session format
+        const loadedSessions: Session[] = sessionSummaries.map((summary: any) => ({
+          id: summary.session_id,
+          title: "Chat", // Will be updated when clicked
+          messages: [], // Will be loaded on demand
+          created_at: new Date(summary.created_at),
+          last_activity: summary.last_activity ? new Date(summary.last_activity) : new Date(summary.created_at),
+          message_count: summary.message_count,
+          trust_tau: summary.trust_tau,
+        }));
+        
+        setSessions(loadedSessions);
+      } catch (error) {
+        console.error("❌ Failed to load conversation history:", error);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    loadConversationHistory();
+  }, []);
+
+  // Resume session from URL param or create new session
   useEffect(() => {
     const initSession = async () => {
+      // Wait for history to load first
+      if (isLoadingHistory) return;
+
       if (sessionParam) {
         setIsResuming(true);
         try {
-          const res = await fetch(`${BACKEND_URL}/api/v1/session/${sessionParam}`);
+          console.log(`🔄 Resuming session: ${sessionParam}`);
+          const data = await api.getSessionHistory(sessionParam);
           
-          if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
+          if (!data) {
+            throw new Error("Session not found");
           }
           
-          const data = await res.json();
           const session: Session = {
             id: data.session_id,
-            title: "Resumed Chat",
+            title: data.messages.length > 0 ? data.messages[0].content.substring(0, 30) : "Chat",
             messages: data.messages || [],
             created_at: new Date(data.created_at),
           };
+          
           setCurrentSession(session);
-          setSessions([session]);
+          
+          // Add to sessions if not already there
+          setSessions(prev => {
+            const exists = prev.some(s => s.id === session.id);
+            return exists ? prev : [session, ...prev];
+          });
         } catch (error) {
-          console.error("Failed to resume session", error);
+          console.error("❌ Failed to resume session", error);
           await handleNewSession();
         } finally {
           setIsResuming(false);
         }
       } else {
+        // No session param - create new session
         await handleNewSession();
       }
     };
     
     initSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionParam]);
+  }, [sessionParam, isLoadingHistory]);
+
+  // Handle selecting a session from sidebar - load full history
+  const handleSelectSession = async (session: Session) => {
+    try {
+      console.log(`🔄 Loading session: ${session.id}`);
+      
+      // If session already has messages, just switch to it
+      if (session.messages && session.messages.length > 0) {
+        setCurrentSession(session);
+        return;
+      }
+      
+      // Otherwise, load full history from backend
+      const data = await api.getSessionHistory(session.id);
+      
+      if (data) {
+        const fullSession: Session = {
+          id: data.session_id,
+          title: data.messages.length > 0 ? data.messages[0].content.substring(0, 30) : "Chat",
+          messages: data.messages || [],
+          created_at: new Date(data.created_at),
+        };
+        
+        setCurrentSession(fullSession);
+        
+        // Update sessions array with full data
+        setSessions(prev => prev.map(s => s.id === fullSession.id ? fullSession : s));
+      } else {
+        // Fallback: just set the session summary
+        setCurrentSession(session);
+      }
+    } catch (error) {
+      console.error("❌ Failed to load session:", error);
+      // Fallback: just set the session summary
+      setCurrentSession(session);
+    }
+  };
 
   const handleNewSession = async () => {
     try {
@@ -240,7 +319,7 @@ export default function ChatbotLanding() {
         <LeftSidebar
           sessions={sessions}
           currentSessionId={currentSession?.id}
-          onSelectSession={setCurrentSession}
+          onSelectSession={handleSelectSession}
           onNewSession={handleNewSession}
         />
 

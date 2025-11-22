@@ -1,8 +1,9 @@
 /**
  * LeftSidebar Component - Phase 3
- * Version: 3.0.1 - Cache-busted with backend parseInt fix
+ * Version: 3.1.0 - Added search functionality
  */
-import { MessageSquare, Plus, MessageCircle } from "lucide-react";
+import { useState } from "react";
+import { MessageSquare, Plus, MessageCircle, Search, X } from "lucide-react";
 import type { Session } from "../types";
 import TrustIndicator from "./TrustIndicator";
 
@@ -19,6 +20,8 @@ export default function LeftSidebar({
   onSelectSession,
   onNewSession,
 }: LeftSidebarProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+
   const formatTime = (date: Date) => {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -29,6 +32,17 @@ export default function LeftSidebar({
     if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
     return date.toLocaleDateString();
   };
+
+  // Filter sessions by search query
+  const filteredSessions = sessions.filter((session) => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase();
+    const title = session.title?.toLowerCase() || "";
+    const messages = session.messages.map(m => m.content.toLowerCase()).join(" ");
+    
+    return title.includes(query) || messages.includes(query);
+  });
 
   return (
     <div className="w-64 min-w-64 max-w-64 bg-vctt-panel border-r border-gray-700 flex flex-col flex-shrink-0">
@@ -44,6 +58,33 @@ export default function LeftSidebar({
         </button>
       </div>
 
+      {/* Search Bar */}
+      <div className="p-3 border-b border-gray-700">
+        <div className="relative">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search conversations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-8 py-2 bg-gray-800 text-white text-sm rounded-lg border border-gray-700 focus:border-vctt-gold focus:outline-none placeholder-gray-500"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
+        {searchQuery && (
+          <p className="text-xs text-gray-400 mt-2">
+            {filteredSessions.length} of {sessions.length} conversations
+          </p>
+        )}
+      </div>
+
       {/* Sessions List */}
       <div className="flex-1 overflow-y-auto">
         {sessions.length === 0 && (
@@ -51,7 +92,12 @@ export default function LeftSidebar({
             No sessions yet. Start a new chat!
           </div>
         )}
-        {sessions.map((session) => {
+        {sessions.length > 0 && filteredSessions.length === 0 && (
+          <div className="p-4 text-center text-gray-400 text-sm">
+            No conversations match "{searchQuery}"
+          </div>
+        )}
+        {filteredSessions.map((session) => {
           const isActive = session.id === currentSessionId;
           const previewText =
             session.messages.length > 0
