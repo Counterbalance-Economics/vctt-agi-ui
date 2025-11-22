@@ -784,13 +784,6 @@ Start coding now! Select any file from the explorer.`;
           </div>
           <div className="flex items-center gap-2">
             <a
-              href="/admin/safety"
-              className="px-3 py-1 bg-orange-600 hover:bg-orange-700 rounded text-white text-sm transition-all font-medium flex items-center gap-2"
-              title="Admin Safety Dashboard - Control AGI system"
-            >
-              🛡️ Safety Dashboard
-            </a>
-            <a
               href="/admin/coach"
               className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm transition-all font-medium flex items-center gap-2"
               title="Coach Dashboard - Review MIN's self-improvement proposals"
