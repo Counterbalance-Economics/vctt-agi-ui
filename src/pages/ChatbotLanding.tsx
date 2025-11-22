@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Terminal } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 import LeftSidebar from "../components/LeftSidebar";
 import ChatPanel from "../components/ChatPanel";
 import RightSidebar from "../components/RightSidebar";
@@ -69,7 +70,7 @@ export default function ChatbotLanding() {
       console.error("Failed to create session:", error);
       // Fallback: create client-side session
       const fallbackSession: Session = {
-        id: Date.now().toString(),
+        id: uuidv4(),
         title: "New Chat",
         messages: [],
         created_at: new Date(),
@@ -83,7 +84,7 @@ export default function ChatbotLanding() {
     if (!currentSession) return;
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: uuidv4(),
       role: "user",
       content,
       timestamp: new Date(),
@@ -122,7 +123,7 @@ export default function ChatbotLanding() {
       const data = await res.json();
       
       const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: uuidv4(),
         role: "assistant",
         content: data.response || "I received your message!",
         timestamp: new Date(),
@@ -140,7 +141,7 @@ export default function ChatbotLanding() {
     } catch (error) {
       console.error("Failed to send message:", error);
       const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: uuidv4(),
         role: "assistant",
         content: "Sorry, I'm having trouble connecting to the backend. Please try again.",
         timestamp: new Date(),
