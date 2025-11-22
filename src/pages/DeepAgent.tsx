@@ -730,10 +730,10 @@ Start coding now! Select any file from the explorer.`;
         files={availableFiles}
       />
 
-      {/* FIXED ADMIN SAFETY DASHBOARD BUTTON - Always visible, high z-index */}
+      {/* Floating urgent safety button */}
       <a
         href="/admin/safety"
-        className="fixed top-20 right-4 z-[9999] bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-lg shadow-2xl flex items-center gap-2 transition-all hover:scale-105 animate-pulse"
+        className="fixed top-4 right-4 z-50 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-lg shadow-2xl flex items-center gap-2 transition-all hover:scale-105"
         title="Admin Safety Dashboard - Control AGI System"
       >
         <span className="text-xl">🛡️</span>
@@ -782,17 +782,17 @@ Start coding now! Select any file from the explorer.`;
             <span className="text-xs text-gray-500">Code Editor • Terminal • AI Co-Pilot</span>
             <span className="text-xs text-blue-400 font-semibold">✨ {modKeyFull}+K to edit</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <a
               href="/admin/coach"
-              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm transition-all font-medium flex items-center gap-2"
+              className="text-cyan-400 hover:text-cyan-300 font-semibold text-sm transition-colors"
               title="Coach Dashboard - Review MIN's self-improvement proposals"
             >
               🧠 Coach Dashboard
             </a>
             <a
               href="https://vcttagi-itng8m9rj-peters-projects-3a28ae0e.vercel.app/?session=864a6026-97ff-492d-bc61-585bd313d999"
-              className="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-gray-300 text-sm transition-all"
+              className="text-gray-500 hover:text-gray-300 transition-colors text-sm"
               title="Back to VCTT main page"
             >
               ← Back to VCTT
