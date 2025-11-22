@@ -48,10 +48,18 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => 
         const response = await fetch(`${backendUrl}/api/goals?status=active`);
         if (response.ok) {
           const data = await response.json();
-          setGoals(data);
+          // Defensive: handle both array response and {goals: []} object response
+          if (Array.isArray(data)) {
+            setGoals(data);
+          } else if (data?.goals && Array.isArray(data.goals)) {
+            setGoals(data.goals);
+          } else {
+            setGoals([]);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch goals:', error);
+        setGoals([]);
       }
     };
     fetchGoals();

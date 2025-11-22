@@ -48,9 +48,10 @@ export default function CoachDashboard() {
     try {
       const response = await fetch(`${BACKEND_URL}/api/coach/proposals?status=pending`);
       const data = await response.json();
-      setProposals(data);
+      setProposals(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch proposals:', error);
+      setProposals([]);
     } finally {
       setLoading(false);
     }
@@ -60,9 +61,10 @@ export default function CoachDashboard() {
     try {
       const response = await fetch(`${BACKEND_URL}/api/skills/candidates?minTau=0.85&minCount=3`);
       const data = await response.json();
-      setSkillCandidates(data);
+      setSkillCandidates(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch skill candidates:', error);
+      setSkillCandidates([]);
     }
   };
 
@@ -349,7 +351,7 @@ export default function CoachDashboard() {
 
                     <div className="bg-gray-950 border border-gray-800 p-3 rounded mb-4">
                       <div className="text-xs text-gray-400 mb-2">SAMPLE INSTRUCTIONS</div>
-                      {candidate.sampleInstructions.map((instr, i) => (
+                      {(candidate.sampleInstructions || []).map((instr, i) => (
                         <div key={i} className="text-sm text-gray-300 mb-1">
                           • {instr?.substring(0, 150)}...
                         </div>
