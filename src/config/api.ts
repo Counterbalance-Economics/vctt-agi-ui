@@ -1,6 +1,6 @@
 // API Configuration
 // Fallback to production backend if env var not set
-const PRODUCTION_BACKEND = "https://vctt-agi-phase3-complete.abacusai.app";
+const PRODUCTION_BACKEND = "https://vctt-agi-backend.onrender.com";
 const backendUrl = (import.meta as any).env?.VITE_BACKEND_URL || PRODUCTION_BACKEND;
 
 export const API_CONFIG = {
