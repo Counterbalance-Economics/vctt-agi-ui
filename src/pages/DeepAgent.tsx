@@ -16,13 +16,6 @@ import { getModKey, modKeyFull } from "../utils/keyboard";
 const BACKEND_URL = (import.meta as any).env?.VITE_BACKEND_URL || "https://vctt-agi-backend.onrender.com";
 
 export default function DeepAgentMode() {
-  // FIX: Extract session param to preserve when navigating back
-  const urlParams = new URLSearchParams(window.location.search);
-  const sessionParam = urlParams.get('session');
-  const chatbotUrl = sessionParam 
-    ? `https://vcttagi-itng8m9rj-peters-projects-3a28ae0e.vercel.app/?session=${sessionParam}`
-    : 'https://vcttagi-itng8m9rj-peters-projects-3a28ae0e.vercel.app/';
-
   // Terminal state
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState("");
@@ -798,13 +791,13 @@ Start coding now! Select any file from the explorer.`;
             >
               🧠 Coach Dashboard
             </Link>
-            <a
-              href={chatbotUrl}
+            <Link
+              to="/"
               className="text-gray-500 hover:text-gray-300 transition-colors text-sm"
-              title="Back to VCTT main page"
+              title="Back to VCTT Chatbot"
             >
               ← Back to VCTT
-            </a>
+            </Link>
           </div>
         </div>
       </div>
