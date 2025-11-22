@@ -38,8 +38,19 @@ export default function ChatbotLanding() {
       if (sessionParam) {
         setIsResuming(true);
         try {
-          const res = await fetch(`${BACKEND_URL}/api/sessions/${sessionParam}`);
-          const session = await res.json();
+          const res = await fetch(`${BACKEND_URL}/api/v1/session/${sessionParam}`);
+          
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+          }
+          
+          const data = await res.json();
+          const session: Session = {
+            id: data.session_id,
+            title: "Resumed Chat",
+            messages: data.messages || [],
+            created_at: new Date(data.created_at),
+          };
           setCurrentSession(session);
           setSessions([session]);
         } catch (error) {
@@ -59,11 +70,26 @@ export default function ChatbotLanding() {
 
   const handleNewSession = async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/sessions`, {
+      const res = await fetch(`${BACKEND_URL}/api/v1/session/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: "anonymous",
+          input: "Hello", // Initial greeting
+        }),
       });
-      const newSession: Session = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+      }
+      
+      const data = await res.json();
+      const newSession: Session = {
+        id: data.session_id,
+        title: "New Chat",
+        messages: [],
+        created_at: new Date(),
+      };
       setSessions((prev) => [newSession, ...prev]);
       setCurrentSession(newSession);
     } catch (error) {
@@ -111,14 +137,18 @@ export default function ChatbotLanding() {
     }
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/chat`, {
+      const res = await fetch(`${BACKEND_URL}/api/v1/session/step`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sessionId: currentSession.id,
-          message: content,
+          session_id: currentSession.id,
+          input: content,
         }),
       });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+      }
 
       const data = await res.json();
       
@@ -134,9 +164,15 @@ export default function ChatbotLanding() {
         messages: [...currentSession.messages, userMessage, assistantMessage],
       });
 
-      // Update VCTT state
-      if (data.vcttState) {
-        setVcttState(data.vcttState);
+      // Update VCTT state from internal_state
+      if (data.internal_state) {
+        setVcttState({
+          Voice: data.internal_state.vctt?.voice || 0.8,
+          Choice: data.internal_state.vctt?.choice || 0.75,
+          Transparency: data.internal_state.vctt?.transparency || 0.7,
+          "Trust (τ)": data.internal_state.vctt?.trust || 0.75,
+          Regulation: data.internal_state.regulation || "normal",
+        });
       }
     } catch (error) {
       console.error("Failed to send message:", error);
