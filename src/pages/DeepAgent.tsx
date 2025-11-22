@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import { FileTreeWithIcons } from "../components/FileTreeWithIcons";
 import { CodeEditor, CodeEditorHandle } from "../components/CodeEditor";
 import { AIChat } from "../components/AIChat";
@@ -15,6 +16,13 @@ import { getModKey, modKeyFull } from "../utils/keyboard";
 const BACKEND_URL = (import.meta as any).env?.VITE_BACKEND_URL || "https://vctt-agi-backend.onrender.com";
 
 export default function DeepAgentMode() {
+  // FIX: Extract session param to preserve when navigating back
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionParam = urlParams.get('session');
+  const chatbotUrl = sessionParam 
+    ? `https://vcttagi-itng8m9rj-peters-projects-3a28ae0e.vercel.app/?session=${sessionParam}`
+    : 'https://vcttagi-itng8m9rj-peters-projects-3a28ae0e.vercel.app/';
+
   // Terminal state
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState("");
@@ -731,14 +739,14 @@ Start coding now! Select any file from the explorer.`;
       />
 
       {/* Floating urgent safety button */}
-      <a
-        href="/admin/safety"
+      <Link
+        to="/admin/safety"
         className="fixed top-4 right-4 z-50 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-lg shadow-2xl flex items-center gap-2 transition-all hover:scale-105"
         title="Admin Safety Dashboard - Control AGI System"
       >
         <span className="text-xl">🛡️</span>
         <span>ADMIN SAFETY</span>
-      </a>
+      </Link>
 
       {/* Save Toast */}
       {showSaveToast && (
@@ -783,15 +791,15 @@ Start coding now! Select any file from the explorer.`;
             <span className="text-xs text-blue-400 font-semibold">✨ {modKeyFull}+K to edit</span>
           </div>
           <div className="flex items-center gap-4">
-            <a
-              href="/admin/coach"
+            <Link
+              to="/admin/coach"
               className="text-cyan-400 hover:text-cyan-300 font-semibold text-sm transition-colors"
               title="Coach Dashboard - Review MIN's self-improvement proposals"
             >
               🧠 Coach Dashboard
-            </a>
+            </Link>
             <a
-              href="https://vcttagi-itng8m9rj-peters-projects-3a28ae0e.vercel.app/?session=864a6026-97ff-492d-bc61-585bd313d999"
+              href={chatbotUrl}
               className="text-gray-500 hover:text-gray-300 transition-colors text-sm"
               title="Back to VCTT main page"
             >
