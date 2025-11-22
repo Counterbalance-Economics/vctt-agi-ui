@@ -45,7 +45,7 @@ export const AIChat: React.FC<AIChatProps> = ({ selectedFile, fileContent }) => 
     const fetchGoals = async () => {
       try {
         const backendUrl = (import.meta as any).env?.VITE_BACKEND_URL || 'https://vctt-agi-backend.onrender.com';
-        const response = await fetch(`${backendUrl}/goals?status=active`);
+        const response = await fetch(`${backendUrl}/api/goals?status=active`);
         if (response.ok) {
           const data = await response.json();
           setGoals(data);
