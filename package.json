@@ -4,6 +4,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@monaco-editor/react": "^4.7.0",
+    "axios": "^1.13.2",
     "cmdk": "^1.1.1",
     "lucide-react": "^0.553.0",
     "monaco-editor": "^0.55.1",

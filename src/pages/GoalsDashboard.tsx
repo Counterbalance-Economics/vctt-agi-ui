@@ -21,6 +21,7 @@ import CreateGoalModal from "../components/CreateGoalModal";
 import GoalsHelpModal from "../components/GoalsHelpModal";
 import ExecutionControls from "../components/ExecutionControls";
 import GoalDetailsModal from "../components/GoalDetailsModal";
+import AutonomousExecutionPanel from "../components/AutonomousExecutionPanel";
 
 type ViewMode = "list" | "tree" | "stats";
 
@@ -239,6 +240,11 @@ export default function GoalsDashboard() {
               {stats.completion_rate.toFixed(0)}%
             </div>
           </div>
+        </div>
+
+        {/* AUTONOMOUS EXECUTION PANEL - Phase 3 */}
+        <div className="mb-5">
+          <AutonomousExecutionPanel />
         </div>
 
         {/* BETA LIMITATIONS BANNER */}
