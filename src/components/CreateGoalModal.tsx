@@ -70,8 +70,8 @@ export default function CreateGoalModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm overflow-hidden">
+      <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
           <div className="flex items-center gap-3">
@@ -89,7 +89,8 @@ export default function CreateGoalModal({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 pb-16 space-y-5 overflow-y-auto max-h-[calc(90vh-140px)]">
+        <form onSubmit={handleSubmit} className="flex-1 p-6 pb-24 space-y-5 overflow-y-scroll overscroll-contain"
+              style={{ scrollbarWidth: 'thin', scrollbarColor: '#4B5563 #1F2937' }}>
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">

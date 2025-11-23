@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { Play, Pause, Activity, AlertCircle } from 'lucide-react';
+import { Play, Pause, AlertCircle } from 'lucide-react';
+import MinThinkingSpinner from './MinThinkingSpinner';
 
 const API_BASE = 'https://vctt-agi-phase3-complete.abacusai.app';
 
@@ -85,8 +86,7 @@ export default function ExecutionControls() {
   if (!status) {
     return (
       <div className="flex items-center gap-2 text-gray-400">
-        <Activity className="w-5 h-5 animate-spin" />
-        <span>Loading execution status...</span>
+        <MinThinkingSpinner message="Loading execution status..." size="sm" />
       </div>
     );
   }
@@ -101,10 +101,10 @@ export default function ExecutionControls() {
             : 'bg-gray-800/50 text-gray-400 border border-gray-700'
         }`}>
           {status.isRunning ? (
-            <>
-              <Activity className="w-4 h-4 animate-pulse" />
-              <span className="font-medium">MIN is Running</span>
-            </>
+            <MinThinkingSpinner 
+              message="MIN is Running" 
+              size="sm" 
+            />
           ) : (
             <>
               <Pause className="w-4 h-4" />

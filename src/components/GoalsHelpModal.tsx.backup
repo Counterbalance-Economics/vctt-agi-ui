@@ -9,8 +9,8 @@ export default function GoalsHelpModal({ isOpen, onClose }: GoalsHelpModalProps)
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-hidden">
-      <div className="bg-gray-900 border-2 border-gray-700 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-gray-900 border-2 border-gray-700 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
@@ -25,9 +25,8 @@ export default function GoalsHelpModal({ isOpen, onClose }: GoalsHelpModalProps)
           </button>
         </div>
 
-        {/* Scrollable Content - FIXED: Added better scroll behavior */}
-        <div className="flex-1 overflow-y-scroll overscroll-contain p-6 pb-24 space-y-6 text-gray-300"
-             style={{ scrollbarWidth: 'thin', scrollbarColor: '#4B5563 #1F2937' }}>
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-6 pb-16 space-y-6 text-gray-300">
           {/* What is the Goals System? */}
           <section className="space-y-3">
             <div className="flex items-center gap-2 mb-3">
