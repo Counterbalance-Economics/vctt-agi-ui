@@ -160,9 +160,32 @@ class GoalsApiService {
     if (!this.baseUrl) return null;
 
     try {
-      const response = await fetch(`${this.baseUrl}/api/goals/state-awareness`);
-      if (!response.ok) return null;
-      return await response.json();
+      // Get all goals to build proper statistics
+      const allGoalsResponse = await fetch(`${this.baseUrl}/api/goals`);
+      const allGoalsData = await allGoalsResponse.json();
+      const allGoals = allGoalsData.goals || [];
+      
+      // Calculate statistics
+      const totalGoals = allGoals.length;
+      const activeCount = allGoals.filter((g: any) => g.status === 'active').length;
+      const completedCount = allGoals.filter((g: any) => g.status === 'completed').length;
+      const completionRate = totalGoals > 0 ? (completedCount / totalGoals) * 100 : 0;
+      
+      // Sort by created_at to get recent goals
+      const recentGoals = [...allGoals].sort((a: any, b: any) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      
+      return {
+        active_goals: allGoals.filter((g: any) => g.status === 'active'),
+        recent_goals: recentGoals,
+        goal_statistics: {
+          total_goals: totalGoals,
+          active_goals: activeCount,
+          completed_goals: completedCount,
+          completion_rate: completionRate
+        }
+      };
     } catch (error) {
       console.error("Error fetching state awareness:", error);
       return null;
@@ -207,7 +230,10 @@ class GoalsApiService {
     const response = await fetch(`${this.baseUrl}/api/goals/${id}/status`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ 
+        status,
+        actor: "human" // Backend requires actor field
+      }),
     });
 
     if (!response.ok) {

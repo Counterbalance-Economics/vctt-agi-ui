@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Target,
   Plus,
@@ -11,6 +11,7 @@ import {
   RefreshCw,
   Filter,
   BarChart3,
+  ArrowLeft,
 } from "lucide-react";
 import { goalsApi, Goal, GoalTree, StateAwareness, CreateGoalDto } from "../services/goals-api";
 import GoalCard from "../components/GoalCard";
@@ -20,6 +21,7 @@ import CreateGoalModal from "../components/CreateGoalModal";
 type ViewMode = "list" | "tree" | "stats";
 
 export default function GoalsDashboard() {
+  const navigate = useNavigate();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [goalTree, setGoalTree] = useState<GoalTree[]>([]);
   const [stateAwareness, setStateAwareness] = useState<StateAwareness | null>(null);
@@ -142,12 +144,21 @@ export default function GoalsDashboard() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                title="Go to previous page"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-sm">Back</span>
+              </button>
               <Link
                 to="/"
-                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                title="Go to home page"
               >
-                <Home className="w-5 h-5" />
-                <span className="text-sm">Back</span>
+                <Home className="w-4 h-4" />
+                <span className="text-sm">Home</span>
               </Link>
               <div className="w-px h-6 bg-gray-700" />
               <div className="flex items-center gap-3">
