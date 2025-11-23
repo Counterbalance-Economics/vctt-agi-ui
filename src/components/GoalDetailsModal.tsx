@@ -41,7 +41,7 @@ export default function GoalDetailsModal({ goal, isOpen, onClose }: Props) {
         </div>
 
         {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 pb-16 space-y-6">
           {/* Goal Info */}
           <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-5">
             <div className="grid grid-cols-2 gap-4 mb-4">

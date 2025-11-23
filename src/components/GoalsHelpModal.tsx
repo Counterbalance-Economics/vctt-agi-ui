@@ -26,7 +26,7 @@ export default function GoalsHelpModal({ isOpen, onClose }: GoalsHelpModalProps)
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-6 pb-8 space-y-6 text-gray-300">
+        <div className="flex-1 overflow-y-auto p-6 pb-16 space-y-6 text-gray-300">
           {/* What is the Goals System? */}
           <section className="space-y-3">
             <div className="flex items-center gap-2 mb-3">
