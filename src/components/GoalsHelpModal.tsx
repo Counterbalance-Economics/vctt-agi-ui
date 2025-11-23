@@ -10,9 +10,9 @@ export default function GoalsHelpModal({ isOpen, onClose }: GoalsHelpModalProps)
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gray-900 border-2 border-gray-700 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="bg-gray-900 border-2 border-gray-700 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
             <Target className="w-6 h-6 text-white" />
             <h2 className="text-2xl font-bold text-white">Goals System Guide</h2>
@@ -25,8 +25,8 @@ export default function GoalsHelpModal({ isOpen, onClose }: GoalsHelpModalProps)
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6 text-gray-300">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 text-gray-300">
           {/* What is the Goals System? */}
           <section className="space-y-3">
             <div className="flex items-center gap-2 mb-3">
@@ -230,7 +230,7 @@ export default function GoalsHelpModal({ isOpen, onClose }: GoalsHelpModalProps)
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-700 px-6 py-4 bg-gray-900/50">
+        <div className="border-t border-gray-700 px-6 py-4 bg-gray-900/50 flex-shrink-0">
           <button
             onClick={onClose}
             className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors"
