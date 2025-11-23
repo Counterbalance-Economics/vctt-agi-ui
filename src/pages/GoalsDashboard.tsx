@@ -310,8 +310,12 @@ export default function GoalsDashboard() {
                         className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg"
                       >
                         <span className="text-white text-sm">{goal.title}</span>
-                        <span className="text-blue-400 text-sm font-medium">
-                          {goal.progress_percent}%
+                        <span className={`text-sm font-medium ${
+                          goal.status === 'completed' ? 'text-green-400' :
+                          goal.status === 'active' ? 'text-blue-400' :
+                          'text-gray-400'
+                        }`}>
+                          {goal.status}
                         </span>
                       </div>
                     ))}

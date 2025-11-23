@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Goal } from "../services/goals-api";
 import {
   Target,
-  Clock,
   CheckCircle2,
   Circle,
   Trash2,
