@@ -91,9 +91,16 @@ export default function GoalsDashboard() {
     try {
       await goalsApi.updateGoalStatus(id, status);
       await loadData();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating goal status:", error);
-      alert("Failed to update goal status");
+      const errorMsg = error?.message || "Failed to update goal status";
+      
+      // Check if backend is in RESEARCH mode
+      if (errorMsg.includes("RESEARCH") || errorMsg.includes("read-only")) {
+        alert("⚠️ Backend is in RESEARCH mode (read-only)\n\nWrite operations are currently disabled for safety. The backend is collecting data but not making changes.\n\nTo enable writes, contact your system administrator.");
+      } else {
+        alert(`Failed to update goal status:\n${errorMsg}`);
+      }
     }
   };
 
@@ -295,51 +302,95 @@ export default function GoalsDashboard() {
             )}
 
             {viewMode === "tree" && (
-              <GoalTreeView trees={goalTree} onGoalClick={handleGoalClick} />
+              <>
+                {goalTree.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <GitBranch className="w-16 h-16 text-gray-600 mb-4" />
+                    <h3 className="text-xl font-semibold text-white mb-2">No Goal Hierarchy Yet</h3>
+                    <p className="text-gray-400 mb-4">
+                      Create parent-child goal relationships to see the tree view
+                    </p>
+                    <button
+                      onClick={() => setIsModalOpen(true)}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    >
+                      Create First Goal
+                    </button>
+                  </div>
+                ) : (
+                  <GoalTreeView trees={goalTree} onGoalClick={handleGoalClick} />
+                )}
+              </>
             )}
 
-            {viewMode === "stats" && stateAwareness && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Active Goals */}
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">Active Goals</h3>
-                  <div className="space-y-3">
-                    {stateAwareness.active_goals.slice(0, 5).map((goal) => (
-                      <div
-                        key={goal.id}
-                        className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg"
-                      >
-                        <span className="text-white text-sm">{goal.title}</span>
-                        <span className={`text-sm font-medium ${
-                          goal.status === 'completed' ? 'text-green-400' :
-                          goal.status === 'active' ? 'text-blue-400' :
-                          'text-gray-400'
-                        }`}>
-                          {goal.status}
-                        </span>
-                      </div>
-                    ))}
+            {viewMode === "stats" && (
+              <>
+                {!stateAwareness ? (
+                  <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <BarChart3 className="w-16 h-16 text-gray-600 mb-4" />
+                    <h3 className="text-xl font-semibold text-white mb-2">No Statistics Available</h3>
+                    <p className="text-gray-400 mb-4">
+                      Create some goals to see statistics and insights
+                    </p>
+                    <button
+                      onClick={() => setIsModalOpen(true)}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    >
+                      Create First Goal
+                    </button>
                   </div>
-                </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Active Goals */}
+                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-white mb-4">Active Goals</h3>
+                      <div className="space-y-3">
+                        {stateAwareness.active_goals.length === 0 ? (
+                          <p className="text-gray-400 text-sm text-center py-4">No active goals</p>
+                        ) : (
+                          stateAwareness.active_goals.slice(0, 5).map((goal) => (
+                            <div
+                              key={goal.id}
+                              className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg"
+                            >
+                              <span className="text-white text-sm">{goal.title}</span>
+                              <span className={`text-sm font-medium ${
+                                goal.status === 'completed' ? 'text-green-400' :
+                                goal.status === 'active' ? 'text-blue-400' :
+                                'text-gray-400'
+                              }`}>
+                                {goal.status}
+                              </span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
 
-                {/* Recent Goals */}
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">Recent Goals</h3>
-                  <div className="space-y-3">
-                    {stateAwareness.recent_goals.slice(0, 5).map((goal) => (
-                      <div
-                        key={goal.id}
-                        className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg"
-                      >
-                        <span className="text-white text-sm">{goal.title}</span>
-                        <span className="text-gray-400 text-xs">
-                          {new Date(goal.created_at).toLocaleDateString()}
-                        </span>
+                    {/* Recent Goals */}
+                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-white mb-4">Recent Goals</h3>
+                      <div className="space-y-3">
+                        {stateAwareness.recent_goals.length === 0 ? (
+                          <p className="text-gray-400 text-sm text-center py-4">No recent goals</p>
+                        ) : (
+                          stateAwareness.recent_goals.slice(0, 5).map((goal) => (
+                            <div
+                              key={goal.id}
+                              className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg"
+                            >
+                              <span className="text-white text-sm">{goal.title}</span>
+                              <span className="text-gray-400 text-xs">
+                                {new Date(goal.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                          ))
+                        )}
                       </div>
-                    ))}
+                    </div>
                   </div>
-                </div>
-              </div>
+                )}
+              </>
             )}
           </>
         )}

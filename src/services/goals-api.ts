@@ -141,7 +141,15 @@ class GoalsApiService {
       const response = await fetch(`${this.baseUrl}/api/goals/tree`);
       if (!response.ok) return [];
       const data = await response.json();
-      return data.tree || [];
+      const goals = data.tree || [];
+      
+      // Transform backend format (Goal with child_goals) to frontend format (GoalTree)
+      const transformGoal = (goal: any): GoalTree => ({
+        goal: goal,
+        children: (goal.child_goals || []).map(transformGoal)
+      });
+      
+      return goals.map(transformGoal);
     } catch (error) {
       console.error("Error fetching goal tree:", error);
       return [];
