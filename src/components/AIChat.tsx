@@ -457,13 +457,17 @@ Respond with helpful code fixes in markdown blocks. Be concise and practical.`
           ) : (
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {goals.map((goal) => (
-                <div
+                <button
                   key={goal.id}
-                  className="bg-gray-800 border border-gray-700 rounded p-2 hover:border-blue-500 transition-colors"
+                  onClick={() => window.location.href = '/goals'}
+                  className="w-full bg-gray-800 border border-gray-700 rounded p-2 hover:border-blue-500 hover:bg-gray-750 transition-all cursor-pointer text-left group"
+                  title={`${goal.title}\n${goal.description || 'No description'}\n\nClick to open Goals Dashboard`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-1">
-                    <h4 className="text-sm font-medium text-white flex-1">{goal.title}</h4>
-                    <span className={`text-xs px-1.5 py-0.5 rounded ${
+                    <h4 className="text-sm font-medium text-white flex-1 group-hover:text-blue-400 transition-colors">
+                      {goal.title}
+                    </h4>
+                    <span className={`text-xs px-1.5 py-0.5 rounded flex-shrink-0 ${
                       goal.priority >= 5 ? 'bg-red-900 text-red-300' :
                       goal.priority >= 3 ? 'bg-yellow-900 text-yellow-300' :
                       'bg-green-900 text-green-300'
@@ -472,20 +476,27 @@ Respond with helpful code fixes in markdown blocks. Be concise and practical.`
                     </span>
                   </div>
                   {goal.description && (
-                    <p className="text-xs text-gray-400 mb-1 line-clamp-1">{goal.description}</p>
+                    <p className="text-xs text-gray-400 mb-1 line-clamp-2 group-hover:text-gray-300 transition-colors">
+                      {goal.description}
+                    </p>
                   )}
                   <div className="flex items-center gap-2 text-xs">
                     <div className="flex-1">
                       <div className="w-full bg-gray-700 rounded-full h-1">
                         <div
-                          className="bg-blue-500 h-1 rounded-full transition-all"
+                          className="bg-blue-500 h-1 rounded-full transition-all group-hover:bg-blue-400"
                           style={{ width: `${goal.progress}%` }}
                         />
                       </div>
                     </div>
-                    <span className="text-gray-500">{goal.progress}%</span>
+                    <span className="text-gray-500 group-hover:text-gray-400 transition-colors">
+                      {goal.progress}%
+                    </span>
                   </div>
-                </div>
+                  <div className="mt-1 text-xs text-gray-600 group-hover:text-blue-500 transition-colors opacity-0 group-hover:opacity-100">
+                    → Click to view all goals
+                  </div>
+                </button>
               ))}
             </div>
           )}
