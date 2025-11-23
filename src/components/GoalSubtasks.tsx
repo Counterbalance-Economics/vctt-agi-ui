@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, Circle, Clock, XCircle, AlertCircle, Terminal, X } from 'lucide-react';
 import DeepAgentLauncher from './DeepAgentLauncher';
+import SessionActivityFeed from './SessionActivityFeed';
 
 const API_BASE = 'https://vctt-agi-phase3-complete.abacusai.app';
 
@@ -29,6 +30,8 @@ export default function GoalSubtasks({ goalId, autoRefresh = true }: Props) {
   const [loading, setLoading] = useState(true);
   const [selectedSubtask, setSelectedSubtask] = useState<Subtask | null>(null);
   const [showDeepAgentModal, setShowDeepAgentModal] = useState(false);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [showActivityFeed, setShowActivityFeed] = useState(false);
 
   useEffect(() => {
     fetchSubtasks();
@@ -103,6 +106,8 @@ export default function GoalSubtasks({ goalId, autoRefresh = true }: Props) {
   const handleCloseDeepAgent = () => {
     setShowDeepAgentModal(false);
     setSelectedSubtask(null);
+    setActiveSessionId(null);
+    setShowActivityFeed(false);
     // Refresh subtasks after closing modal
     fetchSubtasks();
   };
@@ -240,12 +245,25 @@ export default function GoalSubtasks({ goalId, autoRefresh = true }: Props) {
                 subtaskId={selectedSubtask.id}
                 taskTitle={selectedSubtask.title}
                 taskDescription={selectedSubtask.description || 'No description provided'}
-                onSessionCreated={() => {
-                  // Session created successfully
-                  console.log('DeepAgent session created for subtask:', selectedSubtask.id);
+                onSessionCreated={(session) => {
+                  // Session created successfully - capture session ID for activity tracking
+                  console.log('DeepAgent session created:', session);
+                  setActiveSessionId(session.sessionUuid);
+                  setShowActivityFeed(true);
                 }}
                 onClose={handleCloseDeepAgent}
               />
+
+              {/* Activity Feed - Shows real-time updates when session is active */}
+              {showActivityFeed && activeSessionId && (
+                <div className="mt-6 pt-6 border-t border-gray-700">
+                  <SessionActivityFeed
+                    sessionId={activeSessionId}
+                    autoRefresh={true}
+                    maxHeight="400px"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
