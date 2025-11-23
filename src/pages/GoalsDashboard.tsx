@@ -12,11 +12,13 @@ import {
   Filter,
   BarChart3,
   ArrowLeft,
+  HelpCircle,
 } from "lucide-react";
 import { goalsApi, Goal, GoalTree, StateAwareness, CreateGoalDto } from "../services/goals-api";
 import GoalCard from "../components/GoalCard";
 import GoalTreeView from "../components/GoalTreeView";
 import CreateGoalModal from "../components/CreateGoalModal";
+import GoalsHelpModal from "../components/GoalsHelpModal";
 
 type ViewMode = "list" | "tree" | "stats";
 
@@ -30,6 +32,7 @@ export default function GoalsDashboard() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   // Load data on mount
   useEffect(() => {
@@ -171,11 +174,19 @@ export default function GoalsDashboard() {
             </div>
             <div className="flex items-center gap-3">
               <button
+                onClick={() => setIsHelpOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-white transition-colors"
+                title="Help & Guide"
+              >
+                <HelpCircle className="w-4 h-4" />
+                <span className="hidden sm:inline">Help</span>
+              </button>
+              <button
                 onClick={loadData}
                 className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-white transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
-                Refresh
+                <span className="hidden sm:inline">Refresh</span>
               </button>
               <button
                 onClick={() => {
@@ -417,6 +428,12 @@ export default function GoalsDashboard() {
         onSubmit={handleCreateGoal}
         editGoal={editingGoal}
         parentGoals={goals.filter((g) => g.status !== "completed")}
+      />
+
+      {/* Help Modal */}
+      <GoalsHelpModal
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
       />
     </div>
   );
