@@ -299,6 +299,12 @@ export default function ChatbotLanding() {
               <span>Open IDE</span>
             </Link>
             <Link
+              to="/goals"
+              className="text-green-400 hover:text-green-300 text-sm font-medium transition-colors"
+            >
+              🎯 Goals
+            </Link>
+            <Link
               to="/admin/coach"
               className="text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors"
             >

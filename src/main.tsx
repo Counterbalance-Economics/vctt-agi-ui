@@ -5,6 +5,7 @@ import ChatbotLanding from "./pages/ChatbotLanding";
 import DeepAgentMode from "./pages/DeepAgent";
 import AdminSafetyDashboard from "./pages/AdminSafetyDashboard";
 import CoachDashboard from "./pages/admin/CoachDashboard";
+import GoalsDashboard from "./pages/GoalsDashboard";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -15,6 +16,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Route path="/deep" element={<DeepAgentMode />} />
         <Route path="/admin/safety" element={<AdminSafetyDashboard />} />
         <Route path="/admin/coach" element={<CoachDashboard />} />
+        <Route path="/goals" element={<GoalsDashboard />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
