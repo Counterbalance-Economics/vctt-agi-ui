@@ -19,6 +19,8 @@ import GoalCard from "../components/GoalCard";
 import GoalTreeView from "../components/GoalTreeView";
 import CreateGoalModal from "../components/CreateGoalModal";
 import GoalsHelpModal from "../components/GoalsHelpModal";
+import ExecutionControls from "../components/ExecutionControls";
+import GoalDetailsModal from "../components/GoalDetailsModal";
 
 type ViewMode = "list" | "tree" | "stats";
 
@@ -33,6 +35,7 @@ export default function GoalsDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [selectedGoalForDetails, setSelectedGoalForDetails] = useState<Goal | null>(null);
 
   // Load data on mount
   useEffect(() => {
@@ -238,6 +241,11 @@ export default function GoalsDashboard() {
           </div>
         </div>
 
+        {/* MIN Execution Controls */}
+        <div className="mb-8 bg-gray-800/30 border border-gray-700 rounded-lg p-5">
+          <ExecutionControls />
+        </div>
+
         {/* View Mode Tabs & Filters */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2 bg-gray-800/50 border border-gray-700 rounded-lg p-1">
@@ -317,6 +325,7 @@ export default function GoalsDashboard() {
                       onDelete={handleDeleteGoal}
                       onStatusChange={handleStatusChange}
                       onProgressUpdate={handleProgressUpdate}
+                      onViewDetails={setSelectedGoalForDetails}
                     />
                   ))
                 )}
@@ -435,6 +444,15 @@ export default function GoalsDashboard() {
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
       />
+
+      {/* Goal Details Modal (Activity & Subtasks) */}
+      {selectedGoalForDetails && (
+        <GoalDetailsModal
+          goal={selectedGoalForDetails}
+          isOpen={!!selectedGoalForDetails}
+          onClose={() => setSelectedGoalForDetails(null)}
+        />
+      )}
     </div>
   );
 }

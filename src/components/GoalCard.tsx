@@ -17,6 +17,7 @@ interface GoalCardProps {
   onDelete: (id: number) => void;
   onStatusChange: (id: number, status: string) => void;
   onProgressUpdate: (id: number, progress: number) => void;
+  onViewDetails?: (goal: Goal) => void;
   depth?: number;
 }
 
@@ -26,6 +27,7 @@ export default function GoalCard({
   onDelete,
   onStatusChange,
   onProgressUpdate,
+  onViewDetails,
   depth = 0,
 }: GoalCardProps) {
   const [showProgressInput, setShowProgressInput] = useState(false);
@@ -193,6 +195,15 @@ export default function GoalCard({
           <Edit className="w-4 h-4" />
           Edit
         </button>
+        {onViewDetails && (
+          <button
+            onClick={() => onViewDetails(goal)}
+            className="flex items-center gap-1 px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-600/30 rounded text-sm text-purple-400"
+          >
+            <ChevronRight className="w-4 h-4" />
+            View Activity
+          </button>
+        )}
         <button
           onClick={() => {
             if (confirm("Are you sure you want to delete this goal?")) {
