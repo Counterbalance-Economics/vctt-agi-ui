@@ -147,12 +147,12 @@ export default function GoalsDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       {/* Header */}
       <div className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-6xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => navigate(-1)}
-                className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
                 title="Go to previous page"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -160,25 +160,25 @@ export default function GoalsDashboard() {
               </button>
               <Link
                 to="/"
-                className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
                 title="Go to home page"
               >
                 <Home className="w-4 h-4" />
                 <span className="text-sm">Home</span>
               </Link>
               <div className="w-px h-6 bg-gray-700" />
-              <div className="flex items-center gap-3">
-                <Target className="w-8 h-8 text-blue-400" />
+              <div className="flex items-center gap-2">
+                <Target className="w-7 h-7 text-blue-400" />
                 <div>
-                  <h1 className="text-2xl font-bold text-white">Goals Dashboard</h1>
-                  <p className="text-sm text-gray-400">Manage and track your objectives</p>
+                  <h1 className="text-xl font-bold text-white">Goals Dashboard</h1>
+                  <p className="text-xs text-gray-400">Manage and track your objectives</p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsHelpOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-white transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-white text-sm transition-colors"
                 title="Help & Guide"
               >
                 <HelpCircle className="w-4 h-4" />
@@ -186,7 +186,7 @@ export default function GoalsDashboard() {
               </button>
               <button
                 onClick={loadData}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-white transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-white text-sm transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
                 <span className="hidden sm:inline">Refresh</span>
@@ -196,9 +196,9 @@ export default function GoalsDashboard() {
                   setEditingGoal(null);
                   setIsModalOpen(true);
                 }}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-white text-sm font-medium transition-colors"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="w-4 h-4" />
                 New Goal
               </button>
             </div>
@@ -206,43 +206,43 @@ export default function GoalsDashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-400 text-sm">Total Goals</span>
-              <Target className="w-5 h-5 text-blue-400" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3.5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-gray-400 text-xs">Total Goals</span>
+              <Target className="w-4 h-4 text-blue-400" />
             </div>
-            <div className="text-3xl font-bold text-white">{stats.total_goals}</div>
+            <div className="text-2xl font-bold text-white">{stats.total_goals}</div>
           </div>
-          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-400 text-sm">Active</span>
-              <TrendingUp className="w-5 h-5 text-green-400" />
+          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3.5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-gray-400 text-xs">Active</span>
+              <TrendingUp className="w-4 h-4 text-green-400" />
             </div>
-            <div className="text-3xl font-bold text-white">{stats.active_goals}</div>
+            <div className="text-2xl font-bold text-white">{stats.active_goals}</div>
           </div>
-          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-400 text-sm">Completed</span>
-              <BarChart3 className="w-5 h-5 text-blue-400" />
+          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3.5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-gray-400 text-xs">Completed</span>
+              <BarChart3 className="w-4 h-4 text-blue-400" />
             </div>
-            <div className="text-3xl font-bold text-white">{stats.completed_goals}</div>
+            <div className="text-2xl font-bold text-white">{stats.completed_goals}</div>
           </div>
-          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-400 text-sm">Completion Rate</span>
-              <BarChart3 className="w-5 h-5 text-purple-400" />
+          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3.5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-gray-400 text-xs">Completion Rate</span>
+              <BarChart3 className="w-4 h-4 text-purple-400" />
             </div>
-            <div className="text-3xl font-bold text-white">
+            <div className="text-2xl font-bold text-white">
               {stats.completion_rate.toFixed(0)}%
             </div>
           </div>
         </div>
 
         {/* BETA LIMITATIONS BANNER */}
-        <div className="mb-6 bg-gradient-to-r from-yellow-900/20 to-orange-900/20 border border-yellow-700/50 rounded-lg p-4">
+        <div className="mb-5 bg-gradient-to-r from-yellow-900/20 to-orange-900/20 border border-yellow-700/50 rounded-lg p-3">
           <div className="flex items-start gap-3">
             <div className="mt-0.5">
               <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
