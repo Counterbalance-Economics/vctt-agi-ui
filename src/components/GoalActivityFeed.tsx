@@ -116,7 +116,7 @@ export default function GoalActivityFeed({ goalId, autoRefresh = true }: Props) 
         {/* Timeline Line */}
         <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-800" />
 
-        {activities.map((activity, index) => (
+        {activities.map((activity) => (
           <div key={activity.id} className="relative flex gap-4">
             {/* Actor Avatar */}
             <div className="relative z-10 flex-shrink-0">
