@@ -18,28 +18,28 @@ export default function CreateGoalModal({
   editGoal,
   parentGoals = [],
 }: CreateGoalModalProps) {
-  const [goalText, setGoalText] = useState("");
-  const [goalType, setGoalType] = useState("operational");
-  const [priority, setPriority] = useState(5);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [owner, setOwner] = useState<"human" | "system" | "min">("human");
+  const [priority, setPriority] = useState(3);
   const [parentGoalId, setParentGoalId] = useState<number | undefined>();
-  const [targetDate, setTargetDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load edit goal data
   useEffect(() => {
     if (editGoal) {
-      setGoalText(editGoal.goal_text);
-      setGoalType(editGoal.goal_type);
+      setTitle(editGoal.title);
+      setDescription(editGoal.description || "");
+      setOwner(editGoal.owner);
       setPriority(editGoal.priority);
       setParentGoalId(editGoal.parent_goal_id || undefined);
-      setTargetDate(editGoal.target_date || "");
     } else {
       // Reset form
-      setGoalText("");
-      setGoalType("operational");
-      setPriority(5);
+      setTitle("");
+      setDescription("");
+      setOwner("human");
+      setPriority(3);
       setParentGoalId(undefined);
-      setTargetDate("");
     }
   }, [editGoal, isOpen]);
 
@@ -49,18 +49,19 @@ export default function CreateGoalModal({
 
     try {
       const dto: CreateGoalDto = {
-        goal_text: goalText,
-        goal_type: goalType,
+        title,
+        description: description || undefined,
+        owner,
         priority,
-        parent_goal_id: parentGoalId,
-        target_date: targetDate || undefined,
+        parentGoalId,
+        createdBy: "admin", // TODO: Get from auth context
       };
 
       await onSubmit(dto);
       onClose();
     } catch (error) {
       console.error("Error creating goal:", error);
-      alert("Failed to create goal. Please try again.");
+      alert(`Failed to create goal: ${error}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -89,59 +90,71 @@ export default function CreateGoalModal({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto max-h-[calc(90vh-140px)]">
-          {/* Goal Text */}
+          {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Goal Description *
+              Goal Title *
             </label>
-            <textarea
-              value={goalText}
-              onChange={(e) => setGoalText(e.target.value)}
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               required
-              rows={3}
-              placeholder="Describe the goal clearly and concisely..."
+              placeholder="Enter a clear, concise goal title..."
               className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
-          {/* Goal Type */}
+          {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Goal Type *
+              Description (Optional)
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              placeholder="Provide additional details about this goal..."
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Owner */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Owner *
             </label>
             <select
-              value={goalType}
-              onChange={(e) => setGoalType(e.target.value)}
+              value={owner}
+              onChange={(e) => setOwner(e.target.value as "human" | "system" | "min")}
               className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="strategic">Strategic</option>
-              <option value="operational">Operational</option>
-              <option value="learning">Learning</option>
-              <option value="maintenance">Maintenance</option>
+              <option value="human">Human</option>
+              <option value="system">System</option>
+              <option value="min">MIN (AI Agent)</option>
             </select>
             <p className="mt-1 text-xs text-gray-500">
-              Strategic: High-level objectives | Operational: Day-to-day tasks | Learning:
-              Skill development | Maintenance: System upkeep
+              Human: User-defined | System: Automated tasks | MIN: AI self-improvement goals
             </p>
           </div>
 
           {/* Priority */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Priority: <span className="text-blue-400 font-semibold">{priority}/10</span>
+              Priority: <span className="text-blue-400 font-semibold">{priority}/5</span>
             </label>
             <input
               type="range"
               min="1"
-              max="10"
+              max="5"
               value={priority}
               onChange={(e) => setPriority(Number(e.target.value))}
               className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>Low</span>
-              <span>Medium</span>
-              <span>High</span>
+              <span>1 - Low</span>
+              <span>3 - Medium</span>
+              <span>5 - Critical</span>
             </div>
           </div>
 
@@ -161,7 +174,7 @@ export default function CreateGoalModal({
                 <option value="">None (Top-level goal)</option>
                 {parentGoals.map((goal) => (
                   <option key={goal.id} value={goal.id}>
-                    {goal.goal_text}
+                    {goal.title}
                   </option>
                 ))}
               </select>
@@ -170,19 +183,6 @@ export default function CreateGoalModal({
               </p>
             </div>
           )}
-
-          {/* Target Date */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Target Date (Optional)
-            </label>
-            <input
-              type="date"
-              value={targetDate}
-              onChange={(e) => setTargetDate(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
         </form>
 
         {/* Footer */}
@@ -196,7 +196,7 @@ export default function CreateGoalModal({
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting || !goalText.trim()}
+            disabled={isSubmitting || !title.trim()}
             className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg text-white font-medium transition-colors"
           >
             {isSubmitting ? "Saving..." : editGoal ? "Update Goal" : "Create Goal"}

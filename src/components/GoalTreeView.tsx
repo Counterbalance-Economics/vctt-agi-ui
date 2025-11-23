@@ -34,9 +34,17 @@ export default function GoalTreeView({ trees, onGoalClick }: GoalTreeViewProps) 
     }
   };
 
+  const getProgress = (tree: GoalTree): number => {
+    if (tree.goal.progress_entries && tree.goal.progress_entries.length > 0) {
+      return tree.goal.progress_entries[0].progress_percent;
+    }
+    return 0;
+  };
+
   const renderTree = (tree: GoalTree, depth: number = 0) => {
     const hasChildren = tree.children && tree.children.length > 0;
     const isExpanded = expanded.has(tree.goal.id);
+    const progress = getProgress(tree);
 
     return (
       <div key={tree.goal.id} className={depth > 0 ? "ml-6 mt-2" : "mt-2"}>
@@ -68,14 +76,14 @@ export default function GoalTreeView({ trees, onGoalClick }: GoalTreeViewProps) 
           {/* Goal Info */}
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-white font-medium">{tree.goal.goal_text}</span>
+              <span className="text-white font-medium">{tree.goal.title}</span>
               <span className="text-xs text-gray-500">
-                ({tree.goal.completion_percentage}%)
+                ({progress}%)
               </span>
             </div>
             <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">
-              <span>{tree.goal.goal_type}</span>
-              <span>Priority: {tree.goal.priority}/10</span>
+              <span>{tree.goal.owner}</span>
+              <span>Priority: {tree.goal.priority}/5</span>
               {tree.children.length > 0 && (
                 <span className="text-blue-400">{tree.children.length} sub-goals</span>
               )}
@@ -86,7 +94,7 @@ export default function GoalTreeView({ trees, onGoalClick }: GoalTreeViewProps) 
           <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
             <div
               className="h-full bg-blue-500"
-              style={{ width: `${tree.goal.completion_percentage}%` }}
+              style={{ width: `${progress}%` }}
             />
           </div>
         </div>

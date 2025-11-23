@@ -30,7 +30,13 @@ export default function GoalCard({
   depth = 0,
 }: GoalCardProps) {
   const [showProgressInput, setShowProgressInput] = useState(false);
-  const [progressValue, setProgressValue] = useState(goal.completion_percentage);
+  
+  // Get latest progress from progress_entries
+  const latestProgress = goal.progress_entries && goal.progress_entries.length > 0
+    ? goal.progress_entries[0].progress_percent
+    : 0;
+  
+  const [progressValue, setProgressValue] = useState(latestProgress);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -48,17 +54,19 @@ export default function GoalCard({
   };
 
   const getPriorityColor = (priority: number) => {
-    if (priority >= 8) return "text-red-400";
-    if (priority >= 5) return "text-yellow-400";
+    if (priority >= 4) return "text-red-400";
+    if (priority >= 3) return "text-yellow-400";
     return "text-green-400";
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "strategic":
+  const getOwnerIcon = (owner: string) => {
+    switch (owner) {
+      case "human":
         return <Target className="w-4 h-4" />;
-      case "operational":
+      case "system":
         return <TrendingUp className="w-4 h-4" />;
+      case "min":
+        return <Circle className="w-4 h-4" />;
       default:
         return <Circle className="w-4 h-4" />;
     }
@@ -78,23 +86,23 @@ export default function GoalCard({
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-start gap-3 flex-1">
-          <div className="mt-1">{getTypeIcon(goal.goal_type)}</div>
+          <div className="mt-1">{getOwnerIcon(goal.owner)}</div>
           <div className="flex-1">
-            <h3 className="text-white font-medium text-lg mb-1">{goal.goal_text}</h3>
+            <h3 className="text-white font-medium text-lg mb-1">{goal.title}</h3>
+            {goal.description && (
+              <p className="text-gray-400 text-sm mb-2">{goal.description}</p>
+            )}
             <div className="flex items-center gap-3 text-sm text-gray-400">
               <span className="flex items-center gap-1">
                 <ChevronRight className="w-3 h-3" />
-                {goal.goal_type}
+                {goal.owner}
               </span>
               <span className={`flex items-center gap-1 font-semibold ${getPriorityColor(goal.priority)}`}>
-                Priority: {goal.priority}/10
+                Priority: {goal.priority}/5
               </span>
-              {goal.target_date && (
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {new Date(goal.target_date).toLocaleDateString()}
-                </span>
-              )}
+              <span className="text-xs text-gray-500">
+                Created {new Date(goal.created_at).toLocaleDateString()}
+              </span>
             </div>
           </div>
         </div>
@@ -121,11 +129,11 @@ export default function GoalCard({
         <div className="relative w-full h-2 bg-gray-700 rounded-full overflow-hidden">
           <div
             className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-300"
-            style={{ width: `${goal.completion_percentage}%` }}
+            style={{ width: `${latestProgress}%` }}
           />
         </div>
         <div className="flex items-center justify-between mt-1">
-          <span className="text-xs text-gray-500">{goal.completion_percentage}% complete</span>
+          <span className="text-xs text-gray-500">{latestProgress}% complete</span>
           {showProgressInput && (
             <div className="flex items-center gap-2">
               <input
@@ -145,6 +153,11 @@ export default function GoalCard({
             </div>
           )}
         </div>
+        {goal.progress_entries && goal.progress_entries.length > 0 && goal.progress_entries[0].milestone && (
+          <p className="text-xs text-gray-500 mt-1">
+            Latest: {goal.progress_entries[0].milestone}
+          </p>
+        )}
       </div>
 
       {/* Actions */}
@@ -194,13 +207,12 @@ export default function GoalCard({
         </button>
       </div>
 
-      {/* Metadata */}
-      {goal.metadata && Object.keys(goal.metadata).length > 0 && (
+      {/* Sub-goals indicator */}
+      {goal.child_goals && goal.child_goals.length > 0 && (
         <div className="mt-3 pt-3 border-t border-gray-700">
-          <span className="text-xs text-gray-500">Additional info:</span>
-          <div className="text-xs text-gray-400 mt-1">
-            {JSON.stringify(goal.metadata, null, 2)}
-          </div>
+          <span className="text-xs text-blue-400">
+            {goal.child_goals.length} sub-goal{goal.child_goals.length > 1 ? 's' : ''}
+          </span>
         </div>
       )}
     </div>

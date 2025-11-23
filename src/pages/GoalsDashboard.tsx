@@ -26,14 +26,13 @@ export default function GoalsDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [filterType, setFilterType] = useState<string>("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
 
   // Load data on mount
   useEffect(() => {
     loadData();
-  }, [filterStatus, filterType]);
+  }, [filterStatus]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -41,7 +40,6 @@ export default function GoalsDashboard() {
       // Load goals with filters
       const filters: any = {};
       if (filterStatus !== "all") filters.status = filterStatus;
-      if (filterType !== "all") filters.type = filterType;
 
       const [goalsData, treeData, awarenessData] = await Promise.all([
         goalsApi.getAllGoals(filters),
@@ -101,7 +99,12 @@ export default function GoalsDashboard() {
 
   const handleProgressUpdate = async (id: number, progress: number) => {
     try {
-      await goalsApi.updateGoalProgress({ goal_id: id, progress_percentage: progress });
+      await goalsApi.updateGoalProgress({
+        goal_id: id,
+        progressPercent: progress,
+        recordedBy: "admin", // TODO: Get from auth context
+        notes: `Progress updated to ${progress}%`,
+      });
       await loadData();
     } catch (error) {
       console.error("Error updating goal progress:", error);
@@ -120,7 +123,9 @@ export default function GoalsDashboard() {
     total_goals: goals.length,
     active_goals: goals.filter((g) => g.status === "active").length,
     completed_goals: goals.filter((g) => g.status === "completed").length,
-    completion_rate: 0,
+    completion_rate: goals.length > 0
+      ? (goals.filter((g) => g.status === "completed").length / goals.length) * 100
+      : 0,
   };
 
   return (
@@ -242,31 +247,19 @@ export default function GoalsDashboard() {
             </button>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-gray-400" />
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="completed">Completed</option>
-                <option value="paused">Paused</option>
-                <option value="abandoned">Abandoned</option>
-              </select>
-            </div>
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-gray-400" />
             <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
               className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
             >
-              <option value="all">All Types</option>
-              <option value="strategic">Strategic</option>
-              <option value="operational">Operational</option>
-              <option value="learning">Learning</option>
-              <option value="maintenance">Maintenance</option>
+              <option value="all">All Status</option>
+              <option value="proposed">Proposed</option>
+              <option value="active">Active</option>
+              <option value="paused">Paused</option>
+              <option value="completed">Completed</option>
+              <option value="abandoned">Abandoned</option>
             </select>
           </div>
         </div>
@@ -316,9 +309,9 @@ export default function GoalsDashboard() {
                         key={goal.id}
                         className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg"
                       >
-                        <span className="text-white text-sm">{goal.goal_text}</span>
+                        <span className="text-white text-sm">{goal.title}</span>
                         <span className="text-blue-400 text-sm font-medium">
-                          {goal.completion_percentage}%
+                          {goal.progress_percent}%
                         </span>
                       </div>
                     ))}
@@ -334,7 +327,7 @@ export default function GoalsDashboard() {
                         key={goal.id}
                         className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg"
                       >
-                        <span className="text-white text-sm">{goal.goal_text}</span>
+                        <span className="text-white text-sm">{goal.title}</span>
                         <span className="text-gray-400 text-xs">
                           {new Date(goal.created_at).toLocaleDateString()}
                         </span>

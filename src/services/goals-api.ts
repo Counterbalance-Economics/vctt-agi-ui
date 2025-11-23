@@ -3,41 +3,60 @@ import { getApiUrl } from "../config/api";
 
 const BACKEND_URL = getApiUrl();
 
+// EXACT backend schema
 export interface Goal {
   id: number;
-  goal_text: string;
-  goal_type: string;
-  priority: number;
-  status: string;
+  title: string;
+  description: string | null;
+  status: "proposed" | "active" | "paused" | "completed" | "abandoned";
+  priority: number; // 1-5
+  owner: "human" | "system" | "min";
   parent_goal_id: number | null;
+  created_by: string;
   created_at: string;
   updated_at: string;
-  target_date: string | null;
-  completion_percentage: number;
+  completed_at: string | null;
+  metadata: any;
+  child_goals?: Goal[];
+  constraints?: any[];
+  progress_entries?: ProgressEntry[];
+}
+
+export interface ProgressEntry {
+  id: number;
+  goal_id: number;
+  progress_percent: number;
+  milestone: string | null;
+  notes: string | null;
+  recorded_by: string;
+  recorded_at: string;
   metadata: any;
 }
 
 export interface CreateGoalDto {
-  goal_text: string;
-  goal_type: string;
-  priority: number;
-  parent_goal_id?: number;
-  target_date?: string;
+  title: string;
+  description?: string;
+  priority?: number; // 1-5, defaults to 3
+  owner: "human" | "system" | "min";
+  parentGoalId?: number;
+  createdBy: string;
   metadata?: any;
 }
 
 export interface UpdateGoalDto {
-  goal_text?: string;
-  goal_type?: string;
+  title?: string;
+  description?: string;
+  status?: "proposed" | "active" | "paused" | "completed" | "abandoned";
   priority?: number;
-  target_date?: string;
   metadata?: any;
 }
 
 export interface GoalProgress {
   goal_id: number;
-  progress_percentage: number;
+  progressPercent: number;
+  milestone?: string;
   notes?: string;
+  recordedBy: string;
 }
 
 export interface GoalTree {
@@ -53,7 +72,7 @@ export interface StateAwareness {
     active_goals: number;
     completed_goals: number;
     completion_rate: number;
-  };
+  } | null;
 }
 
 class GoalsApiService {
@@ -63,9 +82,6 @@ class GoalsApiService {
     this.baseUrl = BACKEND_URL;
   }
 
-  /**
-   * Create a new goal
-   */
   async createGoal(dto: CreateGoalDto): Promise<Goal> {
     if (!this.baseUrl) throw new Error("Backend URL not configured");
 
@@ -80,51 +96,44 @@ class GoalsApiService {
       throw new Error(`Failed to create goal: ${error}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return data.goal;
   }
 
-  /**
-   * Get all goals
-   */
-  async getAllGoals(filters?: { status?: string; type?: string }): Promise<Goal[]> {
+  async getAllGoals(filters?: { status?: string }): Promise<Goal[]> {
     if (!this.baseUrl) return [];
 
     try {
       const params = new URLSearchParams();
       if (filters?.status) params.append("status", filters.status);
-      if (filters?.type) params.append("type", filters.type);
 
       const url = `${this.baseUrl}/api/goals${params.toString() ? `?${params}` : ""}`;
       const response = await fetch(url);
 
       if (!response.ok) return [];
 
-      return await response.json();
+      const data = await response.json();
+      return data.goals || [];
     } catch (error) {
       console.error("Error fetching goals:", error);
       return [];
     }
   }
 
-  /**
-   * Get active goals
-   */
   async getActiveGoals(): Promise<Goal[]> {
     if (!this.baseUrl) return [];
 
     try {
       const response = await fetch(`${this.baseUrl}/api/goals/active`);
       if (!response.ok) return [];
-      return await response.json();
+      const data = await response.json();
+      return data.goals || [];
     } catch (error) {
       console.error("Error fetching active goals:", error);
       return [];
     }
   }
 
-  /**
-   * Get goal tree (hierarchical structure)
-   */
   async getGoalTree(): Promise<GoalTree[]> {
     if (!this.baseUrl) return [];
 
@@ -139,9 +148,6 @@ class GoalsApiService {
     }
   }
 
-  /**
-   * Get state awareness (system's understanding of goals)
-   */
   async getStateAwareness(): Promise<StateAwareness | null> {
     if (!this.baseUrl) return null;
 
@@ -155,25 +161,20 @@ class GoalsApiService {
     }
   }
 
-  /**
-   * Get a single goal by ID
-   */
   async getGoal(id: number): Promise<Goal | null> {
     if (!this.baseUrl) return null;
 
     try {
       const response = await fetch(`${this.baseUrl}/api/goals/${id}`);
       if (!response.ok) return null;
-      return await response.json();
+      const data = await response.json();
+      return data.goal;
     } catch (error) {
       console.error("Error fetching goal:", error);
       return null;
     }
   }
 
-  /**
-   * Update a goal
-   */
   async updateGoal(id: number, dto: UpdateGoalDto): Promise<Goal> {
     if (!this.baseUrl) throw new Error("Backend URL not configured");
 
@@ -188,12 +189,10 @@ class GoalsApiService {
       throw new Error(`Failed to update goal: ${error}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return data.goal;
   }
 
-  /**
-   * Update goal status
-   */
   async updateGoalStatus(id: number, status: string): Promise<Goal> {
     if (!this.baseUrl) throw new Error("Backend URL not configured");
 
@@ -208,12 +207,10 @@ class GoalsApiService {
       throw new Error(`Failed to update goal status: ${error}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return data.goal;
   }
 
-  /**
-   * Update goal progress
-   */
   async updateGoalProgress(data: GoalProgress): Promise<void> {
     if (!this.baseUrl) throw new Error("Backend URL not configured");
 
@@ -221,8 +218,10 @@ class GoalsApiService {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        progress_percentage: data.progress_percentage,
+        progressPercent: data.progressPercent,
+        milestone: data.milestone,
         notes: data.notes,
+        recordedBy: data.recordedBy,
       }),
     });
 
@@ -232,9 +231,6 @@ class GoalsApiService {
     }
   }
 
-  /**
-   * Delete a goal
-   */
   async deleteGoal(id: number): Promise<void> {
     if (!this.baseUrl) throw new Error("Backend URL not configured");
 
