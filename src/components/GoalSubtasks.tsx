@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { CheckCircle, Circle, Clock, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, Circle, Clock, XCircle, AlertCircle, Terminal, X } from 'lucide-react';
+import DeepAgentLauncher from './DeepAgentLauncher';
 
 const API_BASE = 'https://vctt-agi-phase3-complete.abacusai.app';
 
@@ -26,6 +27,8 @@ interface Props {
 export default function GoalSubtasks({ goalId, autoRefresh = true }: Props) {
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSubtask, setSelectedSubtask] = useState<Subtask | null>(null);
+  const [showDeepAgentModal, setShowDeepAgentModal] = useState(false);
 
   useEffect(() => {
     fetchSubtasks();
@@ -90,6 +93,18 @@ export default function GoalSubtasks({ goalId, autoRefresh = true }: Props) {
         {effort} effort
       </span>
     );
+  };
+
+  const handleOpenDeepAgent = (subtask: Subtask) => {
+    setSelectedSubtask(subtask);
+    setShowDeepAgentModal(true);
+  };
+
+  const handleCloseDeepAgent = () => {
+    setShowDeepAgentModal(false);
+    setSelectedSubtask(null);
+    // Refresh subtasks after closing modal
+    fetchSubtasks();
   };
 
   const completedCount = subtasks.filter(st => st.status === 'completed').length;
@@ -177,11 +192,24 @@ export default function GoalSubtasks({ goalId, autoRefresh = true }: Props) {
                   </div>
                 </div>
 
-                {/* Metadata */}
-                <div className="flex items-center gap-3 text-xs text-gray-500">
-                  <span>Created by {subtask.created_by}</span>
-                  {subtask.completed_at && (
-                    <span>✓ Completed</span>
+                {/* Metadata and Actions */}
+                <div className="flex items-center justify-between gap-3 mt-3">
+                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <span>Created by {subtask.created_by}</span>
+                    {subtask.completed_at && (
+                      <span>✓ Completed</span>
+                    )}
+                  </div>
+
+                  {/* DeepAgent Button - Only show for non-completed tasks */}
+                  {subtask.status !== 'completed' && (
+                    <button
+                      onClick={() => handleOpenDeepAgent(subtask)}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 rounded-lg text-xs font-medium transition-colors"
+                    >
+                      <Terminal className="w-3.5 h-3.5" />
+                      <span>Work in DeepAgent</span>
+                    </button>
                   )}
                 </div>
               </div>
@@ -189,6 +217,39 @@ export default function GoalSubtasks({ goalId, autoRefresh = true }: Props) {
           </div>
         ))}
       </div>
+
+      {/* DeepAgent Modal */}
+      {showDeepAgentModal && selectedSubtask && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-gray-900 border-b border-gray-700 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">DeepAgent Session</h2>
+              <button
+                onClick={handleCloseDeepAgent}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              <DeepAgentLauncher
+                goalId={goalId}
+                subtaskId={selectedSubtask.id}
+                taskTitle={selectedSubtask.title}
+                taskDescription={selectedSubtask.description || 'No description provided'}
+                onSessionCreated={() => {
+                  // Session created successfully
+                  console.log('DeepAgent session created for subtask:', selectedSubtask.id);
+                }}
+                onClose={handleCloseDeepAgent}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
